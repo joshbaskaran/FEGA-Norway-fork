@@ -155,11 +155,11 @@ public enum Clearinghouse {
             PublicKey pubKey = keyFactory.generatePublic(keySpec);
 
             Jws<Claims> jws = Jwts.parser().verifyWith(pubKey).build().parseSignedClaims(visaToken);
-            Claims claims = jws.getBody();
+            Claims claims = jws.getPayload();
             if (claims.containsKey(GA_4_GH_VISA_V_1)) {
                 String visaJson = new Gson().toJson(claims.get(GA_4_GH_VISA_V_1));
                 Visa visa = new Gson().fromJson(visaJson, Visa.class);
-                visa.setSub(jws.getBody().getSubject());
+                visa.setSub(jws.getPayload().getSubject());
                 return Optional.of(visa);
             }
         } catch (SignatureException e) {
@@ -237,7 +237,7 @@ public enum Clearinghouse {
             PublicKey pubKey = keyFactory.generatePublic(keySpec);
 
             Jws<Claims> jws = Jwts.parser().verifyWith(pubKey).build().parseSignedClaims(accessToken);
-            String userInfoEndpoint = jws.getBody().getIssuer() + USERINFO;
+            String userInfoEndpoint = jws.getPayload().getIssuer() + USERINFO;
             Request request = new Request.Builder()
                     .header(AUTHORIZATION, BEARER + accessToken)
                     .url(userInfoEndpoint)
