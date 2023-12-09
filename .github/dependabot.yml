@@ -1,0 +1,75 @@
+version: 2
+updates:
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Oslo"
+    commit-message:
+      prefix: "[GitHub Action]"
+
+  # Root project
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Oslo"
+    commit-message:
+      prefix: "[Root]"
+
+#  # Libraries
+#  - package-ecosystem: gradle
+#    directory: "/lib/clearinghouse"
+#    schedule:
+#      interval: "weekly"
+#      day: "monday"
+#      time: "09:00"
+#      timezone: "Europe/Oslo"
+#    commit-message:
+#      prefix: "[Clearinghouse]"
+#
+#  - package-ecosystem: gradle
+#    directory: "/lib/crypt4gh"
+#    schedule:
+#      interval: "weekly"
+#      day: "monday"
+#      time: "09:00"
+#      timezone: "Europe/Oslo"
+#    commit-message:
+#      prefix: "[Crypt4gh]"
+#
+#  - package-ecosystem: gradle
+#    directory: "/lib/tsd-file-api-client"
+#    schedule:
+#      interval: "weekly"
+#      day: "monday"
+#      time: "09:00"
+#      timezone: "Europe/Oslo"
+#    commit-message:
+#      prefix: "[TSD-File-API-Client]"
+#
+#  # Services
+#  - package-ecosystem: gradle
+#    directory: "/services/tsd-api-mock"
+#    schedule:
+#      interval: "weekly"
+#      day: "monday"
+#      time: "09:00"
+#      timezone: "Europe/Oslo"
+#    commit-message:
+#      prefix: "[TSD-API-mock]"
+#
+#  - package-ecosystem: gradle
+#    directory: "/services/localega-tsd-proxy"
+#    schedule:
+#      interval: "weekly"
+#      day: "monday"
+#      time: "09:00"
+#      timezone: "Europe/Oslo"
+#    commit-message:
+#      prefix: "[Localega-TSD-Proxy]"
