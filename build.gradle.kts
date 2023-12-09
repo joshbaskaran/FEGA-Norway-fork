@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("com.diffplug.spotless") version "6.23.3"
 }
 
 group = "no.elixir"
@@ -16,4 +17,27 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+allprojects {
+    apply(plugin = "com.diffplug.spotless")
+
+    spotless {
+        format("misc") {
+            target("**/*.gradle", ".gitattributes", ".gitignore")
+
+            // define the steps to apply to those files
+            trimTrailingWhitespace()
+            indentWithTabs() // or spaces. Takes an integer argument if you don't like 4
+            endWithNewline()
+        }
+
+        java {
+            importOrder()
+            removeUnusedImports()
+            cleanthat()
+            googleJavaFormat()
+            formatAnnotations()
+        }
+    }
 }
