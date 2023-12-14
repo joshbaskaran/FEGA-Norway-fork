@@ -1,0 +1,44 @@
+name: Build and test
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'lib/**'
+      - 'services/**'
+      - 'buildSrc/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'lib/**'
+      - 'services/**'
+      - 'buildSrc/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/cache
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build with Gradle
+        run: ./gradlew assemble
+
+      - name: Run tests
+        run: ./gradlew test
