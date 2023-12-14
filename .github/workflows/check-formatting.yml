@@ -15,7 +15,7 @@ on:
       - 'buildSrc/**'
 
 jobs:
-  build:
+  check-formatting:
     runs-on: ubuntu-latest
 
     steps:
