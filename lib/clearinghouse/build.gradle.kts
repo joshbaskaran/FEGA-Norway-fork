@@ -2,6 +2,7 @@ plugins {
     id ("java")
     id ("maven-publish")
     id("io.freefair.lombok") version "8.4"
+    id("formatting-conventions")
 }
 
 group = "no.elixir"
