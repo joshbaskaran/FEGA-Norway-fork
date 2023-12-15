@@ -18,7 +18,7 @@ gradlePlugin {
         // here we register our plugin with an ID
         register("extra-java-module-info") {
             id = "extra-java-module-info"
-            implementationClass = "org.gradle.sample.transform.javamodules.ExtraModuleInfoPlugin"
+            implementationClass = "org.gradle.transform.javamodules.ExtraModuleInfoPlugin"
         }
     }
 }

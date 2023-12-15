@@ -1,4 +1,4 @@
-package org.gradle.sample.transform.javamodules;
+package org.gradle.transform.javamodules;
 
 
 import org.gradle.api.Action;
