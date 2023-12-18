@@ -22,27 +22,38 @@ updates:
     commit-message:
       prefix: "[Root]"
 
-#  # Libraries
-#  - package-ecosystem: gradle
-#    directory: "/lib/clearinghouse"
-#    schedule:
-#      interval: "weekly"
-#      day: "monday"
-#      time: "09:00"
-#      timezone: "Europe/Oslo"
-#    commit-message:
-#      prefix: "[Clearinghouse]"
-#
-#  - package-ecosystem: gradle
-#    directory: "/lib/crypt4gh"
-#    schedule:
-#      interval: "weekly"
-#      day: "monday"
-#      time: "09:00"
-#      timezone: "Europe/Oslo"
-#    commit-message:
-#      prefix: "[Crypt4gh]"
-#
+  # buildSrc
+  - package-ecosystem: gradle
+    directory: "/buildSrc"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Oslo"
+    commit-message:
+      prefix: "[Conventions]"
+
+  # Libraries
+  - package-ecosystem: gradle
+    directory: "/lib/clearinghouse"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Oslo"
+    commit-message:
+      prefix: "[Clearinghouse]"
+
+  - package-ecosystem: gradle
+    directory: "/lib/crypt4gh"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Oslo"
+    commit-message:
+      prefix: "[Crypt4gh]"
+
 #  - package-ecosystem: gradle
 #    directory: "/lib/tsd-file-api-client"
 #    schedule:
