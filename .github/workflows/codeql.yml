@@ -62,8 +62,8 @@ jobs:
 
     # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
     # If this step fails, then you should remove it and run the build manually (see below)
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
+    # - name: Autobuild
+    #   uses: github/codeql-action/autobuild@v3
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
@@ -74,6 +74,25 @@ jobs:
     # - run: |
     #     echo "Run, Build Application using script"
     #     ./location_of_script_within_repo/buildscript.sh
+
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Cache gradle packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/cache
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Build with Gradle
+      run: ./gradlew assemble
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
