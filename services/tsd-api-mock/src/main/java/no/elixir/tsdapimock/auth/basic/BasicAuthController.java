@@ -39,7 +39,7 @@ public class BasicAuthController {
       @PathVariable String project, @Valid @RequestBody SignupConfirmRequestDto request) {
     try {
       var response = basicAuthService.signupConfirm(project, request);
-      return ResponseEntity.ok(response.confirmationToken());
+      return ResponseEntity.ok(response);
     } catch (NoSuchElementException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
