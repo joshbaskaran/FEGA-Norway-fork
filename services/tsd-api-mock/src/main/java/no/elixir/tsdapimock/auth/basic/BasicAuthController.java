@@ -2,6 +2,7 @@ package no.elixir.tsdapimock.auth.basic;
 
 import jakarta.validation.Valid;
 import java.util.NoSuchElementException;
+import no.elixir.tsdapimock.auth.basic.dto.ApiKeyRequestDto;
 import no.elixir.tsdapimock.auth.basic.dto.ConfirmRequestDto;
 import no.elixir.tsdapimock.auth.basic.dto.SignupConfirmRequestDto;
 import no.elixir.tsdapimock.auth.basic.dto.SignupRequestDto;
@@ -62,4 +63,19 @@ public class BasicAuthController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
   }
+
+  @PostMapping(
+      value = "/api_key",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<?> getApiKey(
+      @PathVariable String project, @Valid @RequestBody ApiKeyRequestDto request) {
+        try {
+    var apiKey = basicAuthService.getApiKey(project, request);
+    return ResponseEntity.ok(apiKey);
+  } catch (NoSuchElementException e) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+  }
+  }
+
 }
