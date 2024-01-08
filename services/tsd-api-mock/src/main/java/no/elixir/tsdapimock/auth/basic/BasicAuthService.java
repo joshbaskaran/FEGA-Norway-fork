@@ -2,12 +2,11 @@ package no.elixir.tsdapimock.auth.basic;
 
 import static javax.management.timer.Timer.ONE_HOUR;
 
-import no.elixir.tsdapimock.auth.basic.dto.SignupConfirmRequestDto;
-import no.elixir.tsdapimock.auth.basic.dto.SignupConfirmResponseDto;
-import no.elixir.tsdapimock.auth.basic.dto.SignupRequestDto;
-import no.elixir.tsdapimock.auth.basic.dto.SignupResponseDto;
+import java.security.SecureRandom;
+import no.elixir.tsdapimock.auth.basic.dto.*;
 import no.elixir.tsdapimock.exceptions.CredentialsMismatchException;
 import no.elixir.tsdapimock.utils.JwtService;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,5 +50,29 @@ public class BasicAuthService {
     }
 
     return new SignupConfirmResponseDto(client.getConfirmationToken());
+  }
+
+  public ConfirmResponseDto confirm(String project, ConfirmRequestDto request) {
+    var client = clientRepository.findById(request.clientId()).orElseThrow();
+    if (!client.getConfirmationToken().equals(request.confirmationToken())) {
+      throw new CredentialsMismatchException("Invalid confirmation token");
+    }
+    char[] possibleCharacters =
+        ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~`!@#$%^&*()-_=+[{]}|;:,<.>/?")
+            .toCharArray();
+    int passwordLength = 12;
+    String password =
+        RandomStringUtils.random(
+            passwordLength,
+            0,
+            possibleCharacters.length - 1,
+            false,
+            false,
+            possibleCharacters,
+            new SecureRandom());
+
+    client.setPassword(password);
+    clientRepository.save(client);
+    return new ConfirmResponseDto(password);
   }
 }
