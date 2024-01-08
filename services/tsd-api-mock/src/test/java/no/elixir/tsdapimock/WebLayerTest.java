@@ -57,7 +57,7 @@ class WebLayerTest {
     }
 
     @Nested
-    class SignupConfirmation {
+    class BasicAuthSignupConfirmation {
       @Test
       public void testSignupConfirmation() throws Exception {
         var requestBody =
@@ -88,7 +88,7 @@ class WebLayerTest {
       }
 
       @Nested
-      class Confirmation {
+      class BasicAuthConfirmation {
         @Test
         public void testConfirmation() throws Exception {
           var requestBody =
@@ -114,6 +114,34 @@ class WebLayerTest {
           assertThat(password).isNotBlank();
 
           client.setPassword(password);
+        }
+
+        @Nested
+        class BasicAuthApiKey {
+          @Test
+          public void testApiKey() throws Exception {
+            var requestBody =
+                new ObjectMapper()
+                    .createObjectNode()
+                    .put("client_id", client.getId())
+                    .put("password", client.getPassword())
+                    .toString();
+
+            var requestHeaders = new HttpHeaders();
+            requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+            var requestEntity = new HttpEntity<>(requestBody, requestHeaders);
+
+            ResponseEntity<String> response =
+                restTemplate.postForEntity(basicAuthUrl + "/api_key", requestEntity, String.class);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isNotNull();
+
+            var responseJson = new ObjectMapper().readTree(response.getBody());
+            var apiKey = responseJson.get("api_key").asText();
+            assertThat(apiKey).isNotBlank();
+          }
         }
       }
     }

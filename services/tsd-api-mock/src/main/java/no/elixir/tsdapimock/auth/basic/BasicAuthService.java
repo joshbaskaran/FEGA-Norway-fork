@@ -1,6 +1,7 @@
 package no.elixir.tsdapimock.auth.basic;
 
 import static javax.management.timer.Timer.ONE_HOUR;
+import static javax.management.timer.Timer.ONE_WEEK;
 
 import java.security.SecureRandom;
 import no.elixir.tsdapimock.auth.basic.dto.*;
@@ -74,5 +75,16 @@ public class BasicAuthService {
     client.setPassword(password);
     clientRepository.save(client);
     return new ConfirmResponseDto(password);
+  }
+
+  public ApiKeyResponseDto getApiKey(String project, ApiKeyRequestDto request) {
+    var client =
+        clientRepository
+            .findClientByIdAndPassword(request.clientId(), request.password())
+            .orElseThrow();
+
+    return new ApiKeyResponseDto(
+        jwtService.createJwt(
+            project, client.getUserName(), "TSD", client.getUserName(), ONE_WEEK * 52));
   }
 }
