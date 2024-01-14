@@ -41,4 +41,8 @@ public class JwtService {
 
     return tokenBuilder.compact();
   }
+
+  public boolean verify(String authorizationHeader) {
+    return true;
+  }
 }
