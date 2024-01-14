@@ -70,12 +70,11 @@ public class BasicAuthController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<?> getApiKey(
       @PathVariable String project, @Valid @RequestBody ApiKeyRequestDto request) {
-        try {
-    var apiKey = basicAuthService.getApiKey(project, request);
-    return ResponseEntity.ok(apiKey);
-  } catch (NoSuchElementException e) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    try {
+      var apiKey = basicAuthService.getApiKey(project, request);
+      return ResponseEntity.ok(apiKey);
+    } catch (NoSuchElementException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
   }
-  }
-
 }
