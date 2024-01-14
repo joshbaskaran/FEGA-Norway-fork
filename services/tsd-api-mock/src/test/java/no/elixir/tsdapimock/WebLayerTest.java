@@ -147,4 +147,37 @@ class WebLayerTest {
       }
     }
   }
+
+  @Nested
+  class TsdAuth {
+    private final String tsdAuthUrl = "/v1/p-test/auth/tsd";
+
+    @Test
+    public void testGetTsdToken() throws Exception {
+      var requestBody =
+          new ObjectMapper()
+              .createObjectNode()
+              .put("user_name", "test")
+              .put("otp", "1234")
+              .put("password", "password")
+              .toString();
+
+      var requestHeaders = new HttpHeaders();
+      requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+      requestHeaders.setBearerAuth("abc123");
+
+      var requestEntity = new HttpEntity<>(requestBody, requestHeaders);
+
+      ResponseEntity<String> response =
+          restTemplate.postForEntity(tsdAuthUrl + "/token", requestEntity, String.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).isNotNull();
+
+      var responseJson = new ObjectMapper().readTree(response.getBody());
+      var token = responseJson.get("token");
+      assertThat(token).isNotNull();
+      assertThat(token.textValue()).isNotBlank();
+    }
+  }
 }
