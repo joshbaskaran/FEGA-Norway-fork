@@ -16,7 +16,6 @@ import org.springframework.http.*;
 class WebLayerTest {
 
   private static Client client;
-  private final String basicAuthUrl = "/v1/p-test/auth/basic";
 
   @Autowired private TestRestTemplate restTemplate;
 
@@ -27,6 +26,8 @@ class WebLayerTest {
 
   @Nested
   class BasicAuth {
+    private final String basicAuthUrl = "/v1/p-test/auth/basic";
+
     @Test
     public void testSignup() throws Exception {
       var requestBody =
