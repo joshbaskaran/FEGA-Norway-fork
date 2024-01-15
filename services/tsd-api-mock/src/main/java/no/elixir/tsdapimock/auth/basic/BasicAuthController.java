@@ -31,7 +31,7 @@ public class BasicAuthController {
   public ResponseEntity<?> signup(
       @PathVariable String project, @Valid @RequestBody SignupRequestDto request) {
     var response = basicAuthService.signup(project, request);
-    return ResponseEntity.ok(response);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   @PostMapping(

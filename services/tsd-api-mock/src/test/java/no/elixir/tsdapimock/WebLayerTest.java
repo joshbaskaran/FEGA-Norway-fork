@@ -45,7 +45,7 @@ class WebLayerTest {
       ResponseEntity<String> response =
           restTemplate.postForEntity(basicAuthUrl + "/signup", requestEntity, String.class);
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
       assertThat(response.getBody()).isNotNull();
 
       var responseJson = new ObjectMapper().readTree(response.getBody());
