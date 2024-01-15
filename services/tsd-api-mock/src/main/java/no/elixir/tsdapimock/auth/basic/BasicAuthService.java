@@ -87,4 +87,13 @@ public class BasicAuthService {
         jwtService.createJwt(
             project, client.getUserName(), "TSD", client.getUserName(), ONE_WEEK * 52));
   }
+
+  public BasicTokenResponseDto getToken(
+      String project, String authorizationHeader, BasicTokenRequestDto request) {
+    if (!authorizationHeader.startsWith("Bearer ")) {
+      throw new CredentialsMismatchException("Authorization header my be a bearer token");
+    }
+    var token = jwtService.createJwt(project, "user", "TSD", "user", ONE_HOUR);
+    return new BasicTokenResponseDto(token);
+  }
 }

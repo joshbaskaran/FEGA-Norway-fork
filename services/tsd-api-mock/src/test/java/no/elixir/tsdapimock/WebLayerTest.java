@@ -88,6 +88,27 @@ class WebLayerTest {
         client.setConfirmationToken(confirmationToken);
       }
 
+      @Test
+      public void testGetBasicToken() throws Exception {
+        var requestBody = new ObjectMapper().createObjectNode().put("type", "string").toString();
+
+        var requestHeaders = new HttpHeaders();
+        requestHeaders.setBearerAuth("123abc");
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        var requestEntity = new HttpEntity<>(requestBody, requestHeaders);
+
+        ResponseEntity<String> response =
+            restTemplate.postForEntity(basicAuthUrl + "/token", requestEntity, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+
+        var responseJson = new ObjectMapper().readTree(response.getBody());
+        var token = responseJson.get("token").asText();
+        assertThat(token).isNotBlank();
+      }
+
       @Nested
       class BasicAuthConfirmation {
         @Test
