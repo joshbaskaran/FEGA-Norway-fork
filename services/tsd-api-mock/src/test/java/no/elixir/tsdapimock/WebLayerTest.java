@@ -201,4 +201,38 @@ class WebLayerTest {
       assertThat(token.textValue()).isNotBlank();
     }
   }
+
+  @Nested
+  class ElixirAuth {
+
+    private final String elixirAuthUrl = "/v1/p-test/auth/elixir";
+
+    @Test
+    public void testElixirToken() throws Exception {
+      var requestBody =
+          new ObjectMapper()
+              .createObjectNode()
+              .put(
+                  "idtoken",
+                  "eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJ0ZXN0IiwiaXNzIjoiVFNEIiwic3ViIjoidGVzdCIsInVzZXIiOiJwLXRlc3QtdGVzdCIsImV4cCI6MTcwNTI4OTE1MX0.VYYF-KY7-Lc8GStO7kRc18ZukCTX6zSv-DzA3OFi9rDYEntE_1xg9UeKr0SoXcRxAh9iG61u8k4TkIZrUvahIg")
+              .toString();
+
+      var requestHeaders = new HttpHeaders();
+      requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+      requestHeaders.setBearerAuth("abc123");
+
+      var requestEntity = new HttpEntity<>(requestBody, requestHeaders);
+
+      ResponseEntity<String> response =
+          restTemplate.postForEntity(elixirAuthUrl + "/token", requestEntity, String.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).isNotNull();
+
+      var responseJson = new ObjectMapper().readTree(response.getBody());
+      var token = responseJson.get("token");
+      assertThat(token).isNotNull();
+      assertThat(token.textValue()).isNotBlank();
+    }
+  }
 }
