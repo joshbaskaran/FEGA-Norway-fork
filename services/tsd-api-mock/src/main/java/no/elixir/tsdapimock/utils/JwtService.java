@@ -1,8 +1,8 @@
 package no.elixir.tsdapimock.utils;
 
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,7 @@ public class JwtService {
 
   public String createJwt(
       String project, String id, String issuer, String subject, long ttlMillis) {
-    Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    Key key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(SECRET_KEY));
 
     var tokenBuilder =
         Jwts.builder()
@@ -44,5 +44,19 @@ public class JwtService {
 
   public boolean verify(String authorizationHeader) {
     return true;
+  }
+
+  public String getSubject(String token) {
+    var secretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(SECRET_KEY));
+    try {
+      return Jwts.parser()
+          .verifyWith(secretKey)
+          .build()
+          .parseSignedClaims(token)
+          .getPayload()
+          .getSubject();
+    } catch (JwtException e) {
+      throw new JwtException(e.getMessage());
+    }
   }
 }
