@@ -27,7 +27,7 @@ public class TsdAuthService {
     if (!jwtService.verify(authorizationHeader)) {
       throw new CredentialsMismatchException("Invalid BEARER Token");
     }
-    String token =
+    var token =
         jwtService.createJwt(project, request.userName(), "TSD", request.userName(), ONE_HOUR);
     return new TsdTokenResponseDto(token);
   }
