@@ -1,9 +1,11 @@
 package no.elixir.tsdapimock;
 
+import static javax.management.timer.Timer.ONE_HOUR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.elixir.tsdapimock.auth.basic.Client;
+import no.elixir.tsdapimock.utils.JwtService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -206,16 +208,18 @@ class WebLayerTest {
   class ElixirAuth {
 
     private final String elixirAuthUrl = "/v1/p-test/auth/elixir";
+    private final JwtService jwtService;
+
+    @Autowired
+    ElixirAuth(JwtService jwtService) {
+      this.jwtService = jwtService;
+    }
 
     @Test
     public void testElixirToken() throws Exception {
-      var requestBody =
-          new ObjectMapper()
-              .createObjectNode()
-              .put(
-                  "idtoken",
-                  "eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJ0ZXN0IiwiaXNzIjoiVFNEIiwic3ViIjoidGVzdCIsInVzZXIiOiJwLXRlc3QtdGVzdCIsImV4cCI6MTcwNTI4OTE1MX0.VYYF-KY7-Lc8GStO7kRc18ZukCTX6zSv-DzA3OFi9rDYEntE_1xg9UeKr0SoXcRxAh9iG61u8k4TkIZrUvahIg")
-              .toString();
+      var jwtToken =
+          jwtService.createJwt("p-test", client.getEmail(), "TSD", client.getEmail(), ONE_HOUR);
+      var requestBody = new ObjectMapper().createObjectNode().put("idtoken", jwtToken).toString();
 
       var requestHeaders = new HttpHeaders();
       requestHeaders.setContentType(MediaType.APPLICATION_JSON);
