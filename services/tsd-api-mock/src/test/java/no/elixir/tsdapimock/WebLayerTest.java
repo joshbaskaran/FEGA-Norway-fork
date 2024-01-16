@@ -4,6 +4,8 @@ import static javax.management.timer.Timer.ONE_HOUR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import no.elixir.tsdapimock.auth.basic.Client;
 import no.elixir.tsdapimock.utils.JwtService;
 import org.junit.jupiter.api.BeforeAll;
@@ -260,6 +262,35 @@ class WebLayerTest {
 
       ResponseEntity<String> response =
           restTemplate.exchange(filesUrl + "/stream", HttpMethod.PUT, requestEntity, String.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+      assertThat(response.getBody()).isNotBlank();
+
+      var responseJson = new ObjectMapper().readTree(response.getBody());
+      var message = responseJson.get("message");
+      assertThat(message.textValue()).isNotBlank();
+    }
+
+    @Test
+    public void testFilesCreateFolder() throws Exception {
+      var authHeader = "Bearer validToken";
+      var folderName = "testFolder";
+
+      var requestHeaders = new HttpHeaders();
+      requestHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+      requestHeaders.set("Authorization", authHeader);
+
+      var requestEntity = new HttpEntity<>(null, requestHeaders);
+
+      ResponseEntity<String> response =
+          restTemplate.exchange(
+              filesUrl
+                  + "/folder"
+                  + "?name="
+                  + URLEncoder.encode(folderName, StandardCharsets.UTF_8),
+              HttpMethod.PUT,
+              requestEntity,
+              String.class);
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
       assertThat(response.getBody()).isNotBlank();
