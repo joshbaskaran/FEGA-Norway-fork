@@ -1,7 +1,9 @@
 package no.elixir.tsdapimock.files;
 
+import jakarta.validation.constraints.NotBlank;
 import java.io.InputStream;
 import no.elixir.tsdapimock.exceptions.CredentialsMismatchException;
+import no.elixir.tsdapimock.exceptions.FailedResourceCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,6 +36,24 @@ public class FilesController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+  }
+
+  @PutMapping(
+      value = "/folder",
+      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<?> createFolder(
+      @PathVariable String project,
+      @RequestHeader("Authorization") String authorizationHeader,
+      @RequestParam("name") @NotBlank String folderName) {
+    try {
+      var response = filesService.createFolder(project, authorizationHeader, folderName);
+      return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    } catch (CredentialsMismatchException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    } catch (FailedResourceCreationException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
   }
 }

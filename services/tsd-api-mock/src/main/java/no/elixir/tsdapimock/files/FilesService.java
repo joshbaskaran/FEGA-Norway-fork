@@ -7,7 +7,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import lombok.extern.slf4j.Slf4j;
 import no.elixir.tsdapimock.exceptions.CredentialsMismatchException;
+import no.elixir.tsdapimock.exceptions.FailedResourceCreationException;
 import no.elixir.tsdapimock.files.dto.FileUploadMessageDto;
+import no.elixir.tsdapimock.files.dto.FolderMessageDto;
 import no.elixir.tsdapimock.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,5 +45,20 @@ public class FilesService {
       log.error(e.getMessage());
     }
     return new FileUploadMessageDto("Data Streamed");
+  }
+
+  public FolderMessageDto createFolder(
+      String project, String authorizationHeader, String folderName) {
+    if (!jwtService.verify(authorizationHeader)) {
+      throw new CredentialsMismatchException("Invalid bearer authorization token");
+    }
+    var path = Paths.get(String.format(durableFileImport, project), folderName);
+    try {
+      Files.createDirectories(path);
+      log.info("created: " + path);
+    } catch (IOException e) {
+      throw new FailedResourceCreationException(e.getClass().getTypeName() + e.getMessage());
+    }
+    return new FolderMessageDto("folder created");
   }
 }
