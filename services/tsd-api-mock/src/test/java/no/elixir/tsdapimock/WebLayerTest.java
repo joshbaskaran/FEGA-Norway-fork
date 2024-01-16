@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import no.elixir.tsdapimock.auth.basic.Client;
+import no.elixir.tsdapimock.files.dto.ResumableUploadsResponseDto;
 import no.elixir.tsdapimock.utils.JwtService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -298,6 +299,27 @@ class WebLayerTest {
       var responseJson = new ObjectMapper().readTree(response.getBody());
       var message = responseJson.get("message");
       assertThat(message.textValue()).isNotBlank();
+    }
+
+    // TODO: Fix this
+    @Test
+    public void testGetResumableUploadsIntegration() throws Exception {
+      String authHeader = "Bearer validToken";
+      String project = "testProject";
+
+      HttpHeaders requestHeaders = new HttpHeaders();
+      requestHeaders.set("Authorization", authHeader);
+
+      HttpEntity<?> requestEntity = new HttpEntity<>(requestHeaders);
+
+      ResponseEntity<ResumableUploadsResponseDto> response =
+          restTemplate.exchange(
+              "/resumables/" + project,
+              HttpMethod.GET,
+              requestEntity,
+              ResumableUploadsResponseDto.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
   }
 }

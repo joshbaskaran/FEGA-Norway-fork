@@ -56,4 +56,17 @@ public class FilesController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
   }
+
+  @GetMapping(value = "/resumables", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<?> getResumableUploads(
+      @PathVariable String project, @RequestHeader("Authorization") String authorizationHeader) {
+    try {
+      var response = filesService.getResumableUploads(project, authorizationHeader);
+      return ResponseEntity.ok(response);
+    } catch (CredentialsMismatchException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+  }
 }

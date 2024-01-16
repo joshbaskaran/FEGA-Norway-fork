@@ -5,11 +5,16 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import no.elixir.tsdapimock.exceptions.CredentialsMismatchException;
 import no.elixir.tsdapimock.exceptions.FailedResourceCreationException;
 import no.elixir.tsdapimock.files.dto.FileUploadMessageDto;
 import no.elixir.tsdapimock.files.dto.FolderMessageDto;
+import no.elixir.tsdapimock.files.dto.ResumableUploadDto;
+import no.elixir.tsdapimock.files.dto.ResumableUploadsResponseDto;
 import no.elixir.tsdapimock.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,12 +24,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class FilesService {
   private final JwtService jwtService;
+  private final ResumablesRepository resumablesRepository;
 
   @Value("${tsd.file.import}")
   public String durableFileImport;
 
   @Autowired
-  public FilesService(JwtService jwtService) {
+  public FilesService(ResumablesRepository resumablesRepository, JwtService jwtService) {
+    this.resumablesRepository = resumablesRepository;
     this.jwtService = jwtService;
   }
 
@@ -60,5 +67,35 @@ public class FilesService {
       throw new FailedResourceCreationException(e.getClass().getTypeName() + e.getMessage());
     }
     return new FolderMessageDto("folder created");
+  }
+
+  public ResumableUploadsResponseDto getResumableUploads(
+      String project, String authorizationHeader) {
+    if (!jwtService.verify(authorizationHeader)) {
+      throw new CredentialsMismatchException("Invalid Authorization Header");
+    }
+    var resumableChunks = readResumableChunks();
+    ArrayList<ResumableUploadDto> dtoList =
+        resumableChunks.stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toCollection(ArrayList::new));
+
+    return new ResumableUploadsResponseDto(dtoList);
+  }
+
+  private ResumableUploadDto convertToDto(ResumableUpload entity) {
+    return new ResumableUploadDto(
+        entity.getId(),
+        entity.getFileName(),
+        entity.getMemberGroup(),
+        entity.getChunkSize(),
+        entity.getPreviousOffset(),
+        entity.getNextOffset(),
+        entity.getMaxChunk(),
+        entity.getMd5Sum());
+  }
+
+  private ArrayList<ResumableUpload> readResumableChunks() {
+    return new ArrayList<>((Collection<? extends ResumableUpload>) resumablesRepository.findAll());
   }
 }
