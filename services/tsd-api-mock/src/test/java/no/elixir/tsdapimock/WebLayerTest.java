@@ -239,4 +239,34 @@ class WebLayerTest {
       assertThat(token.textValue()).isNotBlank();
     }
   }
+
+  @Nested
+  class FileHandling {
+    private final String filesUrl = "/v1/p-test/files";
+
+    @Test
+    public void testFilesUpload() throws Exception {
+      byte[] fileContent = "test content".getBytes();
+
+      var authHeader = "Bearer validToken";
+      var fileName = "testFile.txt";
+
+      var requestHeaders = new HttpHeaders();
+      requestHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+      requestHeaders.set("Authorization", authHeader);
+      requestHeaders.set("filename", fileName);
+
+      var requestEntity = new HttpEntity<>(fileContent, requestHeaders);
+
+      ResponseEntity<String> response =
+          restTemplate.exchange(filesUrl + "/stream", HttpMethod.PUT, requestEntity, String.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+      assertThat(response.getBody()).isNotBlank();
+
+      var responseJson = new ObjectMapper().readTree(response.getBody());
+      var message = responseJson.get("message");
+      assertThat(message.textValue()).isNotBlank();
+    }
+  }
 }
