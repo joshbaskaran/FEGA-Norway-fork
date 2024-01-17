@@ -69,4 +69,28 @@ public class FilesController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
+
+  @PatchMapping(
+      value = "/stream/{filename}",
+      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<?> handleResumableUpload(
+      @PathVariable String project,
+      @PathVariable String filename,
+      @RequestHeader("Authorization") String authorizationHeader,
+      @RequestParam("filename") String fileName,
+      @RequestParam("chunk") String chunk,
+      @RequestParam("id") String id,
+      @RequestBody byte[] content
+  ) {
+    try {
+      var response = filesService.handleResumableUpload(project, filename, authorizationHeader, fileName, chunk, id, content);
+      return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (CredentialsMismatchException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
+  }
+
 }
