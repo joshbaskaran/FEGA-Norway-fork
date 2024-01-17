@@ -1,4 +1,4 @@
-package no.elixir.tsdapimock.files.dto;
+package no.elixir.tsdapimock.resumables;
 
 import java.util.ArrayList;
 import lombok.Data;

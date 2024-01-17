@@ -1,4 +1,4 @@
-package no.elixir.tsdapimock.files;
+package no.elixir.tsdapimock.resumables;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

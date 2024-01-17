@@ -1,4 +1,4 @@
-package no.elixir.tsdapimock.files.dto;
+package no.elixir.tsdapimock.resumables;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigInteger;

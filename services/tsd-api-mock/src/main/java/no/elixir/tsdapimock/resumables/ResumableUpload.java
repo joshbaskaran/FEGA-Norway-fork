@@ -1,4 +1,4 @@
-package no.elixir.tsdapimock.files;
+package no.elixir.tsdapimock.resumables;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -13,8 +13,7 @@ import no.elixir.tsdapimock.exceptions.CredentialsMismatchException;
 import no.elixir.tsdapimock.exceptions.FailedResourceCreationException;
 import no.elixir.tsdapimock.files.dto.FileUploadMessageDto;
 import no.elixir.tsdapimock.files.dto.FolderMessageDto;
-import no.elixir.tsdapimock.files.dto.ResumableUploadDto;
-import no.elixir.tsdapimock.files.dto.ResumableUploadsResponseDto;
+import no.elixir.tsdapimock.resumables.*;
 import no.elixir.tsdapimock.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,12 +24,14 @@ import org.springframework.stereotype.Service;
 public class FilesService {
   private final JwtService jwtService;
   private final ResumablesRepository resumablesRepository;
+  private final Resumables resumables;
 
   @Value("${tsd.file.import}")
   public String durableFileImport;
 
   @Autowired
-  public FilesService(ResumablesRepository resumablesRepository, JwtService jwtService) {
+  public FilesService(Resumables resumables, ResumablesRepository resumablesRepository, JwtService jwtService) {
+    this.resumables = resumables;
     this.resumablesRepository = resumablesRepository;
     this.jwtService = jwtService;
   }
@@ -74,28 +75,12 @@ public class FilesService {
     if (!jwtService.verify(authorizationHeader)) {
       throw new CredentialsMismatchException("Invalid Authorization Header");
     }
-    var resumableChunks = readResumableChunks();
+    var resumableChunks = resumables.readResumableChunks();
     ArrayList<ResumableUploadDto> dtoList =
         resumableChunks.stream()
-            .map(this::convertToDto)
+            .map(Resumables::convertToDto)
             .collect(Collectors.toCollection(ArrayList::new));
 
     return new ResumableUploadsResponseDto(dtoList);
-  }
-
-  private ResumableUploadDto convertToDto(ResumableUpload entity) {
-    return new ResumableUploadDto(
-        entity.getId(),
-        entity.getFileName(),
-        entity.getMemberGroup(),
-        entity.getChunkSize(),
-        entity.getPreviousOffset(),
-        entity.getNextOffset(),
-        entity.getMaxChunk(),
-        entity.getMd5Sum());
-  }
-
-  private ArrayList<ResumableUpload> readResumableChunks() {
-    return new ArrayList<>((Collection<? extends ResumableUpload>) resumablesRepository.findAll());
   }
 }
