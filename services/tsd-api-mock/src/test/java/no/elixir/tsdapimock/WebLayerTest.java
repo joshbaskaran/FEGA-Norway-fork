@@ -322,4 +322,31 @@ class WebLayerTest {
       assertThat(resumables.isArray()).isTrue();
     }
   }
+
+  @Nested
+  class Ega {
+
+    private final String egaUrl = "/v1/p-test/ega/testUser";
+    @Test
+    public void testGetResumableUploads() throws Exception {
+      var authHeader = "Bearer validToken";
+
+      var requestHeaders = new HttpHeaders();
+      requestHeaders.set("Authorization", authHeader);
+
+      var requestEntity = new HttpEntity<>(requestHeaders);
+
+      ResponseEntity<String> response =
+          restTemplate.exchange(
+              egaUrl + "/resumables", HttpMethod.GET, requestEntity, String.class);
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).isNotBlank();
+
+      var responseJson = new ObjectMapper().readTree(response.getBody());
+      var resumables = responseJson.get("resumables");
+      assertThat(resumables).isNotNull();
+      assertThat(resumables.isArray()).isTrue();
+    }
+  }
 }
