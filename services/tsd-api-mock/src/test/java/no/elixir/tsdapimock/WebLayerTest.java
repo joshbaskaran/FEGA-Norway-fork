@@ -327,6 +327,7 @@ class WebLayerTest {
   class Ega {
 
     private final String egaUrl = "/v1/p-test/ega/testUser";
+
     @Test
     public void testGetResumableUploads() throws Exception {
       var authHeader = "Bearer validToken";
@@ -349,6 +350,4 @@ class WebLayerTest {
       assertThat(resumables.isArray()).isTrue();
     }
   }
-
-
 }
