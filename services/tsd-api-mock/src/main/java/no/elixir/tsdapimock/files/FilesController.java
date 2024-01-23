@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.io.InputStream;
 import no.elixir.tsdapimock.exceptions.CredentialsMismatchException;
 import no.elixir.tsdapimock.exceptions.FailedResourceCreationException;
+import no.elixir.tsdapimock.exceptions.FileProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -78,19 +79,21 @@ public class FilesController {
       @PathVariable String project,
       @PathVariable String filename,
       @RequestHeader("Authorization") String authorizationHeader,
-      @RequestParam("filename") String fileName,
+      @RequestParam(value = "filename", required = false) String fileName,
       @RequestParam("chunk") String chunk,
-      @RequestParam("id") String id,
-      @RequestBody byte[] content
-  ) {
+      @RequestParam(value = "id", required = false) String id,
+      @RequestBody byte[] content) {
     try {
-      var response = filesService.handleResumableUpload(project, filename, authorizationHeader, fileName, chunk, id, content);
+      var response =
+          filesService.handleResumableUpload(
+              project, filename, authorizationHeader, fileName, chunk, id, content);
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     } catch (CredentialsMismatchException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    } catch (FileProcessingException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
   }
-
 }

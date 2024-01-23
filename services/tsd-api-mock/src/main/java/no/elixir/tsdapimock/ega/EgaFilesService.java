@@ -1,5 +1,7 @@
 package no.elixir.tsdapimock.ega;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 import no.elixir.tsdapimock.exceptions.CredentialsMismatchException;
 import no.elixir.tsdapimock.resumables.ResumableUploadDto;
 import no.elixir.tsdapimock.resumables.ResumableUploadsResponseDto;
@@ -7,9 +9,6 @@ import no.elixir.tsdapimock.resumables.Resumables;
 import no.elixir.tsdapimock.utils.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Service
 public class EgaFilesService {

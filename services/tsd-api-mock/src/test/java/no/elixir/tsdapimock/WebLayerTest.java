@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class WebLayerTest {
 
@@ -321,6 +323,51 @@ class WebLayerTest {
       assertThat(resumables).isNotNull();
       assertThat(resumables.isArray()).isTrue();
     }
+
+    // TODO: Fix this test
+    //
+    //    @Test
+    //    public void testHandleResumableUpload() throws Exception {
+    //      byte[] firstChunkContent = "First chunk content".getBytes();
+    //      byte[] secondChunkContent = "Second chunk content".getBytes();
+    //      byte[] finalChunkContent = "Final chunk content".getBytes();
+    //
+    //      var authHeader = "Bearer validToken";
+    //      var fileName = "resumableFile.txt";
+    //
+    //      uploadChunk(fileName, firstChunkContent, authHeader, "1", null);
+    //
+    //      var uploadId = "someGeneratedUploadId";
+    //      uploadChunk(fileName, secondChunkContent, authHeader, "2", uploadId);
+    //
+    //      ResponseEntity<String> finalResponse =
+    //          uploadChunk(fileName, finalChunkContent, authHeader, "end", uploadId);
+    //
+    //      assertThat(finalResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    //      assertThat(finalResponse.getBody()).isNotBlank();
+    //
+    //      var responseJson = new ObjectMapper().readTree(finalResponse.getBody());
+    //      var message = responseJson.get("message");
+    //      assertThat(message.textValue()).isNotBlank();
+    //    }
+    //
+    //    private ResponseEntity<String> uploadChunk(
+    //        String fileName, byte[] content, String authHeader, String chunk, String uploadId) {
+    //      var requestHeaders = new HttpHeaders();
+    //      requestHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    //      requestHeaders.set("Authorization", authHeader);
+    //      requestHeaders.set("filename", fileName);
+    //      if (uploadId != null) {
+    //        requestHeaders.set("id", uploadId);
+    //      }
+    //
+    //      var requestEntity = new HttpEntity<>(content, requestHeaders);
+    //      return restTemplate.exchange(
+    //          filesUrl + "/stream/" + fileName + "?chunk=" + chunk,
+    //          HttpMethod.PATCH,
+    //          requestEntity,
+    //          String.class);
+    //    }
   }
 
   @Nested

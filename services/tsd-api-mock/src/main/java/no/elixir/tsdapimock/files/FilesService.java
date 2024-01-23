@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import no.elixir.tsdapimock.exceptions.CredentialsMismatchException;
 import no.elixir.tsdapimock.exceptions.FailedResourceCreationException;
+import no.elixir.tsdapimock.exceptions.FileProcessingException;
 import no.elixir.tsdapimock.files.dto.FileUploadMessageDto;
 import no.elixir.tsdapimock.files.dto.FolderMessageDto;
 import no.elixir.tsdapimock.resumables.*;
 import no.elixir.tsdapimock.utils.JwtService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -81,6 +83,53 @@ public class FilesService {
             .map(Resumables::convertToDto)
             .collect(Collectors.toCollection(ArrayList::new));
 
+    return new ResumableUploadsResponseDto(dtoList);
+  }
+
+  public ResumableUploadsResponseDto handleResumableUpload(
+      String project,
+      String filename,
+      String authorizationHeader,
+      String fileName,
+      String chunk,
+      String id,
+      byte[] content)
+      throws IllegalArgumentException, CredentialsMismatchException {
+    // Validate authorization
+    if (!jwtService.verify(authorizationHeader)) {
+      throw new CredentialsMismatchException("Invalid Authorization");
+    }
+
+    // Validate filename
+    if (StringUtils.isEmpty(filename)) {
+      throw new IllegalArgumentException("Filename cannot be empty");
+    }
+
+    ResumableUpload resumableUpload;
+    if (StringUtils.isEmpty(id)) {
+      resumableUpload = new ResumableUpload();
+      resumableUpload.setFileName(filename);
+      resumablesRepository.save(resumableUpload);
+    } else {
+      resumableUpload =
+          resumablesRepository
+              .findById(id)
+              .orElseThrow(() -> new IllegalArgumentException("Invalid upload ID"));
+    }
+
+    try {
+
+      resumables.processChunk(project, filename, chunk, content, resumableUpload);
+    } catch (IOException e) {
+      throw new FileProcessingException(e.getMessage());
+    }
+
+    // Convert to DTO for the response
+    ResumableUploadDto resumableUploadDto = Resumables.convertToDto(resumableUpload);
+
+    // Wrap in response DTO
+    ArrayList<ResumableUploadDto> dtoList = new ArrayList<>();
+    dtoList.add(resumableUploadDto);
     return new ResumableUploadsResponseDto(dtoList);
   }
 }
