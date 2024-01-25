@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.uio.ifi.tc.model.Environment;
 import no.uio.ifi.tc.model.pojo.*;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
@@ -49,21 +52,34 @@ public class TSDFileAPIClient {
      * @return API response.
      */
     public TSDFiles listFiles(String token, String appId) {
+        OkHttpClient client = new OkHttpClient();
         String url = getURL(getEndpoint(token, appId, "/files"));
-        HttpResponse<String> response = unirestInstance
-                .get(url)
-                .header(HeaderNames.AUTHORIZATION, BEARER + token)
-                .asString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", BEARER + token)
+                .build();
+
         TSDFiles tsdFiles = new TSDFiles();
+
         try {
-            tsdFiles = gson.fromJson(response.getBody(), TSDFiles.class);
-        } catch (JsonSyntaxException e) {
+            Response response = client.newCall(request).execute();
+
+            // Ensure the response body is not null
+            if (response.body() != null) {
+                String responseBody = response.body().string();
+                tsdFiles = gson.fromJson(responseBody, TSDFiles.class);
+            }
+
+            tsdFiles.setStatusCode(response.code());
+            tsdFiles.setStatusText(response.message());
+        } catch (IOException | JsonSyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        tsdFiles.setStatusCode(response.getStatus());
-        tsdFiles.setStatusText(response.getStatusText());
+
         return tsdFiles;
     }
+
 
     /**
      * Streams the input at once, not chunked.

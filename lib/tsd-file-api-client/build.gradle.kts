@@ -25,6 +25,7 @@ dependencies {
     implementation("com.auth0:java-jwt:3.10.3")
     implementation("com.google.code.gson:gson:2.8.9")
     implementation("com.konghq:unirest-java:3.7.02")
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
     implementation("org.slf4j:slf4j-jdk14:1.7.28")
 
     testImplementation("junit:junit:4.13.1")
