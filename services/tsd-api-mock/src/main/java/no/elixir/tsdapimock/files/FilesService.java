@@ -8,11 +8,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import no.elixir.tsdapimock.ega.dto.FileUploadMessageDto;
+import no.elixir.tsdapimock.ega.dto.FolderMessageDto;
 import no.elixir.tsdapimock.exceptions.CredentialsMismatchException;
 import no.elixir.tsdapimock.exceptions.FailedResourceCreationException;
 import no.elixir.tsdapimock.exceptions.FileProcessingException;
-import no.elixir.tsdapimock.files.dto.FileUploadMessageDto;
-import no.elixir.tsdapimock.files.dto.FolderMessageDto;
 import no.elixir.tsdapimock.resumables.*;
 import no.elixir.tsdapimock.utils.JwtService;
 import org.apache.commons.lang3.StringUtils;
@@ -86,6 +86,7 @@ public class FilesService {
     return new ResumableUploadsResponseDto(dtoList);
   }
 
+  // TODO: validate this
   public ResumableUploadsResponseDto handleResumableUpload(
       String project,
       String filename,
@@ -95,12 +96,10 @@ public class FilesService {
       String id,
       byte[] content)
       throws IllegalArgumentException, CredentialsMismatchException {
-    // Validate authorization
     if (!jwtService.verify(authorizationHeader)) {
       throw new CredentialsMismatchException("Invalid Authorization");
     }
 
-    // Validate filename
     if (StringUtils.isEmpty(filename)) {
       throw new IllegalArgumentException("Filename cannot be empty");
     }
@@ -118,16 +117,13 @@ public class FilesService {
     }
 
     try {
-
       resumables.processChunk(project, filename, chunk, content, resumableUpload);
     } catch (IOException e) {
       throw new FileProcessingException(e.getMessage());
     }
 
-    // Convert to DTO for the response
     ResumableUploadDto resumableUploadDto = Resumables.convertToDto(resumableUpload);
 
-    // Wrap in response DTO
     ArrayList<ResumableUploadDto> dtoList = new ArrayList<>();
     dtoList.add(resumableUploadDto);
     return new ResumableUploadsResponseDto(dtoList);
