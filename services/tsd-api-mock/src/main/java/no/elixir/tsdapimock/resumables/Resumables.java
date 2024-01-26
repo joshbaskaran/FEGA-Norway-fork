@@ -98,7 +98,7 @@ public class Resumables {
     return resumableUpload;
   }
 
-  private File generateUploadFolder(String basePath, String uploadId) {
+  public File generateUploadFolder(String basePath, String uploadId) {
     File uploadDir = new File(basePath, uploadId);
     if (!uploadDir.exists()) {
       boolean isCreated = uploadDir.mkdirs();

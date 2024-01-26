@@ -128,4 +128,26 @@ public class FilesService {
     dtoList.add(resumableUploadDto);
     return new ResumableUploadsResponseDto(dtoList);
   }
+  //
+  //  public DeleteResumableDto deleteResumableUpload(
+  //      String project, String authorization, String fileName, String id) {
+  //    if (!authorization.startsWith("Bearer ")) {
+  //      throw new IllegalArgumentException("Authorization must be a bearer token");
+  //    }
+  //    if (!jwtService.verify(authorization)) {
+  //      throw new CredentialsMismatchException("Invalid Authorization");
+  //    }
+  //    if (StringUtils.isEmpty(fileName)) {
+  //      return new DeleteResumableDto("Stream processing failed");
+  //    }
+  //    File uploadFolder =
+  //        resumables.generateUploadFolder(String.format(durableFileImport, project), id);
+  //    try {
+  //      ResumableUpload resumableUpload = getResumableUpload(id);
+  //      deleteFiles(uploadFolder, resumableUpload);
+  //      repository.delete(resumableUpload);
+  //    } catch (Exception e) {
+  //      return badRequestCannotDelete();
+  //    }
+  //  }
 }
