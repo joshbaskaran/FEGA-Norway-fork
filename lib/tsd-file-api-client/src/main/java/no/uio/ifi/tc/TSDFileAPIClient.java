@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.uio.ifi.tc.model.Environment;
 import no.uio.ifi.tc.model.pojo.*;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
@@ -92,22 +90,37 @@ public class TSDFileAPIClient {
      * @throws IOException In case of I/O related errors.
      */
     public Message uploadFile(String token, String appId, InputStream inputStream, String fileName) throws IOException {
+        OkHttpClient client = new OkHttpClient();
         String url = getURL(getEndpoint(token, appId, "/files/" + fileName));
-        HttpResponse<String> response = unirestInstance
-                .put(url)
-                .header(HeaderNames.AUTHORIZATION, BEARER + token)
-                .body(inputStream.readAllBytes())
-                .asString();
+
+        // Read all bytes from inputStream
+        byte[] data = inputStream.readAllBytes();
+
+        RequestBody requestBody = RequestBody.create(data, MediaType.parse("application/octet-stream"));
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", BEARER + token)
+                .put(requestBody)
+                .build();
+
         Message message = new Message();
-        try {
-            message = gson.fromJson(response.getBody(), Message.class);
+
+        try (Response response = client.newCall(request).execute()) {
+            // Ensure the response body is not null
+            if (response.body() != null) {
+                String responseBody = response.body().string();
+                message = gson.fromJson(responseBody, Message.class);
+            }
+
+            message.setStatusCode(response.code());
+            message.setStatusText(response.message());
         } catch (JsonSyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        message.setStatusCode(response.getStatus());
-        message.setStatusText(response.getStatusText());
+
         return message;
     }
+
 
     /**
      * Deletes uploaded file.
