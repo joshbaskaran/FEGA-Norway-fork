@@ -11,17 +11,6 @@ updates:
     commit-message:
       prefix: "[GitHub Action]"
 
-  # Root project
-  - package-ecosystem: gradle
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
-    commit-message:
-      prefix: "[Root]"
-
   # buildSrc
   - package-ecosystem: gradle
     directory: "/buildSrc"
@@ -34,6 +23,8 @@ updates:
       prefix: "[Conventions]"
 
   # Libraries
+
+  ## clearinghouse
   - package-ecosystem: gradle
     directory: "/lib/clearinghouse"
     schedule:
@@ -44,6 +35,7 @@ updates:
     commit-message:
       prefix: "[Clearinghouse]"
 
+  ## crypt4gh
   - package-ecosystem: gradle
     directory: "/lib/crypt4gh"
     schedule:
