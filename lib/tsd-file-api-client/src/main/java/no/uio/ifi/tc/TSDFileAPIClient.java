@@ -64,7 +64,7 @@ public class TSDFileAPIClient {
         try {
             Response response = client.newCall(request).execute();
 
-            // Ensure the response body is not null
+            //TODO: Ensure the response body is not null
             if (response.body() != null) {
                 String responseBody = response.body().string();
                 tsdFiles = gson.fromJson(responseBody, TSDFiles.class);
@@ -577,6 +577,7 @@ public class TSDFileAPIClient {
          */
         public TSDFileAPIClient build() {
             OkHttpClient httpClient;
+            // TODO: Implement SSL client authentication in OkHttpClient
             if (this.OkhttpClient != null) {
                 httpClient = this.OkhttpClient;
             } else {
