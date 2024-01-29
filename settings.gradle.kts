@@ -6,4 +6,3 @@ include("services:mq-interceptor")
 findProject(":lib:crypt4gh")?.name = "crypt4gh"
 findProject(":lib:clearinghouse")?.name = "clearinghouse"
 findProject(":lib:tsd-file-api-client")?.name = "tsd-file-api-client"
-findProject(":services:mq-interceptor")?.name = "mq-interceptor"
