@@ -304,26 +304,31 @@ public class TSDFileAPIClient {
      * @param outputStream OutputStream to write file to.
      * @return API response.
      */
-    public TSDFileAPIResponse downloadFile(String token, String appId, String fileName, OutputStream outputStream) {
+    public TSDFileAPIResponse downloadFile(String token, String appId, String fileName, OutputStream outputStream) throws IOException {
+        OkHttpClient client = new OkHttpClient();
         String url = getURL(getEndpoint(token, appId, "/files/" + fileName));
-        GetRequest request = unirestInstance
-                .get(url)
-                .header(HeaderNames.AUTHORIZATION, BEARER + token);
-        final Message message = new Message();
-        request.thenConsume(rawResponse -> {
-            message.setStatusCode(rawResponse.getStatus());
-            message.setStatusText(rawResponse.getStatusText());
-            if (!String.valueOf(message.getStatusCode()).startsWith("20")) {
-                return;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", BEARER + token)
+                .build();
+
+        TSDFileAPIResponse tsdFileAPIResponse = new TSDFileAPIResponse();
+
+        try (Response response = client.newCall(request).execute()) {
+            tsdFileAPIResponse.setStatusCode(response.code());
+            tsdFileAPIResponse.setStatusText(response.message());
+
+            if (response.isSuccessful() && response.body() != null) {
+                try (InputStream responseStream = response.body().byteStream()) {
+                    IOUtils.copy(responseStream, outputStream);
+                }
             }
-            try {
-                IOUtils.copyLarge(rawResponse.getContent(), outputStream);
-            } catch (IOException e) {
-                message.setMessage(e.getMessage());
-            }
-        });
-        return message;
+        }
+
+        return tsdFileAPIResponse;
     }
+
 
     /**
      * Retrieves the auth token by using non-TSD identity (OIDC provided).

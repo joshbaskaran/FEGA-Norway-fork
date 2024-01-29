@@ -5,7 +5,7 @@ import lombok.ToString;
 
 @Data
 @ToString
-public abstract class TSDFileAPIResponse {
+public class TSDFileAPIResponse {
 
     private int statusCode;
     private String statusText;
