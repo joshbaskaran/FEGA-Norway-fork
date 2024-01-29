@@ -10,13 +10,12 @@ import lombok.ToString;
 @Data
 public class Chunk extends TSDFileAPIResponse {
 
-    @SerializedName("id")
-    private String id;
+  @SerializedName("id")
+  private String id;
 
-    @SerializedName("filename")
-    private String fileName;
+  @SerializedName("filename")
+  private String fileName;
 
-    @SerializedName("max_chunk")
-    private String maxChunk;
-
+  @SerializedName("max_chunk")
+  private String maxChunk;
 }

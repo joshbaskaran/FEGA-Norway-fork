@@ -9,7 +9,5 @@ import lombok.ToString;
 @Data
 public class Message extends TSDFileAPIResponse {
 
-    private String message;
-
+  private String message;
 }
-

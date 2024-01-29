@@ -9,6 +9,5 @@ import lombok.ToString;
 @Data
 public class Token extends TSDFileAPIResponse {
 
-    private String token;
-
+  private String token;
 }
