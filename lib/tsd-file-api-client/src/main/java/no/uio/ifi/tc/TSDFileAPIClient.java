@@ -10,7 +10,6 @@ import no.uio.ifi.tc.model.Environment;
 import no.uio.ifi.tc.model.pojo.*;
 import okhttp3.*;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import okhttp3.OkHttpClient;
 
 
@@ -454,8 +453,7 @@ public class TSDFileAPIClient {
         private static final Environment DEFAULT_ENVIRONMENT = Environment.PRODUCTION;
         private static final String DEFAULT_VERSION = "v1";
         private static final String DEFAULT_PROJECT = "p11";
-
-        private OkHttpClient httpClient;
+        private OkHttpClient OkhttpClient;
         private String clientCertificateStore;
         private String clientCertificateStorePassword;
         private Boolean secure;
@@ -475,14 +473,13 @@ public class TSDFileAPIClient {
         /**
          * Sets custom HTTP client using OkHttp.
          *
-         * @param httpClient OkHttp client.
+         * @param OkhttpClient OkHttp client.
          * @return Builder instance.
          */
-        public Builder httpClient(OkHttpClient httpClient) {
-            this.httpClient = httpClient;
+        public Builder httpClient(OkHttpClient OkhttpClient) {
+            this.OkhttpClient = OkhttpClient;
             return this;
         }
-
         /**
          * Sets client certificate store location (PKCS#12) along with its password.
          *
@@ -579,14 +576,13 @@ public class TSDFileAPIClient {
          * @return Client.
          */
         public TSDFileAPIClient build() {
-            OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
-            if (StringUtils.isNotEmpty(clientCertificateStore) && StringUtils.isNotEmpty(clientCertificateStorePassword)) {
+            OkHttpClient httpClient;
+            if (this.OkhttpClient != null) {
+                httpClient = this.OkhttpClient;
+            } else {
+                OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+                httpClient = httpClientBuilder.build();
             }
-
-            if (this.checkCertificate != null && !this.checkCertificate) {
-            }
-
-            OkHttpClient httpClient = httpClientBuilder.build();
 
             TSDFileAPIClient tsdFileAPIClient = new TSDFileAPIClient(httpClient);
 
@@ -599,6 +595,7 @@ public class TSDFileAPIClient {
 
             return tsdFileAPIClient;
         }
+
 
     }
 
