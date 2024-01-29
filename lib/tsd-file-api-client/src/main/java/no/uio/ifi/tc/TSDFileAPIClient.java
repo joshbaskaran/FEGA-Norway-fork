@@ -130,22 +130,33 @@ public class TSDFileAPIClient {
      * @param fileName File name to use.
      * @return API response.
      */
-    public Message deleteFile(String token, String appId, String fileName) {
+    public Message deleteFile(String token, String appId, String fileName) throws IOException {
         String url = getURL(getEndpoint(token, appId, "/files/" + fileName));
-        HttpResponse<String> response = unirestInstance
-                .delete(url)
-                .header(HeaderNames.AUTHORIZATION, BEARER + token)
-                .asString();
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", BEARER + token)
+                .delete()
+                .build();
+
         Message message = new Message();
-        try {
-            message = gson.fromJson(response.getBody(), Message.class);
+
+        try (Response response = client.newCall(request).execute()) {
+            message.setStatusCode(response.code());
+            message.setStatusText(response.message());
+
+            if (response.isSuccessful() && response.body() != null) {
+                String responseBody = response.body().string();
+                message = gson.fromJson(responseBody, Message.class);
+            }
         } catch (JsonSyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        message.setStatusCode(response.getStatus());
-        message.setStatusText(response.getStatusText());
+
         return message;
     }
+
 
     /**
      * Lists all initiated and not yet finished resumable uploads by file and Upload ID.
@@ -154,22 +165,33 @@ public class TSDFileAPIClient {
      * @param appId TSD application ID.
      * @return API response.
      */
-    public ResumableUploads listResumableUploads(String token, String appId) {
+    public ResumableUploads listResumableUploads(String token, String appId) throws IOException {
         String url = getURL(getEndpoint(token, appId, "/resumables"));
-        HttpResponse<String> response = unirestInstance
-                .get(url)
-                .header(HeaderNames.AUTHORIZATION, BEARER + token)
-                .asString();
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", BEARER + token)
+                .get()
+                .build();
+
         ResumableUploads resumableUploads = new ResumableUploads();
-        try {
-            resumableUploads = gson.fromJson(response.getBody(), ResumableUploads.class);
+
+        try (Response response = client.newCall(request).execute()) {
+            resumableUploads.setStatusCode(response.code());
+            resumableUploads.setStatusText(response.message());
+
+            if (response.isSuccessful() && response.body() != null) {
+                String responseBody = response.body().string();
+                resumableUploads = gson.fromJson(responseBody, ResumableUploads.class);
+            }
         } catch (JsonSyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        resumableUploads.setStatusCode(response.getStatus());
-        resumableUploads.setStatusText(response.getStatusText());
+
         return resumableUploads;
     }
+
 
     /**
      * Lists all initiated and not yet finished resumable uploads by file and Upload ID.
@@ -179,7 +201,7 @@ public class TSDFileAPIClient {
      * @param uploadId Resumable upload ID.
      * @return API response.
      */
-    public Optional<ResumableUpload> getResumableUpload(String token, String appId, String uploadId) {
+    public Optional<ResumableUpload> getResumableUpload(String token, String appId, String uploadId) throws IOException {
         ResumableUploads resumableUploads = listResumableUploads(token, appId);
         Optional<ResumableUpload> resumableUpload = resumableUploads.getResumables().stream().filter(u -> u.getId().equalsIgnoreCase(uploadId)).findAny();
         resumableUpload.ifPresent(r -> r.setStatusCode(resumableUploads.getStatusCode()));
@@ -196,23 +218,34 @@ public class TSDFileAPIClient {
      * @param fileName   File name to use.
      * @return API response.
      */
-    public Chunk initializeResumableUpload(String token, String appId, byte[] firstChunk, String fileName) {
+    public Chunk initializeResumableUpload(String token, String appId, byte[] firstChunk, String fileName) throws IOException {
         String url = getURL(getEndpoint(token, appId, "/files/" + fileName + "?chunk=1"));
-        HttpResponse<String> response = unirestInstance
-                .patch(url)
-                .header(HeaderNames.AUTHORIZATION, BEARER + token)
-                .body(firstChunk)
-                .asString();
+
+        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = RequestBody.create(firstChunk, MediaType.parse("application/octet-stream"));
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", BEARER + token)
+                .patch(requestBody)
+                .build();
+
         Chunk chunkResponse = new Chunk();
-        try {
-            chunkResponse = gson.fromJson(response.getBody(), Chunk.class);
+
+        try (Response response = client.newCall(request).execute()) {
+            chunkResponse.setStatusCode(response.code());
+            chunkResponse.setStatusText(response.message());
+
+            if (response.isSuccessful() && response.body() != null) {
+                String responseBody = response.body().string();
+                chunkResponse = gson.fromJson(responseBody, Chunk.class);
+            }
         } catch (JsonSyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        chunkResponse.setStatusCode(response.getStatus());
-        chunkResponse.setStatusText(response.getStatusText());
+
         return chunkResponse;
     }
+
 
     /**
      * Upload another chunk of data (NB: chunks must arrive in order).
@@ -224,24 +257,35 @@ public class TSDFileAPIClient {
      * @param uploadId    Upload ID.
      * @return API response.
      */
-    public Chunk uploadChunk(String token, String appId, long chunkNumber, byte[] chunk, String uploadId) {
+    public Chunk uploadChunk(String token, String appId, long chunkNumber, byte[] chunk, String uploadId) throws IOException {
         ResumableUpload resumableUpload = getResumableUpload(token, appId, uploadId).orElseThrow();
         String url = getURL(getEndpoint(token, appId, "/files/" + resumableUpload.getFileName() + "?chunk=" + chunkNumber + "&id=" + uploadId));
-        HttpResponse<String> response = unirestInstance
-                .patch(url)
-                .header(HeaderNames.AUTHORIZATION, BEARER + token)
-                .body(chunk)
-                .asString();
+
+        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = RequestBody.create(chunk, MediaType.parse("application/octet-stream"));
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", BEARER + token)
+                .patch(requestBody)
+                .build();
+
         Chunk chunkResponse = new Chunk();
-        try {
-            chunkResponse = gson.fromJson(response.getBody(), Chunk.class);
+
+        try (Response response = client.newCall(request).execute()) {
+            chunkResponse.setStatusCode(response.code());
+            chunkResponse.setStatusText(response.message());
+
+            if (response.isSuccessful() && response.body() != null) {
+                String responseBody = response.body().string();
+                chunkResponse = gson.fromJson(responseBody, Chunk.class);
+            }
         } catch (JsonSyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        chunkResponse.setStatusCode(response.getStatus());
-        chunkResponse.setStatusText(response.getStatusText());
+
         return chunkResponse;
     }
+
 
     /**
      * Finalizes resumable upload.
@@ -251,23 +295,34 @@ public class TSDFileAPIClient {
      * @param uploadId Upload ID.
      * @return API response.
      */
-    public Chunk finalizeResumableUpload(String token, String appId, String uploadId) {
+    public Chunk finalizeResumableUpload(String token, String appId, String uploadId) throws IOException {
         ResumableUpload resumableUpload = getResumableUpload(token, appId, uploadId).orElseThrow();
         String url = getURL(getEndpoint(token, appId, "/files/" + resumableUpload.getFileName() + "?chunk=end&id=" + uploadId));
-        HttpResponse<String> response = unirestInstance
-                .patch(url)
-                .header(HeaderNames.AUTHORIZATION, BEARER + token)
-                .asString();
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", BEARER + token)
+                .patch(RequestBody.create(new byte[0], null)) // Empty body for PATCH request
+                .build();
+
         Chunk chunkResponse = new Chunk();
-        try {
-            chunkResponse = gson.fromJson(response.getBody(), Chunk.class);
+
+        try (Response response = client.newCall(request).execute()) {
+            chunkResponse.setStatusCode(response.code());
+            chunkResponse.setStatusText(response.message());
+
+            if (response.isSuccessful() && response.body() != null) {
+                String responseBody = response.body().string();
+                chunkResponse = gson.fromJson(responseBody, Chunk.class);
+            }
         } catch (JsonSyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        chunkResponse.setStatusCode(response.getStatus());
-        chunkResponse.setStatusText(response.getStatusText());
+
         return chunkResponse;
     }
+
 
     /**
      * Deletes initiated and not yet finished resumable upload.
@@ -277,23 +332,34 @@ public class TSDFileAPIClient {
      * @param uploadId Upload ID.
      * @return API response.
      */
-    public Message deleteResumableUpload(String token, String appId, String uploadId) {
+    public Message deleteResumableUpload(String token, String appId, String uploadId) throws IOException {
         ResumableUpload resumableUpload = getResumableUpload(token, appId, uploadId).orElseThrow();
         String url = getURL(getEndpoint(token, appId, "/resumables/" + resumableUpload.getFileName() + "?id=" + uploadId));
-        HttpResponse<String> response = unirestInstance
-                .delete(url)
-                .header(HeaderNames.AUTHORIZATION, BEARER + token)
-                .asString();
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", BEARER + token)
+                .delete()
+                .build();
+
         Message message = new Message();
-        try {
-            message = gson.fromJson(response.getBody(), Message.class);
+
+        try (Response response = client.newCall(request).execute()) {
+            message.setStatusCode(response.code());
+            message.setStatusText(response.message());
+
+            if (response.isSuccessful() && response.body() != null) {
+                String responseBody = response.body().string();
+                message = gson.fromJson(responseBody, Message.class);
+            }
         } catch (JsonSyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        message.setStatusCode(response.getStatus());
-        message.setStatusText(response.getStatusText());
+
         return message;
     }
+
 
     /**
      * Downloads file by its name.
