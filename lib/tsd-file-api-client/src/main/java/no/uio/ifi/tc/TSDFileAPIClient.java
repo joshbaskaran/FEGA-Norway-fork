@@ -3,7 +3,6 @@ package no.uio.ifi.tc;
 import com.auth0.jwt.JWT;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import kong.unirest.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,8 @@ import no.uio.ifi.tc.model.pojo.*;
 import okhttp3.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.HttpClient;
+import okhttp3.OkHttpClient;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,14 +33,16 @@ public class TSDFileAPIClient {
 
     private final Gson gson = new Gson();
 
-    private UnirestInstance unirestInstance;
-
     private String protocol;
     private String host;
     private Environment environment;
     private String version;
     private String project;
     private String accessKey;
+
+    public TSDFileAPIClient(OkHttpClient httpClient) {
+    }
+
 
     /**
      * Lists uploaded files.
@@ -404,24 +406,36 @@ public class TSDFileAPIClient {
      * @param idToken      ID token obtained from the OIDC provider.
      * @return API response.
      */
-    public Token getToken(String tokenType, String oidcProvider, String idToken) {
+    public Token getToken(String tokenType, String oidcProvider, String idToken) throws IOException {
         String url = getURL(String.format("/auth/%s/token?type=", oidcProvider.toLowerCase()) + tokenType.toLowerCase());
-        HttpResponse<String> response = unirestInstance
-                .post(url)
-                .header(HeaderNames.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
-                .header(HeaderNames.AUTHORIZATION, BEARER + accessKey)
-                .body(String.format("{\"%s\":\"%s\"}", ID_TOKEN, idToken))
-                .asString();
+
+        OkHttpClient client = new OkHttpClient();
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(String.format("{\"%s\":\"%s\"}", ID_TOKEN, idToken), JSON);
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Authorization", BEARER + accessKey)
+                .post(body)
+                .build();
+
         Token token = new Token();
-        try {
-            token = gson.fromJson(response.getBody(), Token.class);
+
+        try (Response response = client.newCall(request).execute()) {
+            token.setStatusCode(response.code());
+            token.setStatusText(response.message());
+
+            if (response.isSuccessful() && response.body() != null) {
+                String responseBody = response.body().string();
+                token = gson.fromJson(responseBody, Token.class);
+            }
         } catch (JsonSyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        token.setStatusCode(response.getStatus());
-        token.setStatusText(response.getStatusText());
+
         return token;
     }
+
 
     private String getEndpoint(String token, String appId, String path) {
         return String.format("/%s/%s%s", appId, JWT.decode(token).getClaim(USER_CLAIM).asString(), path);
@@ -441,7 +455,7 @@ public class TSDFileAPIClient {
         private static final String DEFAULT_VERSION = "v1";
         private static final String DEFAULT_PROJECT = "p11";
 
-        private HttpClient httpClient;
+        private OkHttpClient httpClient;
         private String clientCertificateStore;
         private String clientCertificateStorePassword;
         private Boolean secure;
@@ -459,12 +473,12 @@ public class TSDFileAPIClient {
         }
 
         /**
-         * Sets custom HTTP client.
+         * Sets custom HTTP client using OkHttp.
          *
-         * @param httpClient Apache HTTP client.
+         * @param httpClient OkHttp client.
          * @return Builder instance.
          */
-        public Builder httpClient(HttpClient httpClient) {
+        public Builder httpClient(OkHttpClient httpClient) {
             this.httpClient = httpClient;
             return this;
         }
@@ -565,25 +579,24 @@ public class TSDFileAPIClient {
          * @return Client.
          */
         public TSDFileAPIClient build() {
-            if (httpClient != null) {
-                //noinspection deprecation
-                Unirest.config().httpClient(httpClient);
-            }
+            OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
             if (StringUtils.isNotEmpty(clientCertificateStore) && StringUtils.isNotEmpty(clientCertificateStorePassword)) {
-                Unirest.config().clientCertificateStore(clientCertificateStore, clientCertificateStorePassword);
             }
-            TSDFileAPIClient tsdFileAPIClient = new TSDFileAPIClient();
-            tsdFileAPIClient.unirestInstance = Unirest.primaryInstance();
+
+            if (this.checkCertificate != null && !this.checkCertificate) {
+            }
+
+            OkHttpClient httpClient = httpClientBuilder.build();
+
+            TSDFileAPIClient tsdFileAPIClient = new TSDFileAPIClient(httpClient);
+
             tsdFileAPIClient.protocol = this.secure == null ? "https" : (this.secure ? "https" : "http");
-            tsdFileAPIClient.unirestInstance.config().verifySsl(this.checkCertificate == null ? true : this.checkCertificate);
             tsdFileAPIClient.host = this.host == null ? DEFAULT_HOST : this.host;
             tsdFileAPIClient.environment = this.environment == null ? DEFAULT_ENVIRONMENT : this.environment;
             tsdFileAPIClient.version = this.version == null ? DEFAULT_VERSION : this.version;
             tsdFileAPIClient.project = this.project == null ? DEFAULT_PROJECT : this.project;
-            if (StringUtils.isEmpty(this.accessKey)) {
-                throw new IllegalArgumentException("Access key must be set");
-            }
             tsdFileAPIClient.accessKey = this.accessKey;
+
             return tsdFileAPIClient;
         }
 
