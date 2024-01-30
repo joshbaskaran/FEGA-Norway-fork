@@ -73,14 +73,15 @@ public class EgaFilesService {
               .findById(id)
               .orElseThrow(() -> new IllegalArgumentException("Invalid upload ID"));
     }
-
+    ResumableUpload uploadedResumable;
     try {
-      resumables.processChunk(project, filename, chunk, content, resumableUpload);
+      uploadedResumable =
+          resumables.processChunk(project, filename, chunk, content, resumableUpload);
     } catch (IOException e) {
       throw new FileProcessingException(e.getMessage());
     }
 
-    ResumableUploadDto resumableUploadDto = Resumables.convertToDto(resumableUpload);
+    ResumableUploadDto resumableUploadDto = Resumables.convertToDto(uploadedResumable);
 
     ArrayList<ResumableUploadDto> dtoList = new ArrayList<>();
     dtoList.add(resumableUploadDto);
