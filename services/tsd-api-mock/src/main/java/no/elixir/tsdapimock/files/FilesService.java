@@ -122,7 +122,7 @@ public class FilesService {
     ResumableUpload uploadedResumable;
     try {
       uploadedResumable =
-          resumables.processChunk(project, filename, chunk, content, resumableUpload);
+          resumables.processChunk(null, project, filename, chunk, content, resumableUpload);
     } catch (IOException e) {
       throw new FileProcessingException(e.getMessage());
     }

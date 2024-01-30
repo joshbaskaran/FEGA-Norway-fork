@@ -59,6 +59,7 @@ public class Resumables {
   }
 
   public ResumableUpload processChunk(
+      String userName,
       String project,
       String filename,
       String chunk,
@@ -73,7 +74,7 @@ public class Resumables {
       File chunkFile = saveChunk(uploadFolder, filename, content);
       resumableUpload = createResumableUpload(chunkFile, resumableUpload);
     } else if ("end".equalsIgnoreCase(chunk)) {
-      finalizeChunks(null, uploadFolder, resumableUpload.getId(), project);
+      finalizeChunks(userName, uploadFolder, resumableUpload.getId(), project);
     } else {
       File chunkFile = saveChunk(uploadFolder, chunk, filename, content);
       resumableUpload = updateResumableUpload(resumableUpload, chunkFile);
