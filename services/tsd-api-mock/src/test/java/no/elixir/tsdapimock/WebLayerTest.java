@@ -248,7 +248,6 @@ class WebLayerTest {
   class FileHandling {
     private final String filesUrl = "/v1/p-test/files";
     private final String uploadFileName = "testFile.txt";
-    private String uploadId;
 
     @Test
     public void testFilesUpload() throws Exception {
@@ -273,7 +272,6 @@ class WebLayerTest {
       var message = responseJson.get("message");
       assertThat(message.textValue()).isNotBlank();
       System.out.println(message);
-      uploadId = String.valueOf(message);
     }
 
     @Test
