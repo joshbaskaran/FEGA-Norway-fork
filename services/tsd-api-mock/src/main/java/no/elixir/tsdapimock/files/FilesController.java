@@ -97,20 +97,21 @@ public class FilesController {
     }
   }
 
-  //  @DeleteMapping(value = "/resumables/{filename}", produces = MediaType.APPLICATION_JSON_VALUE)
-  //  public ResponseEntity<?> deleteResumableUpload(
-  //      @PathVariable("project") String project,
-  //      @RequestHeader("Authorization") String authorization,
-  //      @PathVariable("filename") String fileName,
-  //      @RequestParam(value = "id") String id) {
-  //    try {
-  //      var response = filesService.deleteResumableUpload(project, authorization, fileName, id);
-  //    } catch (IllegalArgumentException e) {
-  //      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-  //    } catch (CredentialsMismatchException e) {
-  //      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-  //    } catch (FileProcessingException e) {
-  //      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-  //    }
-  //  }
+  @DeleteMapping(value = "/resumables/{filename}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<?> deleteResumableUpload(
+      @PathVariable("project") String project,
+      @RequestHeader("Authorization") String authorization,
+      @PathVariable("filename") String fileName,
+      @RequestParam(value = "id") String id) {
+    try {
+      var response = filesService.deleteResumableUpload(project, authorization, fileName, id);
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (CredentialsMismatchException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    } catch (FileProcessingException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
+  }
 }

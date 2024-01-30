@@ -1,5 +1,6 @@
 package no.elixir.tsdapimock.files;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -12,7 +13,9 @@ import no.elixir.tsdapimock.ega.dto.FileUploadMessageDto;
 import no.elixir.tsdapimock.ega.dto.FolderMessageDto;
 import no.elixir.tsdapimock.exceptions.CredentialsMismatchException;
 import no.elixir.tsdapimock.exceptions.FailedResourceCreationException;
+import no.elixir.tsdapimock.exceptions.FailedResourceDeletionException;
 import no.elixir.tsdapimock.exceptions.FileProcessingException;
+import no.elixir.tsdapimock.files.dto.DeleteResumableDto;
 import no.elixir.tsdapimock.resumables.*;
 import no.elixir.tsdapimock.utils.JwtService;
 import org.apache.commons.lang3.StringUtils;
@@ -128,26 +131,28 @@ public class FilesService {
     dtoList.add(resumableUploadDto);
     return new ResumableUploadsResponseDto(dtoList);
   }
-  //
-  //  public DeleteResumableDto deleteResumableUpload(
-  //      String project, String authorization, String fileName, String id) {
-  //    if (!authorization.startsWith("Bearer ")) {
-  //      throw new IllegalArgumentException("Authorization must be a bearer token");
-  //    }
-  //    if (!jwtService.verify(authorization)) {
-  //      throw new CredentialsMismatchException("Invalid Authorization");
-  //    }
-  //    if (StringUtils.isEmpty(fileName)) {
-  //      return new DeleteResumableDto("Stream processing failed");
-  //    }
-  //    File uploadFolder =
-  //        resumables.generateUploadFolder(String.format(durableFileImport, project), id);
-  //    try {
-  //      ResumableUpload resumableUpload = getResumableUpload(id);
-  //      deleteFiles(uploadFolder, resumableUpload);
-  //      repository.delete(resumableUpload);
-  //    } catch (Exception e) {
-  //      return badRequestCannotDelete();
-  //    }
-  //  }
+
+  public DeleteResumableDto deleteResumableUpload(
+      String project, String authorization, String fileName, String id) {
+    if (!authorization.startsWith("Bearer ")) {
+      throw new IllegalArgumentException("Authorization must be a bearer token");
+    }
+    if (!jwtService.verify(authorization)) {
+      throw new CredentialsMismatchException("Invalid Authorization");
+    }
+    if (StringUtils.isEmpty(fileName)) {
+      return new DeleteResumableDto("Stream processing failed");
+    }
+    File uploadFolder =
+        resumables.generateUploadFolder(String.format(durableFileImport, project), id);
+    try {
+      ResumableUpload resumableUpload = resumables.getResumableUpload(id);
+      resumables.deleteFiles(uploadFolder, resumableUpload);
+      resumablesRepository.delete(resumableUpload);
+    } catch (Exception e) {
+      throw new FailedResourceDeletionException("ERROR deleting resource");
+    }
+
+    return new DeleteResumableDto("Resumable deleted");
+  }
 }

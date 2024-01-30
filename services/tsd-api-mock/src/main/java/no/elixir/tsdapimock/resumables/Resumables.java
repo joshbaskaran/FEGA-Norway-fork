@@ -45,6 +45,10 @@ public class Resumables {
         entity.getMd5Sum());
   }
 
+  public ResumableUpload getResumableUpload(String id) {
+    return resumablesRepository.findById(id).orElseThrow();
+  }
+
   /**
    * Reads all the resumable chunks from the repository.
    *
@@ -164,5 +168,16 @@ public class Resumables {
 
     log.info("Deleting upload directory: " + dir.getAbsolutePath());
     Files.deleteIfExists(dir.toPath());
+  }
+
+  public void deleteFiles(File dir, ResumableUpload resumable) throws IOException {
+    String fileName = resumable.getFileName();
+    for (int i = 1; i <= resumable.getMaxChunk().intValue(); i++) {
+      File chunkFile = createChunkFile(dir, fileName, i);
+      log.info("DELETING" + chunkFile.toPath());
+      Files.delete(chunkFile.toPath());
+    }
+    log.info("DELETING" + dir.toPath());
+    Files.delete(dir.toPath());
   }
 }
