@@ -3,7 +3,6 @@ plugins {
     id("org.springframework.boot")
     id("io.spring.dependency-management")
     id("org.hibernate.orm")
-    id("org.graalvm.buildtools.native")
     id("formatting-conventions")
 }
 
