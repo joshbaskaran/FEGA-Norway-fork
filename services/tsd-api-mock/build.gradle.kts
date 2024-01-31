@@ -12,3 +12,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
 }
+
+tasks.test {
+    environment("DURABLE_FILE_IMPORT", "./tmp/")
+}
