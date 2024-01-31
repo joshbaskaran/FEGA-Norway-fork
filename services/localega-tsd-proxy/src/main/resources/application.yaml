@@ -1,0 +1,59 @@
+server.ssl:
+  enabled: ${SSL_ENABLED:true}
+  key-store-type: PKCS12
+  key-store: file:${SERVER_KEYSTORE_PATH:/etc/ega/ssl/server.cert}
+  key-store-password: ${SERVER_CERT_PASSWORD}
+
+spring.datasource:
+  url: jdbc:postgresql://${DB_INSTANCE:postgres}:${DB_PORT:5432}/${POSTGRES_DB:postgres}?stringtype=unspecified
+  username: ${POSTGRES_USER:postgres}
+  password: ${POSTGRES_PASSWORD}
+  driver-class-name: org.postgresql.Driver
+
+spring.rabbitmq:
+  host: ${BROKER_HOST:public-mq}
+  port: ${BROKER_PORT:5671}
+  virtual-host: ${BROKER_VHOST:/}
+  username: ${BROKER_USERNAME:admin}
+  password: ${BROKER_PASSWORD:guest}
+  ssl:
+    validate-server-certificate: ${BROKER_VALIDATE:true}
+    enabled: true
+    algorithm: TLSv1.2
+
+spring.main:
+  allow-circular-references: true
+
+elixir:
+  client:
+    id: ${CLIENT_ID}
+    secret: ${CLIENT_SECRET}
+
+ga4gh:
+  passport:
+    # First, the public key is checked. If present, it's used for validating the token and openid-configuration-url is not used.
+    public-key-path: ${PASSPORT_PUBLIC_KEY_PATH:/etc/ega/jwt/passport.pem}
+    # If public key is absent, then openid-configuration-url is used to query JWK and fetch the public key.
+    openid-configuration-url: ${OPENID_CONFIGURATION_URL:https://login.elixir-czech.org/oidc/.well-known/openid-configuration}
+  visa:
+    # First, the public key is checked. If present, it's used for validating the token. Otherwise, JKU is used instead (entry in the header).
+    public-key-path: ${VISA_PUBLIC_KEY_PATH:/etc/ega/jwt/visa.pem}
+
+cega:
+  auth-url: ${CEGA_AUTH_URL}
+  username: ${CEGA_USERNAME}
+  password: ${CEGA_PASSWORD}
+
+tsd:
+  host: ${TSD_HOST:api.tsd.usit.no}
+  project: ${TSD_PROJECT:p11}
+  app-id: ${TSD_APP_ID:ega}
+  app-out-id: ${TSD_APP_OUT_ID:egaout}
+  access-key: ${TSD_ACCESS_KEY}
+  inbox-location: ${TSD_INBOX_LOCATION:/%s-%s/files/}
+  root-ca: ${TSD_ROOT_CERT_PATH:/etc/ega/ssl/CA.cert}
+  root-ca-password: ${TSD_ROOT_CERT_PASSWORD:}
+
+mq:
+  exchange: ${EXCHANGE:cega}
+  routing-key: ${ROUTING_KEY:files.inbox}
