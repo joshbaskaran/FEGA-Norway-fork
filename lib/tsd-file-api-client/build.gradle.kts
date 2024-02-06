@@ -23,7 +23,7 @@ dependencies {
     api("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.slf4j:slf4j-jdk14:1.7.28")
 
-    testImplementation("junit:junit:4.13.1")
+    testImplementation("junit:junit:4.13.2")
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
