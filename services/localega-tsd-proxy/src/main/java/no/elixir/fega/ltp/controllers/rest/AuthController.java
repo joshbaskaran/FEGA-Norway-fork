@@ -2,6 +2,7 @@ package no.elixir.fega.ltp.controllers.rest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -29,7 +30,10 @@ public class AuthController {
    * @param authentication <code>OAuth2AuthenticationToken</code>.
    * @return Access token.
    */
-  @GetMapping("/token")
+  @GetMapping(
+      value = "/token",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.TEXT_PLAIN_VALUE)
   public ResponseEntity<String> index(OAuth2AuthenticationToken authentication) {
     OAuth2AuthorizedClient oAuth2AuthorizedClient =
         authorizedClientService.loadAuthorizedClient(
@@ -44,7 +48,10 @@ public class AuthController {
    * @param principal <code>OidcUser</code>.
    * @return OIDC principal.
    */
-  @GetMapping("/user")
+  @GetMapping(
+      value = "/user",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<OidcUser> token(@AuthenticationPrincipal OidcUser principal) {
     log.info("User authenticated: {}", principal.getName());
     return ResponseEntity.ok(principal);
