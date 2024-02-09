@@ -4,10 +4,12 @@ plugins {
 
 version = "1.1.0"
 
+val goPath = project.properties["goBinaryPath"]?.toString() ?: "go"
+
 // Build
 val goBuild = tasks.register("goBuild", Exec::class) {
     description = "Build the Go application"
-    commandLine("go", "build", "-o", "build/")
+    commandLine(goPath, "build", "-o", "build/")
 }
 
 tasks.named("build") {
@@ -18,7 +20,7 @@ tasks.named("build") {
 tasks.register("test", Exec::class) {
     group = "verification"
     description = "Test the Go application"
-    commandLine("go", "test")
+    commandLine(goPath, "test")
 }
 
 // Build Docker image
@@ -31,7 +33,7 @@ tasks.register("buildDockerImage", Exec::class) {
 // Cleanup
 val goClean = tasks.register("goClean", Exec::class) {
     description = "Deletes the build directory"
-    commandLine("go", "clean")
+    commandLine(goPath, "clean")
 }
 
 tasks.named("clean") {
