@@ -18,7 +18,7 @@ tasks.test {
 // Build Docker image
 tasks.register("buildDockerImage", Exec::class) {
     group = "build"
-    dependsOn("build")
+    dependsOn("bootJar")
     description = "Builds the Docker image for tsd-api-mock"
     commandLine("docker", "build", "-t", "tsd-api-mock", ".")
 }

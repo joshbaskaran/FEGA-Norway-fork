@@ -33,7 +33,7 @@ configurations {
 // Build Docker image
 tasks.register("buildDockerImage", Exec::class) {
     group = "build"
-    dependsOn("build")
+    dependsOn("bootJar")
     description = "Builds the Docker image for localega-tsd-proxy"
     commandLine("docker", "build", "-t", "localega-tsd-proxy", ".")
 }
