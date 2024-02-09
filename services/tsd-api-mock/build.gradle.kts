@@ -14,3 +14,11 @@ dependencies {
 tasks.test {
     environment("DURABLE_FILE_IMPORT", "./tmp/")
 }
+
+// Build Docker image
+tasks.register("buildDockerImage", Exec::class) {
+    group = "build"
+    dependsOn("bootJar")
+    description = "Builds the Docker image for tsd-api-mock"
+    commandLine("docker", "build", "-t", "tsd-api-mock", ".")
+}
