@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"reflect" // KJETIL DEBUG
 	_ "github.com/lib/pq"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
@@ -17,9 +18,9 @@ var db *sql.DB
 var publishMutex sync.Mutex
 var cegaPublishChannel *amqp.Channel
 
-func main() {
-	var err error
 
+func main() {
+ 	var err error
 	db, err = sql.Open("postgres", os.Getenv("POSTGRES_CONNECTION"))
 	failOnError(err, "Failed to connect to DB")
 
@@ -204,6 +205,8 @@ func publishError(delivery amqp.Delivery, err error) error {
 		CorrelationId:   delivery.CorrelationId,
 		Body:            []byte(errorMessage),
 	}
+	fmt.Printf("@ MAIN: Reflect: %s\n", reflect.TypeOf(cegaPublishChannel)) // KJETIL DEBUG
+	fmt.Printf("@ MAIN: Publishing: %#v\n", publishing) // KJETIL DEBUG
 	err = cegaPublishChannel.Publish(os.Getenv("CEGA_MQ_EXCHANGE"), "files.error", false, false, publishing)
 	return err
 }
