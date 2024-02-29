@@ -1,6 +1,6 @@
 rootProject.name = "FEGA-Norway"
 
-include("cmd:lega-commander")
+include("cli:lega-commander")
 
 include("lib:crypt4gh")
 include("lib:clearinghouse")
