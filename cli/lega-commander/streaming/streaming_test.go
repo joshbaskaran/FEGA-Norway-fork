@@ -14,7 +14,7 @@ import (
 	"github.com/elixir-oslo/lega-commander/files"
 	"github.com/elixir-oslo/lega-commander/requests"
 	"github.com/elixir-oslo/lega-commander/resuming"
-	aurora "github.com/logrusorgru/aurora/v3"
+	"github.com/logrusorgru/aurora/v4"
 )
 
 var uploader Streamer

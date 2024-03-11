@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	aurora "github.com/logrusorgru/aurora/v3"
+	"github.com/logrusorgru/aurora/v4"
 )
 
 const defaultInstanceURL = "https://ega.elixir.no"
