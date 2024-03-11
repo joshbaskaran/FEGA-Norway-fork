@@ -15,7 +15,7 @@ import (
 	"github.com/elixir-oslo/lega-commander/resuming"
 	"github.com/elixir-oslo/lega-commander/streaming"
 	"github.com/jessevdk/go-flags"
-	aurora "github.com/logrusorgru/aurora/v3"
+	"github.com/logrusorgru/aurora/v4"
 )
 
 var (
@@ -96,10 +96,10 @@ func main() {
 		if inboxOptions.List {
 			fileList, err := fileManager.ListFiles(true)
 			if err != nil {
-                    if _, ok := err.(*files.FolderNotFoundError); ok {
-                        log.Fatal(aurora.Red("Inbox Error: The user folder is empty or does not exist yet"))
-                    }
-                }
+				if _, ok := err.(*files.FolderNotFoundError); ok {
+					log.Fatal(aurora.Red("Inbox Error: The user folder is empty or does not exist yet"))
+				}
+			}
 			if err != nil {
 				log.Fatal(aurora.Red(err))
 			}
@@ -136,10 +136,10 @@ func main() {
 		if inboxOptions.List {
 			fileList, err := fileManager.ListFiles(false)
 			if err != nil {
-                    if _, ok := err.(*files.FolderNotFoundError); ok {
-                        log.Fatal(aurora.Red("Outbox Error: No data has been staged in the outbox yet"))
-                    }
-                }
+				if _, ok := err.(*files.FolderNotFoundError); ok {
+					log.Fatal(aurora.Red("Outbox Error: No data has been staged in the outbox yet"))
+				}
+			}
 			if err != nil {
 				log.Fatal(aurora.Red(err))
 			}

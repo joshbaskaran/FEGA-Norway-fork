@@ -8,7 +8,7 @@ require (
 	github.com/chzyer/test v1.0.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/jessevdk/go-flags v1.5.0
-	github.com/logrusorgru/aurora/v3 v3.0.0
+	github.com/logrusorgru/aurora/v4 v4.0.0
 	github.com/neicnordic/crypt4gh v1.8.11
 )
 

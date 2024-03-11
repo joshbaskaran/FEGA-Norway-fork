@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	aurora "github.com/logrusorgru/aurora/v3"
+	"github.com/logrusorgru/aurora/v4"
 )
 
 var server *httptest.Server

@@ -24,7 +24,7 @@ import (
 	"github.com/elixir-oslo/lega-commander/requests"
 	"github.com/elixir-oslo/lega-commander/resuming"
 	"github.com/golang-jwt/jwt"
-	aurora "github.com/logrusorgru/aurora/v3"
+	"github.com/logrusorgru/aurora/v4"
 	"github.com/neicnordic/crypt4gh/model/headers"
 )
 
