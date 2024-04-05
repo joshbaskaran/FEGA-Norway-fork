@@ -40,3 +40,7 @@ bin/
 
 ### Configs ###
 .tool-versions
+
+
+### Temporary Directories
+tmp/
