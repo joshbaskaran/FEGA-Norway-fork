@@ -1,7 +1,7 @@
 package resuming
 
 import (
-	"github.com/ELIXIR-NO/FEGA-Norway/lega-commander/requests"
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/requests"
 	"io"
 	"io/ioutil"
 	"net/http"

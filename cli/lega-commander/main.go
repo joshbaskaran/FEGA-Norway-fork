@@ -11,9 +11,9 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/ELIXIR-NO/FEGA-Norway/lega-commander/files"
-	"github.com/ELIXIR-NO/FEGA-Norway/lega-commander/resuming"
-	"github.com/ELIXIR-NO/FEGA-Norway/lega-commander/streaming"
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/files"
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/resuming"
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/streaming"
 	"github.com/jessevdk/go-flags"
 	"github.com/logrusorgru/aurora/v4"
 )

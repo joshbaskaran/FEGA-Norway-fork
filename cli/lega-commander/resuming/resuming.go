@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/ELIXIR-NO/FEGA-Norway/lega-commander/conf"
-	"github.com/ELIXIR-NO/FEGA-Norway/lega-commander/requests"
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/conf"
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/requests"
 	"github.com/buger/jsonparser"
 )
 

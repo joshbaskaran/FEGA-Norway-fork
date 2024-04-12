@@ -1,4 +1,4 @@
-module github.com/ELIXIR-NO/FEGA-Norway/lega-commander
+module github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander
 
 go 1.22
 

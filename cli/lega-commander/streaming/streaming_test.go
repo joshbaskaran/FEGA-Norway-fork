@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ELIXIR-NO/FEGA-Norway/lega-commander/files"
-	"github.com/ELIXIR-NO/FEGA-Norway/lega-commander/requests"
-	"github.com/ELIXIR-NO/FEGA-Norway/lega-commander/resuming"
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/files"
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/requests"
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/resuming"
 	"github.com/chzyer/test"
 	"github.com/logrusorgru/aurora/v4"
 )
