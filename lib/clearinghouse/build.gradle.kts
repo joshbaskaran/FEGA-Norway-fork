@@ -28,5 +28,5 @@ dependencies {
     implementation("org.slf4j:slf4j-jdk14:2.0.12")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.bouncycastle:bcprov-jdk15to18:1.78")
-    testImplementation("org.bouncycastle:bcpkix-jdk15to18:1.77")
+    testImplementation("org.bouncycastle:bcpkix-jdk15to18:1.78")
 }
