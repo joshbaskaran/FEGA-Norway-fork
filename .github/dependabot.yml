@@ -91,3 +91,14 @@ updates:
       timezone: "Europe/Oslo"
     commit-message:
       prefix: "[MQ-Interceptor]"
+
+  ## lega-commander
+  - package-ecosystem: gomod
+    directory: "/cli/lega-commander"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Oslo"
+    commit-message:
+      prefix: "[Lega-Commander]"
