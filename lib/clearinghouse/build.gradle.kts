@@ -27,6 +27,6 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
     implementation("org.slf4j:slf4j-jdk14:2.0.13")
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.bouncycastle:bcprov-jdk15to18:1.78")
+    testImplementation("org.bouncycastle:bcprov-jdk15to18:1.78.1")
     testImplementation("org.bouncycastle:bcpkix-jdk15to18:1.78.1")
 }
