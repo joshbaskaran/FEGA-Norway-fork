@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/conf"
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/requests"
 	"github.com/buger/jsonparser"
-	"github.com/elixir-oslo/lega-commander/conf"
-	"github.com/elixir-oslo/lega-commander/requests"
 )
 
 // Resumable structure represents resumable upload.

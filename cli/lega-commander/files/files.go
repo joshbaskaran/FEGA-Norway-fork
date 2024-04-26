@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/conf"
+	"github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander/requests"
 	"github.com/buger/jsonparser"
-	"github.com/elixir-oslo/lega-commander/conf"
-	"github.com/elixir-oslo/lega-commander/requests"
 )
 
 // File structure represents uploaded File.
@@ -32,12 +32,12 @@ type defaultFileManager struct {
 
 // Represents an error message to handle a missing or empty folder
 type FolderNotFoundError struct {
-    Msg string
+	Msg string
 }
 
 // Returns the error message in FolderNotFoundError.
 func (e *FolderNotFoundError) Error() string {
-    return e.Msg
+	return e.Msg
 }
 
 // NewFileManager constructs FileManager using requests.Client.
@@ -70,19 +70,19 @@ func (rm defaultFileManager) ListFiles(inbox bool) (*[]File, error) {
 		return nil, err
 	}
 	if response.StatusCode == 403 {
-    		body, err := ioutil.ReadAll(response.Body)
-    		if err != nil {
-    			return nil, errors.New("Failed to read the server's response")
-    		}
-    		// Check if the response body contains the specific error message indicating
-    		// that the folder is empty or doesn't exist yet.
-    		if strings.Contains(string(body), `"tsdFiles" is null`) {
-    			return nil, &FolderNotFoundError{}
-    		}
-    		// If it's not an empty folder, it's a genuine authentication error.
-    		return nil, errors.New("Authentication error")
-    	} else if response.StatusCode != 200 {
-    	return nil, errors.New(response.Status)
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, errors.New("Failed to read the server's response")
+		}
+		// Check if the response body contains the specific error message indicating
+		// that the folder is empty or doesn't exist yet.
+		if strings.Contains(string(body), `"tsdFiles" is null`) {
+			return nil, &FolderNotFoundError{}
+		}
+		// If it's not an empty folder, it's a genuine authentication error.
+		return nil, errors.New("Authentication error")
+	} else if response.StatusCode != 200 {
+		return nil, errors.New(response.Status)
 	}
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
