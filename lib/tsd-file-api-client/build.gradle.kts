@@ -24,9 +24,8 @@ dependencies {
     api("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.slf4j:slf4j-jdk14:2.0.13")
 
-    testImplementation("junit:junit:4.13.2")
-    testImplementation(platform("org.junit:junit-bom:5.10.2"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
