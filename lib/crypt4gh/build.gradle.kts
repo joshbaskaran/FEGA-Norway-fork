@@ -22,8 +22,8 @@ dependencies {
     implementation("com.rfksystems:blake2b:2.0.0")
     implementation("at.favre.lib:bkdf:0.6.0")
     implementation("com.lambdaworks:scrypt:1.4.0")
-    testImplementation(platform("org.junit:junit-bom:5.10.2"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 extraJavaModuleInfo {
