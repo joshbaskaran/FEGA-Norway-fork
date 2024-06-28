@@ -71,15 +71,6 @@ export POSTGRES_USERNAME=postgres
 export POSTGRES_PASSWORD=p0stgres_passw0rd
 export POSTGRES_CONNECTION="postgres://$POSTGRES_USERNAME:$POSTGRES_PASSWORD@postgres:5432/postgres?sslmode=disable"
 
-
-
-
-export CEGA_AUTH_URL=https://nss.test.ega-archive.org/username/
-export CEGA_USERNAME=norway
-export CEGA_PASSWORD=pqax576fbsfe
-export EGA_BOX_USERNAME=yasin.miran@uib.no
-export EGA_BOX_PASSWORD="Ppe9GFJh7G5z!Dx5"
-
 function apply_configs() {
 
   # Check if the source template file exists
