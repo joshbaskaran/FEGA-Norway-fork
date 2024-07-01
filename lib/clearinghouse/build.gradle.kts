@@ -26,7 +26,7 @@ dependencies {
     implementation("com.auth0:jwks-rsa:0.22.1")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
     implementation("org.slf4j:slf4j-jdk14:2.0.13")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.3")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.bouncycastle:bcprov-jdk15to18:1.78.1")
     testImplementation("org.bouncycastle:bcpkix-jdk15to18:1.78.1")
