@@ -8,7 +8,7 @@ if [[ -z "$E2E_DIR" ]] ; then
   exit 1 # fail
 fi
 
-source .env
+source $E2E_DIR/.env
 
 export E2E_DIR
 export CONFS_DIR="$E2E_DIR/confs"
@@ -29,12 +29,6 @@ export CEGA_USERNAME=${CEGA_USERNAME:-dummy}
 export CEGA_PASSWORD=${CEGA_PASSWORD:-dummy}
 export EGA_BOX_USERNAME=${EGA_BOX_USERNAME:-dummy}
 export EGA_BOX_PASSWORD=${EGA_BOX_PASSWORD:-dummy}
-
-export CEGA_AUTH_URL=https://nss.test.ega-archive.org/username/
-export CEGA_USERNAME=""
-export CEGA_PASSWORD=""
-export EGA_BOX_USERNAME=""
-export EGA_BOX_PASSWORD=""
 
 export CEGA_MQ_CONNECTION=amqp://test:test@cegamq:5673/lega
 
