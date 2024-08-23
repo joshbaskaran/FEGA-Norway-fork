@@ -21,6 +21,7 @@ dependencies {
     testImplementation("commons-io:commons-io:2.15.1")
     testImplementation(project(":lib:crypt4gh"))
     testImplementation("org.slf4j:slf4j-api:2.0.12")
+    testImplementation("org.skyscreamer:jsonassert:1.5.3")
 }
 
 // Start setup scripts.

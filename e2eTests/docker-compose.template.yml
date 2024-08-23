@@ -5,6 +5,7 @@ services:
   # TSD
 
   tsd:
+    user: "65534:65534"
     container_name: tsd
     hostname: tsd
     image: tsd-api-mock:latest
@@ -335,6 +336,7 @@ services:
       - BROKER_PASSWORD=guest
       - BROKER_QUEUE=files
       - BROKER_VHOST=test
+      - BROKER_EXCHANGE=sda
       - DB_HOST=db
       - DB_PORT=5432
       - DB_USER=postgres
@@ -379,6 +381,13 @@ services:
       - POSTGRES_PASSWORD=<<SDA_DB_PASSWORD>>
       - OUTBOX_ENABLED=false
     volumes:
+      - <<TMP_CERTS_DIR>>/doa/CA.cert:/etc/ega/ssl/CA.cert
+      - <<TMP_CERTS_DIR>>/doa/client.cert:/etc/ega/ssl/client.cert
+      - <<TMP_CERTS_DIR>>/doa/client.key:/etc/ega/ssl/client.key
+      - <<TMP_CERTS_DIR>>/doa/passport.pem:/etc/ega/jwt/passport.pem
+      - <<TMP_CERTS_DIR>>/doa/visa.pem:/etc/ega/jwt/visa.pem
+      - <<TMP_CERTS_DIR>>/doa/key.pem:/etc/ega/crypt4gh/key.pem
+      - <<TMP_CERTS_DIR>>/doa/key.pass:/etc/ega/crypt4gh/key.pass
       - <<TMP_VOLUMES_DIR>>/vault/:/ega/archive
     user: "65534:65534"
 

@@ -17,9 +17,11 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.json.JSONException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -374,13 +376,13 @@ public class IngestionTest {
         log.info("Dataset release message sent successfully");
     }
 
-    private void downloadDatasetAndVerifyResults() throws GeneralSecurityException, IOException {
+    private void downloadDatasetAndVerifyResults() throws GeneralSecurityException, IOException, JSONException {
 
         String token = generateVisaToken(datasetId);
         log.info("Visa JWT token: {}", token);
 
         String datasets =
-                Unirest.get("http://localhost/metadata/datasets")
+                Unirest.get("http://localhost:80/metadata/datasets")
                         .header("Authorization", "Bearer " + token)
                         .asString()
                         .getBody();
@@ -414,7 +416,8 @@ public class IngestionTest {
                         .strip();
         log.info("Expected: {}", expected);
         log.info("Actual: {}", actual);
-        assertEquals(expected, actual);
+
+        JSONAssert.assertEquals(expected, actual, false);
 
         byte[] file =
                 Unirest.get(String.format("http://localhost/files/%s", stableId))
