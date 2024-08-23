@@ -8,6 +8,8 @@ if [[ -z "$E2E_DIR" ]] ; then
   exit 1 # fail
 fi
 
+source .env
+
 export E2E_DIR
 export CONFS_DIR="$E2E_DIR/confs"
 export LOCAL_BIN="$E2E_DIR/bin"

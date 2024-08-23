@@ -5,6 +5,7 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import io.github.cdimascio.dotenv.Dotenv;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
@@ -40,10 +41,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Base64;
-import java.util.Properties;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,6 +51,8 @@ public class IngestionTest {
 
     private static final Logger log = LoggerFactory.getLogger(IngestionTest.class);
 
+    final static Dotenv dotenv = Dotenv.load();
+
     public static final String BEGIN_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----";
     public static final String END_PUBLIC_KEY = "-----END PUBLIC KEY-----";
     public static final String BEGIN_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----";
@@ -60,8 +60,8 @@ public class IngestionTest {
 
     private static final String DB_USERNAME = "postgres";
     private static final String DB_PASSWORD = "ro0tpasswd";
-    private static final String EGA_BOX_USERNAME = "";
-    private static final String EGA_BOX_PASSWORD = "";
+    private static final String EGA_BOX_USERNAME = dotenv.get("EGA_BOX_USERNAME");
+    private static final String EGA_BOX_PASSWORD = dotenv.get("EGA_BOX_PASSWORD");
     private static final String CEGA_MQ_CONNECTION = "amqp://test:test@localhost:5673/lega";
 
     private final KeyUtils keyUtils = KeyUtils.getInstance();
