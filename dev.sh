@@ -66,7 +66,8 @@ function apply_all_spotless_checks() {
     :lib:crypt4gh:spotlessApply \
     :lib:tsd-file-api-client:spotlessApply \
     :services:localega-tsd-proxy:spotlessApply \
-    :services:tsd-api-mock:spotlessApply
+    :services:tsd-api-mock:spotlessApply \
+    :e2eTests:spotlessApply
 }
 
 # Reusable ask function to get a yes/no answer

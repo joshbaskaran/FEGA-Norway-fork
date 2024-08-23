@@ -69,10 +69,14 @@ services:
     image: tsd-proxy:latest
     build: ../services/localega-tsd-proxy
     depends_on:
-      - tsd
-      - mq
-      - cegamq
-      - postgres
+      tsd:
+        condition: service_started
+      mq:
+        condition: service_healthy
+      cegamq:
+        condition: service_started
+      postgres:
+        condition: service_started
     links:
       - tsd
       - mq
@@ -121,9 +125,12 @@ services:
     image: mq-interceptor:latest
     build: ../services/mq-interceptor
     depends_on:
-      - cegamq
-      - mq
-      - postgres
+      cegamq:
+        condition: service_started
+      mq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
     environment:
       - POSTGRES_CONNECTION=<<INTERCEPTOR_POSTGRES_CONNECTION>>
       - CEGA_MQ_CONNECTION=<<INTERCEPTOR_CEGA_MQ_CONNECTION>>
