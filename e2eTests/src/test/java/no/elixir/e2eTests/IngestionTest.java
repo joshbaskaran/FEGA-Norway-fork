@@ -57,11 +57,11 @@ public class IngestionTest {
   public static final String BEGIN_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----";
   public static final String END_PRIVATE_KEY = "-----END PRIVATE KEY-----";
 
-  private static final String DB_USERNAME = "postgres";
-  private static final String DB_PASSWORD = "ro0tpasswd";
+  private static final String DB_USERNAME = dotenv.get("SDA_DB_USERNAME");
+  private static final String DB_PASSWORD = dotenv.get("SDA_DB_PASSWORD");
   private static final String EGA_BOX_USERNAME = dotenv.get("EGA_BOX_USERNAME");
   private static final String EGA_BOX_PASSWORD = dotenv.get("EGA_BOX_PASSWORD");
-  private static final String CEGA_MQ_CONNECTION = "amqp://test:test@localhost:5673/lega";
+  private static final String CEGA_MQ_CONNECTION = dotenv.get("CEGA_MQ_CONNECTION_LOCAL");
 
   private final KeyUtils keyUtils = KeyUtils.getInstance();
 
