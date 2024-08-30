@@ -430,19 +430,15 @@ services:
   cegaauth:
     container_name: cegaauth
     hostname: cegaauth
-    image: egarchive/lega-base:release.v0.2.0
-    volumes:
-      - <<TMP_CONFS_DIR>>/cegaauth/users:/cega
+    image: cega-mock:latest
+    build: ../services/cega-mock
     command:
       [
-        "python",
-        "/cega/cega-mock.py",
+        "/app/cega-mock",
         "0.0.0.0",
-        "8443",
-        "/cega/users.json"
+        "8443"
       ]
     environment:
-      - LEGA_INSTANCES=dummy
       - CEGA_USERS_PASSWORD=dummy
       - CEGA_USERS_USER=dummy
     ports:

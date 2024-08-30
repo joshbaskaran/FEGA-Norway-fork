@@ -24,7 +24,10 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Base64;
+import java.util.Properties;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
@@ -122,30 +125,25 @@ public class IngestionTest {
   }
 
   @Test
-  public void performEndToEndTest() {
-    try {
-      upload();
-      // Wait for triggers to be set up at CEGA.
-      // Not really needed if using local CEGA container.
-      Thread.sleep(5000);
-      triggerIngestMessageFromCEGA();
-      Thread.sleep(5000); // Wait for the LEGA ingest and verify services to complete and update DB
-      triggerAccessionMessageFromCEGA();
-      Thread.sleep(5000); // Wait for LEGA finalize service to complete and update DB
-      // Verify that everything is ok so far
-      verifyAfterFinalizeAndLookUpAccessionID();
-      // Trigger the process further,
-      // with retrieved information from earlier steps
-      triggerMappingMessageFromCEGA();
-      Thread.sleep(1000); // Wait for LEGA mapper service to store mapping
-      triggerReleaseMessageFromCEGA();
-      Thread.sleep(1000); // Wait for LEGA mapper service to update dataset status
-      // Test and check that what we get out match the original inserted data at the top
-      downloadDatasetAndVerifyResults();
-    } catch (Throwable t) {
-      log.error(t.getMessage(), t);
-      fail();
-    }
+  public void performEndToEndTest() throws Exception {
+    upload();
+    // Wait for triggers to be set up at CEGA.
+    // Not really needed if using local CEGA container.
+    Thread.sleep(5000);
+    triggerIngestMessageFromCEGA();
+    Thread.sleep(5000); // Wait for the LEGA ingest and verify services to complete and update DB
+    triggerAccessionMessageFromCEGA();
+    Thread.sleep(5000); // Wait for LEGA finalize service to complete and update DB
+    // Verify that everything is ok so far
+    verifyAfterFinalizeAndLookUpAccessionID();
+    // Trigger the process further,
+    // with retrieved information from earlier steps
+    triggerMappingMessageFromCEGA();
+    Thread.sleep(1000); // Wait for LEGA mapper service to store mapping
+    triggerReleaseMessageFromCEGA();
+    Thread.sleep(1000); // Wait for LEGA mapper service to update dataset status
+    // Test and check that what we get out match the original inserted data at the top
+    downloadDatasetAndVerifyResults();
   }
 
   private void upload() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {

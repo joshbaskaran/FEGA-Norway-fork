@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -11,12 +12,12 @@ import (
 )
 
 type User struct {
-	Username     string `json:"username"`
-	UID          int    `json:"uid"`
-	PasswordHash string `json:"passwordHash"`
-	Gecos        string `json:"gecos"`
-	SSHKey       string `json:"sshPublicKey"`
-	Enabled      *bool  `json:"enabled"`
+	Username     string   `json:"username"`
+	UID          int      `json:"uid"`
+	PasswordHash string   `json:"passwordHash"`
+	Gecos        string   `json:"gecos"`
+	SSHKeys      []string `json:"sshPublicKeys"`
+	LastChanged  int      `json:"lastChanged"`
 }
 
 var (
@@ -32,9 +33,9 @@ const userData = `
     "username": "dummy",
     "uid": 1,
     "passwordHash": "$2b$12$1gyKIjBc9/cT0MYkXX24xe1LjEUjNwgL4rEk8fDoO.vDQZzWkqrn.",
-    "gecos": "dummy user",
-    "sshPublicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDiEcu2czBfbQh6+A3DplO2DRHG4LmdUKLRPX1vFOpC30TZusio0cFcgi8TEQv9TlMwu2ujF/wn/0D2VwXiDGk/Rbeq9jgTLpVbDWg/3ZGxGSqjPV3fzl0NzmaSgF0+IZQaSr6OjGVpTmpk5G4d4qqFg4Shjjm+AwlgmruThHNS9KmdJ7Vru+rQ8LwcjuSWtBdf6JM3bjlw1swQt6776p+wTK51YSKdtFEE5yVZjVwxlcPre7sRiem0XwSCFsu9sAfUTbHNTfwQ8lVXbvgRGu9SoW0wwb0Qele1WXZ8YFF10KLxGKpb1u0NsXSIZrJZhk0nxKb5tGBSnKXquoAvLZfVEKc+AXw1sDSaKvZaDw0/GORoAVSt3LDKYydAlzpMw6am4fgcEzm0vwCieWvSxd9uLY9IxV4sx0n0ZcuG55Le2TaQMnSm5XQ8zHBFYOb9ux8h6TY6JO+HmSjoHXkGhILKg8Y7zpq0PWy7HUvWzQVVfShAMN/N2gZ3a2T7amg17/S0wtgvjxxpNtnLc0HnHjr/mwtBjrN8C4n+IYI13rqZzPPU1wZu5qiacmHmeR15XAktEFKrpuvViJcylksjwyl6aY9psm+dwocON/yA3pdJGA8mPvrnDpPkGpzqvTqqIMxQkgel46jF2B7+lLzq6wQOsb7Ct66CKKppM6kpVVHRWQ==",
-    "enabled": null
+    "gecos": "Dummy User in FEGA-Norway Test Setup",
+    "sshPublicKeys": [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDiEcu2czBfbQh6+A3DplO2DRHG4LmdUKLRPX1vFOpC30TZusio0cFcgi8TEQv9TlMwu2ujF/wn/0D2VwXiDGk/Rbeq9jgTLpVbDWg/3ZGxGSqjPV3fzl0NzmaSgF0+IZQaSr6OjGVpTmpk5G4d4qqFg4Shjjm+AwlgmruThHNS9KmdJ7Vru+rQ8LwcjuSWtBdf6JM3bjlw1swQt6776p+wTK51YSKdtFEE5yVZjVwxlcPre7sRiem0XwSCFsu9sAfUTbHNTfwQ8lVXbvgRGu9SoW0wwb0Qele1WXZ8YFF10KLxGKpb1u0NsXSIZrJZhk0nxKb5tGBSnKXquoAvLZfVEKc+AXw1sDSaKvZaDw0/GORoAVSt3LDKYydAlzpMw6am4fgcEzm0vwCieWvSxd9uLY9IxV4sx0n0ZcuG55Le2TaQMnSm5XQ8zHBFYOb9ux8h6TY6JO+HmSjoHXkGhILKg8Y7zpq0PWy7HUvWzQVVfShAMN/N2gZ3a2T7amg17/S0wtgvjxxpNtnLc0HnHjr/mwtBjrN8C4n+IYI13rqZzPPU1wZu5qiacmHmeR15XAktEFKrpuvViJcylksjwyl6aY9psm+dwocON/yA3pdJGA8mPvrnDpPkGpzqvTqqIMxQkgel46jF2B7+lLzq6wQOsb7Ct66CKKppM6kpVVHRWQ==" ],
+    "lastChanged": 19902
   }
 ]
 `
@@ -75,6 +76,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+	fmt.Println("New authentication request", authHeader)
 
 	authValue, err := base64.StdEncoding.DecodeString(authHeader[len("Basic "):])
 	if err != nil {
@@ -88,8 +90,10 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	instance, passwd := parts[0], parts[1]
+	fmt.Println("Decoded auth parts", instance, passwd)
 
 	if pass, exists := instances[instance]; !exists || pass != passwd {
+		fmt.Println("No matching user found for credentials", instances)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -110,26 +114,10 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := map[string]interface{}{
-		"header": map[string]interface{}{
-			"apiVersion":       "v1",
-			"code":             "200",
-			"service":          "users",
-			"developerMessage": "",
-			"userMessage":      "OK",
-			"errorCode":        "1",
-			"docLink":          "https://ega-archive.org",
-			"errorStack":       "",
-		},
-		"response": map[string]interface{}{
-			"numTotalResults": 1,
-			"resultType":      "eu.crg.ega.microservice.dto.lega.v1.users.LocalEgaUser",
-			"result":          []User{*userInfo},
-		},
-	}
+	fmt.Println(userInfo)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(userInfo)
 }
 
 func main() {

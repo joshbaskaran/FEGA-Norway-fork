@@ -62,9 +62,6 @@ tasks.register<Exec>("stop-docker-containers") {
 
 tasks.test {
     useJUnitPlatform()
-    // dependsOn("start-docker-containers")
-    // finalizedBy("stop-docker-containers")
-    // Ensure this test runs only after all other
     // test tasks are completed
     mustRunAfter(
         ":lib:crypt4gh:test",

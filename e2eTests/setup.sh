@@ -272,8 +272,10 @@ function clean() {
   cd .. && ./gradlew clean && cd $E2E_DIR
   rm -rf $TMP_DIR
   rm -rf $E2E_DIR/docker-compose.yml
-  docker rmi tsd-api-mock:latest \
+  docker rmi cega-mock:latest \
              tsd-proxy:latest \
+             tsd-api-mock:latest \
+             mq-interceptor:latest \
              mq-interceptor:latest \
              postgres --force > /dev/null 2>&1
   echo "Cleanup completed 💯"
