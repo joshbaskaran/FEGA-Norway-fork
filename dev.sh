@@ -57,7 +57,7 @@ function rebuild_crypt4gh() {
 }
 
 function restart_docker_daemon() {
-  echo "You need sudo rights to restart docker." &&
+  echo "Running 'sudo systemctl restart docker'..." &&
     sudo systemctl restart docker
 }
 

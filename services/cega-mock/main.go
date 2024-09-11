@@ -76,7 +76,6 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	fmt.Println("New authentication request", authHeader)
 
 	authValue, err := base64.StdEncoding.DecodeString(authHeader[len("Basic "):])
 	if err != nil {
@@ -90,7 +89,6 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	instance, passwd := parts[0], parts[1]
-	fmt.Println("Decoded auth parts", instance, passwd)
 
 	if pass, exists := instances[instance]; !exists || pass != passwd {
 		fmt.Println("No matching user found for credentials", instances)
