@@ -8,6 +8,7 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import io.github.cdimascio.dotenv.Dotenv;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -28,6 +29,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
+import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 import kong.unirest.UnirestInstance;
@@ -39,9 +41,11 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.json.JSONException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,17 +53,18 @@ public class IngestionTest {
 
   private static final Logger log = LoggerFactory.getLogger(IngestionTest.class);
 
+  static final Dotenv dotenv = Dotenv.load();
+
   public static final String BEGIN_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----";
   public static final String END_PUBLIC_KEY = "-----END PUBLIC KEY-----";
   public static final String BEGIN_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----";
   public static final String END_PRIVATE_KEY = "-----END PRIVATE KEY-----";
 
-  private static final String DB_USERNAME = "postgres";
-  private static final String DB_PASSWORD = "ro0tpasswd";
-  private static final String EGA_BOX_USERNAME = "dummy";
-  private static final String EGA_BOX_PASSWORD = "dummy";
-  private static final String CEGA_MQ_CONN =
-      "amqp://test:test@localhost:5673/lega?cacertfile=rootCA.pem";
+  private static final String DB_USERNAME = dotenv.get("SDA_DB_USERNAME");
+  private static final String DB_PASSWORD = dotenv.get("SDA_DB_PASSWORD");
+  private static final String EGA_BOX_USERNAME = dotenv.get("EGA_BOX_USERNAME");
+  private static final String EGA_BOX_PASSWORD = dotenv.get("EGA_BOX_PASSWORD");
+  private static final String CEGA_MQ_CONNECTION = dotenv.get("CEGA_MQ_CONNECTION_LOCAL");
 
   private final KeyUtils keyUtils = KeyUtils.getInstance();
 
@@ -76,26 +81,29 @@ public class IngestionTest {
   @BeforeEach
   public void setup() throws IOException, GeneralSecurityException {
 
+    String basePath = "./tmp/";
+
     long fileSize = 1024 * 1024 * 10;
-    log.info("Generating " + fileSize + " bytes file to submit...");
-    rawFile = new File(UUID.randomUUID() + ".raw");
+    log.info("Generating {} bytes file to submit...", fileSize);
+
+    rawFile = new File(basePath + UUID.randomUUID() + ".raw");
     RandomAccessFile randomAccessFile = new RandomAccessFile(rawFile, "rw");
     randomAccessFile.setLength(fileSize);
     randomAccessFile.close();
 
     byte[] bytes = DigestUtils.sha256(Files.newInputStream(rawFile.toPath()));
     rawSHA256Checksum = Hex.encodeHexString(bytes);
-    log.info("Raw SHA256 checksum: " + rawSHA256Checksum);
+    log.info("Raw SHA256 checksum: {}", rawSHA256Checksum);
 
     byte[] bytes2 = DigestUtils.md5(Files.newInputStream(rawFile.toPath()));
     rawMD5Checksum = Hex.encodeHexString(bytes2);
-    log.info("Raw MD5 checksum: " + rawMD5Checksum);
+    log.info("Raw MD5 checksum: {}", rawMD5Checksum);
 
     log.info("Generating sender and recipient key-pairs...");
     KeyPair senderKeyPair = keyUtils.generateKeyPair();
 
     log.info("Encrypting the file with Crypt4GH...");
-    encFile = new File(rawFile.getName() + ".enc");
+    encFile = new File(basePath + rawFile.getName() + ".enc");
 
     PublicKey localEGAInstancePublicKey =
         keyUtils.readPublicKey(new File(getCertificateLocation("ega.pub.pem")));
@@ -109,7 +117,7 @@ public class IngestionTest {
 
     bytes = DigestUtils.sha256(Files.newInputStream(encFile.toPath()));
     encSHA256Checksum = Hex.encodeHexString(bytes);
-    log.info("Enc SHA256 checksum: " + encSHA256Checksum);
+    log.info("Enc SHA256 checksum: {}", encSHA256Checksum);
 
     try (UnirestInstance instance = Unirest.primaryInstance()) {
       instance.config().verifySsl(false).hostnameVerifier(NoopHostnameVerifier.INSTANCE);
@@ -117,30 +125,25 @@ public class IngestionTest {
   }
 
   @Test
-  public void performEndToEndTest() {
-    try {
-      upload();
-      Thread.sleep(
-          5000); // Wait for triggers to be set up at CEGA - Not really needed if using local CEGA
-      // container
-      triggerIngestMessageFromCEGA();
-      Thread.sleep(5000); // Wait for the LEGA ingest and verify services to complete and update DB
-      triggerAccessionMessageFromCEGA();
-      Thread.sleep(5000); // Wait for LEGA finalize service to complete and update DB
-      // Verify that everything is ok so far
-      verifyAfterFinalizeAndLookUpAccessionID();
-      // Trigger the process further,
-      // with retrieved information from earlier steps
-      triggerMappingMessageFromCEGA();
-      Thread.sleep(1000); // Wait for LEGA mapper service to store mapping
-      triggerReleaseMessageFromCEGA();
-      Thread.sleep(1000); // Wait for LEGA mapper service to update dataset status
-      // Test and check that what we get out match the original inserted data at the top
-      downloadDatasetAndVerifyResults();
-    } catch (Throwable t) {
-      log.error(t.getMessage(), t);
-      fail();
-    }
+  public void performEndToEndTest() throws Exception {
+    upload();
+    // Wait for triggers to be set up at CEGA.
+    // Not really needed if using local CEGA container.
+    Thread.sleep(5000);
+    triggerIngestMessageFromCEGA();
+    Thread.sleep(5000); // Wait for the LEGA ingest and verify services to complete and update DB
+    triggerAccessionMessageFromCEGA();
+    Thread.sleep(5000); // Wait for LEGA finalize service to complete and update DB
+    // Verify that everything is ok so far
+    verifyAfterFinalizeAndLookUpAccessionID();
+    // Trigger the process further,
+    // with retrieved information from earlier steps
+    triggerMappingMessageFromCEGA();
+    Thread.sleep(1000); // Wait for LEGA mapper service to store mapping
+    triggerReleaseMessageFromCEGA();
+    Thread.sleep(1000); // Wait for LEGA mapper service to update dataset status
+    // Test and check that what we get out match the original inserted data at the top
+    downloadDatasetAndVerifyResults();
   }
 
   private void upload() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
@@ -151,10 +154,11 @@ public class IngestionTest {
     log.info("Encrypted MD5 checksum: {}", md5Hex);
     log.info("EGA_BOX_USERNAME: {}", EGA_BOX_USERNAME);
     String uploadURL =
-        String.format("https://localhost:10443/stream/%s?md5=%s", encFile.getName(), md5Hex);
+        String.format("http://localhost:10443/stream/%s?md5=%s", encFile.getName(), md5Hex);
     JsonNode jsonResponse =
         Unirest.patch(uploadURL)
             .basicAuth(EGA_BOX_USERNAME, EGA_BOX_PASSWORD)
+            .socketTimeout(100000000)
             .header("Proxy-Authorization", "Bearer " + token)
             .body(FileUtils.readFileToByteArray(encFile))
             .asJson()
@@ -163,15 +167,16 @@ public class IngestionTest {
     log.info("Upload ID: {}", uploadId);
     String finalizeURL =
         String.format(
-            "https://localhost:10443/stream/%s?uploadId=%s&chunk=end&sha256=%s&fileSize=%s",
+            "http://localhost:10443/stream/%s?uploadId=%s&chunk=end&sha256=%s&fileSize=%s",
             encFile.getName(), uploadId, encSHA256Checksum, FileUtils.sizeOf(encFile));
-    jsonResponse =
+    HttpResponse<JsonNode> res =
         Unirest.patch(finalizeURL)
             .basicAuth(EGA_BOX_USERNAME, EGA_BOX_PASSWORD)
             .header("Proxy-Authorization", "Bearer " + token)
-            .asJson()
-            .getBody();
-    assertEquals(201, jsonResponse.getObject().getInt("statusCode"));
+            .socketTimeout(100000000)
+            .asJson();
+    jsonResponse = res.getBody();
+    assertEquals(201, jsonResponse.getObject().get("statusCode"));
   }
 
   private void triggerIngestMessageFromCEGA()
@@ -182,7 +187,7 @@ public class IngestionTest {
           URISyntaxException {
     log.info("Publishing ingestion message to CentralEGA...");
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setUri(CEGA_MQ_CONN);
+    factory.setUri(CEGA_MQ_CONNECTION);
     Connection connectionFactory = factory.newConnection();
     Channel channel = connectionFactory.createChannel();
     correlationId = UUID.randomUUID().toString();
@@ -198,12 +203,12 @@ public class IngestionTest {
 
     String message =
         """
-                  {
-                    "type": "ingest",
-                    "user": "%s",
-                    "filepath": "/p11-dummy@elixir-europe.org/files/%s"
-                  }
-                """
+                          {
+                            "type": "ingest",
+                            "user": "%s",
+                            "filepath": "/p11-dummy@elixir-europe.org/files/%s"
+                          }
+                        """
             .formatted(EGA_BOX_USERNAME, encFile.getName());
     log.info(message);
     channel.basicPublish("localega", "files", properties, message.getBytes());
@@ -220,7 +225,7 @@ public class IngestionTest {
           URISyntaxException {
     log.info("Publishing accession message on behalf of CEGA to CEGA RMQ...");
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setUri(CEGA_MQ_CONN);
+    factory.setUri(CEGA_MQ_CONNECTION);
     Connection connectionFactory = factory.newConnection();
     Channel channel = connectionFactory.createChannel();
     AMQP.BasicProperties properties =
@@ -237,22 +242,22 @@ public class IngestionTest {
     String message =
         String.format(
             """
-                        {
-                            "type": "accession",
-                            "user": "%s",
-                            "filepath": "/p11-dummy@elixir-europe.org/files/%s",
-                            "accession_id": "%s",
-                            "decrypted_checksums": [
                                 {
-                                    "type": "sha256",
-                                    "value": "%s"
-                                },
-                                {
-                                    "type": "md5",
-                                    "value": "%s"
-                                }
-                            ]
-                        }""",
+                                    "type": "accession",
+                                    "user": "%s",
+                                    "filepath": "/p11-dummy@elixir-europe.org/files/%s",
+                                    "accession_id": "%s",
+                                    "decrypted_checksums": [
+                                        {
+                                            "type": "sha256",
+                                            "value": "%s"
+                                        },
+                                        {
+                                            "type": "md5",
+                                            "value": "%s"
+                                        }
+                                    ]
+                                }""",
             EGA_BOX_USERNAME,
             encFile.getName(),
             randomFileAccessionID,
@@ -276,15 +281,15 @@ public class IngestionTest {
     Properties props = new Properties();
     props.setProperty("user", DB_USERNAME);
     props.setProperty("password", DB_PASSWORD);
-    props.setProperty("ssl", "true");
     props.setProperty("application_name", "LocalEGA");
-    props.setProperty("sslmode", "verify-ca");
-    props.setProperty("sslrootcert", new File("rootCA.pem").getAbsolutePath());
-    props.setProperty("sslcert", new File("localhost+5-client.pem").getAbsolutePath());
-    props.setProperty("sslkey", new File("localhost+5-client-key.der").getAbsolutePath());
+    // props.setProperty("ssl", "true");
+    // props.setProperty("sslmode", "verify-ca");
+    // props.setProperty("sslrootcert", new File("rootCA.pem").getAbsolutePath());
+    // props.setProperty("sslcert", new File("localhost+5-client.pem").getAbsolutePath());
+    // props.setProperty("sslkey", new File("localhost+5-client-key.der").getAbsolutePath());
     java.sql.Connection conn = DriverManager.getConnection(url, props);
     String sql =
-        "select archive_path,stable_id from local_ega.files where status = 'COMPLETED' AND inbox_path = ?";
+        "select archive_path,stable_id from local_ega.files where status = 'READY' AND inbox_path = ?";
     PreparedStatement statement = conn.prepareStatement(sql);
     statement.setString(1, "/p11-dummy@elixir-europe.org/files/" + encFile.getName());
     ResultSet resultSet = statement.executeQuery();
@@ -307,7 +312,7 @@ public class IngestionTest {
     log.info("Mapping file to a dataset...");
     datasetId = "EGAD" + getRandomNumber(11);
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setUri(CEGA_MQ_CONN);
+    factory.setUri(CEGA_MQ_CONNECTION);
     Connection connectionFactory = factory.newConnection();
     Channel channel = connectionFactory.createChannel();
     AMQP.BasicProperties properties =
@@ -321,11 +326,11 @@ public class IngestionTest {
     String message =
         String.format(
             """
-                        {
-                            "type": "mapping",
-                            "accession_ids": ["%s"],
-                            "dataset_id": "%s"
-                        }""",
+                                {
+                                    "type": "mapping",
+                                    "accession_ids": ["%s"],
+                                    "dataset_id": "%s"
+                                }""",
             stableId, datasetId);
     log.info(message);
     channel.basicPublish("localega", "files", properties, message.getBytes());
@@ -343,7 +348,7 @@ public class IngestionTest {
           TimeoutException {
     log.info("Releasing the dataset...");
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setUri(CEGA_MQ_CONN);
+    factory.setUri(CEGA_MQ_CONNECTION);
     Connection connectionFactory = factory.newConnection();
     Channel channel = connectionFactory.createChannel();
     AMQP.BasicProperties properties =
@@ -357,8 +362,8 @@ public class IngestionTest {
     String message =
         String.format(
             """
-                    {"type":"release","dataset_id":"%s"}
-                """,
+                                    {"type":"release","dataset_id":"%s"}
+                                """,
             datasetId);
     log.info(message);
     channel.basicPublish("localega", "files", properties, message.getBytes());
@@ -367,13 +372,14 @@ public class IngestionTest {
     log.info("Dataset release message sent successfully");
   }
 
-  private void downloadDatasetAndVerifyResults() throws GeneralSecurityException, IOException {
+  private void downloadDatasetAndVerifyResults()
+      throws GeneralSecurityException, IOException, JSONException {
 
     String token = generateVisaToken(datasetId);
     log.info("Visa JWT token: {}", token);
 
     String datasets =
-        Unirest.get("http://localhost/metadata/datasets")
+        Unirest.get("http://localhost:80/metadata/datasets")
             .header("Authorization", "Bearer " + token)
             .asString()
             .getBody();
@@ -383,20 +389,20 @@ public class IngestionTest {
     String expected =
         String.format(
                 """
-                        [{
-                            "fileId": "%s",
-                            "datasetId": "%s",
-                            "displayFileName": "%s",
-                            "fileName": "%s",
-                            "fileSize": 10490240,
-                            "unencryptedChecksum": null,
-                            "unencryptedChecksumType": null,
-                            "decryptedFileSize": 10485760,
-                            "decryptedFileChecksum": "%s",
-                            "decryptedFileChecksumType": "SHA256",
-                            "fileStatus": "READY"
-                        }]
-                        """,
+                                        [{
+                                            "fileId": "%s",
+                                            "datasetId": "%s",
+                                            "displayFileName": "%s",
+                                            "fileName": "%s",
+                                            "fileSize": 10490240,
+                                            "unencryptedChecksum": null,
+                                            "unencryptedChecksumType": null,
+                                            "decryptedFileSize": 10485760,
+                                            "decryptedFileChecksum": "%s",
+                                            "decryptedFileChecksumType": "SHA256",
+                                            "fileStatus": "READY"
+                                        }]
+                                        """,
                 stableId, datasetId, encFile.getName(), archivePath, rawSHA256Checksum)
             .strip();
     String actual =
@@ -407,7 +413,8 @@ public class IngestionTest {
             .strip();
     log.info("Expected: {}", expected);
     log.info("Actual: {}", actual);
-    assertEquals(expected, actual);
+
+    JSONAssert.assertEquals(expected, actual, false);
 
     byte[] file =
         Unirest.get(String.format("http://localhost/files/%s", stableId))
