@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
-  private final String RSA_PUBLIC_VERIFICATION_KEYS_PATH = "/etc/jwt/public_keys";
+  private static final String RSA_PUBLIC_VERIFICATION_KEYS_PATH = "/etc/jwt/public_keys";
   private String SIGNING_SECRET;
 
   @Value("${tsd.file.signingSecret}")
