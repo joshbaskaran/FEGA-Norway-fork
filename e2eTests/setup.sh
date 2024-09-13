@@ -8,6 +8,8 @@ if [[ -z "$E2E_DIR" ]] ; then
   exit 1 # fail
 fi
 
+source $E2E_DIR/.env
+
 export E2E_DIR
 export CONFS_DIR="$E2E_DIR/confs"
 export LOCAL_BIN="$E2E_DIR/bin"
@@ -16,60 +18,6 @@ export TMP_DIR="$E2E_DIR/tmp"
 export TMP_CERTS_DIR="$TMP_DIR/certs"
 export TMP_VOLUMES_DIR="$TMP_DIR/volumes"
 export TMP_CONFS_DIR="$TMP_DIR/confs"
-
-export SERVER_CERT_PASSWORD=server_cert_passw0rd
-export CLIENT_CERT_PASSWORD=client_cert_passw0rd
-export ROOT_CERT_PASSWORD=r00t_cert_passw0rd
-export KEY_PASSWORD=key_passw0rd # Also used by SDA
-
-export CEGA_AUTH_URL=${CEGA_AUTH_URL:-"http://cegaauth:8443/lega/v1/legas/users/"}
-export CEGA_USERNAME=${CEGA_USERNAME:-dummy}
-export CEGA_PASSWORD=${CEGA_PASSWORD:-dummy}
-
-export CEGA_MQ_CONNECTION=amqp://test:test@cegamq:5673/lega
-
-export EGA_BOX_USERNAME=${EGA_BOX_USERNAME:-dummy}
-export EGA_BOX_PASSWORD=${EGA_BOX_PASSWORD:-dummy}
-
-export BROKER_HOST=cegamq
-export BROKER_PORT=5673
-export BROKER_USERNAME=test
-export BROKER_PASSWORD=test
-export BROKER_VHOST=lega
-export BROKER_VALIDATE=false
-
-export EXCHANGE=localega
-
-export TSD_ROOT_CERT_PASSWORD=r00t_cert_passw0rd
-export TSD_HOST=tsd:8080
-export TSD_PROJECT=p11
-export TSD_ACCESS_KEY=s0me_key
-export TSD_ACCESS_KEY=s0me_key
-
-export SDA_DB_HOST=db
-export SDA_DB_DATABASE_NAME=sda
-export SDA_DB_USERNAME=postgres
-export SDA_DB_PASSWORD=ro0tpasswd
-
-export PRIVATE_BROKER_VHOST=test
-export PRIVATE_BROKER_USER=admin
-export PRIVATE_BROKER_PASSWORD=guest
-export PRIVATE_BROKER_HASH=4tHURqDiZzypw0NTvoHhpn8/MMgONWonWxgRZ4NXgR8nZRBz
-
-export PUBLIC_BROKER_USER=admin
-export PUBLIC_BROKER_PASSWORD=guest
-export PUBLIC_BROKER_HASH=4tHURqDiZzypw0NTvoHhpn8/MMgONWonWxgRZ4NXgR8nZRBz
-
-export ARCHIVE_PATH=/ega/archive/
-
-export MQ_HOST=mq
-export MQ_PORT=5672
-export MQ_CONNECTION="amqp://admin:guest@$MQ_HOST:$MQ_PORT/test"
-
-# postgres
-export POSTGRES_USERNAME=postgres
-export POSTGRES_PASSWORD=p0stgres_passw0rd
-export POSTGRES_CONNECTION="postgres://$POSTGRES_USERNAME:$POSTGRES_PASSWORD@postgres:5432/postgres?sslmode=disable"
 
 function apply_configs() {
 
@@ -117,6 +65,7 @@ function apply_configs() {
   frepl "<<PROXY_BROKER_PASSWORD>>" "$BROKER_PASSWORD" $f
   frepl "<<PROXY_BROKER_VHOST>>" "$BROKER_VHOST" $f
   frepl "<<PROXY_BROKER_VALIDATE>>" "$BROKER_VALIDATE" $f
+  frepl "<<PROXY_BROKER_SSL_ENABLED>>" "$BROKER_SSL_ENABLED" $f
   frepl "<<PROXY_EXCHANGE>>" "$EXCHANGE" $f
   frepl "<<PROXY_CEGA_AUTH_URL>>" "$CEGA_AUTH_URL" $f
   frepl "<<PROXY_CEGA_USERNAME>>" "$CEGA_USERNAME" $f
@@ -322,9 +271,11 @@ function init() {
 function clean() {
   cd .. && ./gradlew clean && cd $E2E_DIR
   rm -rf $TMP_DIR
-  rm -rf $E2E_DIR/docker-compose.ym*
-  docker rmi tsd-api-mock:latest \
+  rm -rf $E2E_DIR/docker-compose.yml
+  docker rmi cega-mock:latest \
              tsd-proxy:latest \
+             tsd-api-mock:latest \
+             mq-interceptor:latest \
              mq-interceptor:latest \
              postgres --force > /dev/null 2>&1
   echo "Cleanup completed 💯"

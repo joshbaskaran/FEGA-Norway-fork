@@ -13,6 +13,6 @@ public class Credentials {
   @JsonProperty("passwordHash")
   private String passwordHash;
 
-  @JsonProperty("sshPublicKey")
-  private List<String> publicKey;
+  @JsonProperty("sshPublicKeys")
+  private List<String> publicKeys;
 }

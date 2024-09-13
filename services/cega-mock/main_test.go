@@ -40,12 +40,12 @@ func TestUserHandler_ValidUsername(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	var response map[string]interface{}
+	var response User
 	if err := json.Unmarshal(rr.Body.Bytes(), &response); err != nil {
 		t.Fatalf("Failed to parse response: %v", err)
 	}
 
-	if response["response"].(map[string]interface{})["numTotalResults"].(float64) != 1 {
+	if response.Username == "test_instance" {
 		t.Errorf("Expected one user in response")
 	}
 }
