@@ -15,12 +15,14 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("com.rabbitmq:amqp-client:5.20.0")
-    testImplementation("com.konghq:unirest-java:3.14.5") // FIXME ?
+    testImplementation("com.konghq:unirest-java:3.14.5")
     testImplementation("org.postgresql:postgresql:42.7.2")
     testImplementation("com.auth0:java-jwt:4.4.0") // FIXME: io.jsonwebtoken
     testImplementation("commons-io:commons-io:2.15.1")
     testImplementation(project(":lib:crypt4gh"))
     testImplementation("org.slf4j:slf4j-api:2.0.12")
+    testImplementation("org.skyscreamer:jsonassert:1.5.3")
+    implementation("io.github.cdimascio:java-dotenv:5.2.2")
 }
 
 // Start setup scripts.
@@ -60,9 +62,6 @@ tasks.register<Exec>("stop-docker-containers") {
 
 tasks.test {
     useJUnitPlatform()
-    // dependsOn("start-docker-containers")
-    // finalizedBy("stop-docker-containers")
-    // Ensure this test runs only after all other
     // test tasks are completed
     mustRunAfter(
         ":lib:crypt4gh:test",
