@@ -19,12 +19,6 @@ tasks.register("test", Exec::class) {
     commandLine("go", "test")
 }
 
-tasks.register("buildDockerImage", Exec::class) {
-    group = "build"
-    description = "Builds the Docker image for the Go application"
-    commandLine("docker", "build", "-t", "mq-interceptor", ".")
-}
-
 val goClean = tasks.register("goClean", Exec::class) {
     description = "Deletes the build directory"
     commandLine("go", "clean")
