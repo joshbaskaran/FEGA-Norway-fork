@@ -10,6 +10,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.time.Duration;
 import java.util.*;
 import javax.net.ssl.*;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +19,10 @@ import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -103,13 +106,18 @@ public class LocalEGATSDProxyApplication {
             .build());
   }
 
+  @Primary
   @Bean
-  public RestTemplate restTemplate() {
-    return new RestTemplate();
+  public RestTemplate restTemplate(RestTemplateBuilder builder) {
+    return builder
+        .setConnectTimeout(Duration.ofMillis(5000))
+        .setReadTimeout(Duration.ofMillis(5000))
+        .build();
   }
 
   @Bean
   public TSDFileAPIClient tsdFileAPIClient(
+      @Value("${tsd.secure}") String secure,
       @Value("${tsd.host}") String tsdHost,
       @Value("${tsd.project}") String tsdProject,
       @Value("${tsd.access-key}") String tsdAccessKey,
@@ -117,7 +125,11 @@ public class LocalEGATSDProxyApplication {
       @Value("${tsd.root-ca-password}") String tsdRootCAPassword)
       throws GeneralSecurityException, IOException {
     TSDFileAPIClient.Builder tsdFileAPIClientBuilder =
-        new TSDFileAPIClient.Builder().host(tsdHost).project(tsdProject).accessKey(tsdAccessKey);
+        new TSDFileAPIClient.Builder()
+            .secure(secure)
+            .host(tsdHost)
+            .project(tsdProject)
+            .accessKey(tsdAccessKey);
     if (StringUtils.hasLength(tsdRootCA) && StringUtils.hasLength(tsdRootCAPassword)) {
       X509TrustManager trustManager =
           trustManagerForCertificates(Files.newInputStream(Path.of(tsdRootCA)), tsdRootCAPassword);

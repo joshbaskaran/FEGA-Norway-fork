@@ -2,17 +2,19 @@ name: Build and test
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'lib/**'
-      - 'services/**'
-      - 'buildSrc/**'
+      - "lib/**"
+      - "services/**"
+      - "buildSrc/**"
+      - "cli/**"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'lib/**'
-      - 'services/**'
-      - 'buildSrc/**'
+      - "lib/**"
+      - "services/**"
+      - "buildSrc/**"
+      - "cli/**"
 
 jobs:
   build-and-test:
@@ -24,8 +26,17 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+          cache-dependency-path: |
+            cli/lega-commander/go.sum
+            services/mq-interceptor/go.sum
+            services/cega-mock/go.sum
 
       - name: Cache gradle packages
         uses: actions/cache@v4
@@ -41,4 +52,4 @@ jobs:
         run: ./gradlew assemble
 
       - name: Run tests
-        run: ./gradlew test
+        run: ./gradlew :lib:crypt4gh:test :lib:clearinghouse:test :lib:tsd-file-api-client:test :services:tsd-api-mock:test :services:mq-interceptor:test :services:localega-tsd-proxy:test :services:cega-mock:test :cli:lega-commander:test

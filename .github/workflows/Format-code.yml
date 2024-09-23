@@ -1,0 +1,61 @@
+name: Check formatting
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "lib/**"
+      - "services/**"
+      - "buildSrc/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "lib/**"
+      - "services/**"
+      - "buildSrc/**"
+
+jobs:
+  check-formatting:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/cache
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Check and apply formatting
+        id: format
+        run: |
+          ./gradlew spotlessApply
+          git diff --quiet || echo "::set-output name=changes::true"
+
+      - name: Commit and Push Changes
+        if: steps.format.outputs.changes == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME=${{ github.head_ref }}
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add -A
+          git commit -m "Code formatting applied"
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/ELIXIR-NO/FEGA-Norway.git HEAD:refs/heads/$BRANCH_NAME

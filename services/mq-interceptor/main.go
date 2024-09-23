@@ -9,25 +9,68 @@ import (
 	_ "github.com/lib/pq"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
+	"net/url"
 	"os"
 	"sync"
+	"time"
 )
+
+// This interface serves as the supertype for both amqp.Channel and the MockChannel used for testing
+type MQChannel interface {
+        Ack(tag uint64, multiple bool) error
+        Nack(tag uint64, multiple bool, requeue bool) error
+        Reject(tag uint64, requeue bool) error
+        Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
+}
 
 var db *sql.DB
 var publishMutex sync.Mutex
-var cegaPublishChannel *amqp.Channel
+
+
+// dialRabbitMQ attempts to connect to RabbitMQ up to 10 times
+// with a delay between retries. It returns a connection
+// instance or an error.
+func dialRabbitMQ(connectionString string) (*amqp.Connection, error) {
+	var conn *amqp.Connection
+	var err error
+	var attempts = 10
+	// Parse the connection string as a URL.
+	u, err := url.Parse(connectionString)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("Trying to dial host: %s [I will attempt to dial %d times with 2 seconds interval]", u.Hostname(), attempts)
+	log.Printf("Is TLS enabled? %t", os.Getenv("ENABLE_TLS") == "true")
+	for i := 0; i < attempts; i++ {
+		if os.Getenv("ENABLE_TLS") == "true" {
+			conn, err = amqp.DialTLS(connectionString, getTLSConfig())
+		} else {
+			conn, err = amqp.Dial(connectionString)
+		}
+		if err == nil {
+			log.Printf("Successfully connected to host %s\n", u.Hostname())
+			return conn, nil
+		}
+		log.Printf("Attempt %d: Failed to connect to RabbitMQ: %s\n", i+1, err)
+		time.Sleep(2 * time.Second) // Wait before retrying
+	}
+	// After all attempts, return the last error
+	return nil, err
+}
 
 func main() {
+
 	var err error
 
 	db, err = sql.Open("postgres", os.Getenv("POSTGRES_CONNECTION"))
 	failOnError(err, "Failed to connect to DB")
 
-	legaMQ, err := amqp.DialTLS(os.Getenv("LEGA_MQ_CONNECTION"), getTLSConfig())
-	failOnError(err, "Failed to connect to LEGA RabbitMQ")
+	legaMqConnString := os.Getenv("LEGA_MQ_CONNECTION")
+	legaMQ, err := dialRabbitMQ(legaMqConnString)
+    failOnError(err, "Failed to connect to LEGA queue after many attempts")
 	legaConsumeChannel, err := legaMQ.Channel()
 	failOnError(err, "Failed to create LEGA consume RabbitMQ channel")
-	legaPubishChannel, err := legaMQ.Channel()
+	legaPublishChannel, err := legaMQ.Channel()
 	failOnError(err, "Failed to create LEGA publish RabbitMQ channel")
 	legaNotifyCloseChannel := legaMQ.NotifyClose(make(chan *amqp.Error))
 	go func() {
@@ -35,17 +78,19 @@ func main() {
 		log.Fatal(err)
 	}()
 
-	cegaMQ, err := amqp.DialTLS(os.Getenv("CEGA_MQ_CONNECTION"), getTLSConfig())
-	failOnError(err, "Failed to connect to CEGA RabbitMQ")
+	cegaMqConnString := os.Getenv("CEGA_MQ_CONNECTION")
+	cegaMQ, err := dialRabbitMQ(cegaMqConnString)
+    failOnError(err, "Failed to connect to CEGA queue after many attempts")
 	cegaConsumeChannel, err := cegaMQ.Channel()
 	failOnError(err, "Failed to create CEGA consume RabbitMQ channel")
-	cegaPublishChannel, err = cegaMQ.Channel()
+	cegaPublishChannel, err := cegaMQ.Channel()
 	failOnError(err, "Failed to create CEGA publish RabbitMQ channel")
 	cegaNotifyCloseChannel := cegaMQ.NotifyClose(make(chan *amqp.Error))
 	go func() {
 		err := <-cegaNotifyCloseChannel
 		log.Fatal(err)
 	}()
+	errorPublishChannel := cegaPublishChannel
 
 	cegaQueue := os.Getenv("CEGA_MQ_QUEUE")
 	cegaExchange := os.Getenv("CEGA_MQ_EXCHANGE")
@@ -55,32 +100,15 @@ func main() {
 	failOnError(err, "Failed to connect to CEGA queue: "+cegaQueue)
 	go func() {
 		for delivery := range cegaDeliveries {
-			forwardDeliveryTo(true, cegaConsumeChannel, legaPubishChannel, legaExchange, "", delivery)
+			forwardDeliveryTo(true, cegaConsumeChannel, legaPublishChannel, errorPublishChannel, legaExchange, "", delivery)
 		}
 	}()
-
-	// TODO: <begin>Temp WA, remove after migrating to a single queue</begin>
-	// stableIDDeliveries, err := cegaConsumeChannel.Consume("v1.stableIDs", "", false, false, false, false, nil)
-	// failOnError(err, "Failed to connect to CEGA queue: v1.stableIDs")
-	// go func() {
-	// 	for delivery := range stableIDDeliveries {
-	// 		forwardDeliveryTo(true, cegaConsumeChannel, legaPubishChannel, legaExchange, "", delivery)
-	// 	}
-	// }()
-	// mappingDeliveries, err := cegaConsumeChannel.Consume("v1.mapping", "", false, false, false, false, nil)
-	// failOnError(err, "Failed to connect to CEGA queue: v1.mapping")
-	// go func() {
-	// 	for delivery := range mappingDeliveries {
-	// 		forwardDeliveryTo(true, cegaConsumeChannel, legaPubishChannel, legaExchange, "", delivery)
-	// 	}
-	// }()
-	// TODO: <end>Temp WA, remove after migrating to a single queue</end>
 
 	errorDeliveries, err := legaConsumeChannel.Consume("error", "", false, false, false, false, nil)
 	failOnError(err, "Failed to connect to 'error' queue")
 	go func() {
 		for delivery := range errorDeliveries {
-			forwardDeliveryTo(false, legaConsumeChannel, cegaPublishChannel, cegaExchange, "files.error", delivery)
+			forwardDeliveryTo(false, legaConsumeChannel, cegaPublishChannel, errorPublishChannel, cegaExchange, "files.error", delivery)
 		}
 	}()
 
@@ -88,7 +116,7 @@ func main() {
 	failOnError(err, "Failed to connect to 'verified' queue")
 	go func() {
 		for delivery := range verifiedDeliveries {
-			forwardDeliveryTo(false, legaConsumeChannel, cegaPublishChannel, cegaExchange, "files.verified", delivery)
+			forwardDeliveryTo(false, legaConsumeChannel, cegaPublishChannel, errorPublishChannel, cegaExchange, "files.verified", delivery)
 		}
 	}()
 
@@ -96,7 +124,7 @@ func main() {
 	failOnError(err, "Failed to connect to 'completed' queue")
 	go func() {
 		for delivery := range completedDeliveries {
-			forwardDeliveryTo(false, legaConsumeChannel, cegaPublishChannel, cegaExchange, "files.completed", delivery)
+			forwardDeliveryTo(false, legaConsumeChannel, cegaPublishChannel, errorPublishChannel, cegaExchange, "files.completed", delivery)
 		}
 	}()
 
@@ -104,7 +132,7 @@ func main() {
 	failOnError(err, "Failed to connect to 'inbox' queue")
 	go func() {
 		for delivery := range inboxDeliveries {
-			forwardDeliveryTo(false, legaConsumeChannel, cegaPublishChannel, cegaExchange, "files.inbox", delivery)
+			forwardDeliveryTo(false, legaConsumeChannel, cegaPublishChannel, errorPublishChannel, cegaExchange, "files.inbox", delivery)
 		}
 	}()
 
@@ -113,7 +141,7 @@ func main() {
 	<-forever
 }
 
-func forwardDeliveryTo(fromCEGAToLEGA bool, channelFrom *amqp.Channel, channelTo *amqp.Channel, exchange string, routingKey string, delivery amqp.Delivery) {
+func forwardDeliveryTo(fromCEGAToLEGA bool, channelFrom MQChannel, channelTo MQChannel, errorChannel MQChannel, exchange string, routingKey string, delivery amqp.Delivery) {
 	publishMutex.Lock()
 	defer publishMutex.Unlock()
 	publishing, messageType, err := buildPublishingFromDelivery(fromCEGAToLEGA, delivery)
@@ -121,8 +149,9 @@ func forwardDeliveryTo(fromCEGAToLEGA bool, channelFrom *amqp.Channel, channelTo
 		log.Printf("%s", err)
 		nackError := channelFrom.Nack(delivery.DeliveryTag, false, false)
 		failOnError(nackError, "Failed to Nack message")
-		err = publishError(delivery, err)
+		err = publishError(delivery, err, errorChannel)
 		failOnError(err, "Failed to publish error message")
+		return
 	}
 	// Forward all messages from CEGA to a local queue handled by the SDA intercept service
 	if fromCEGAToLEGA {
@@ -196,7 +225,7 @@ func buildPublishingFromDelivery(fromCEGAToLEGA bool, delivery amqp.Delivery) (*
 	return &publishing, messageType, err
 }
 
-func publishError(delivery amqp.Delivery, err error) error {
+func publishError(delivery amqp.Delivery, err error, errorChannel MQChannel) error {
 	errorMessage := fmt.Sprintf("{\"reason\" : \"%s\", \"original_message\" : \"%s\"}", err.Error(), string(delivery.Body))
 	publishing := amqp.Publishing{
 		ContentType:     delivery.ContentType,
@@ -204,7 +233,7 @@ func publishError(delivery amqp.Delivery, err error) error {
 		CorrelationId:   delivery.CorrelationId,
 		Body:            []byte(errorMessage),
 	}
-	err = cegaPublishChannel.Publish(os.Getenv("CEGA_MQ_EXCHANGE"), "files.error", false, false, publishing)
+	err = errorChannel.Publish(os.Getenv("CEGA_MQ_EXCHANGE"), "files.error", false, false, publishing)
 	return err
 }
 
