@@ -60,7 +60,6 @@ tasks.register<Exec>("stop-docker-containers") {
     commandLine("docker", "compose", "down")
 }
 
-
 tasks.test {
     useJUnitPlatform()
     // test tasks are completed
@@ -74,4 +73,3 @@ tasks.test {
     )
     testLogging.showStandardStreams = true
 }
-
