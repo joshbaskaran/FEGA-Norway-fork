@@ -1,7 +1,7 @@
 release:
     github:
-        owner: elixir-oslo
-        name: lega-commander
+        owner: ELIXIR-NO
+        name: FEGA-Norway
 
 builds:
     - goos:
