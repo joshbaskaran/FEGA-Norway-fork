@@ -8,10 +8,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Objects;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import javax.net.ssl.*;
 import lombok.AccessLevel;
@@ -635,8 +635,44 @@ public class TSDFileAPIClient {
 
             httpClientBuilder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
 
-            // Optionally disable SSL verification?
-            if (this.checkCertificate != null && !this.checkCertificate) {}
+            // Optionally disable SSL verification if checkCertificate is false
+            if (this.checkCertificate != null && !this.checkCertificate) {
+              try {
+                // Create a trust manager that does not validate certificate chains
+                TrustManager[] trustAllCerts =
+                    new TrustManager[] {
+                      new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(
+                            java.security.cert.X509Certificate[] chain, String authType)
+                            throws java.security.cert.CertificateException {}
+
+                        @Override
+                        public void checkServerTrusted(
+                            java.security.cert.X509Certificate[] chain, String authType)
+                            throws java.security.cert.CertificateException {}
+
+                        @Override
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                          return new java.security.cert.X509Certificate[] {};
+                        }
+                      }
+                    };
+
+                SSLContext insecureSslContext = SSLContext.getInstance("TLS");
+                insecureSslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+                SSLSocketFactory insecureSslSocketFactory = insecureSslContext.getSocketFactory();
+
+                httpClientBuilder.sslSocketFactory(
+                    insecureSslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+
+                // Disable hostname verification
+                httpClientBuilder.hostnameVerifier((hostname, session) -> true);
+              } catch (Exception e) {
+                throw new RuntimeException("Failed to disable SSL verification", e);
+              }
+            }
 
           } catch (Exception e) {
             throw new RuntimeException("Failed to initialize SSL context", e);
