@@ -513,7 +513,7 @@ public class TSDFileAPIClient {
     }
 
     /**
-     * Defines whether use HTTP or HTTPS.
+     * Defines whether you use HTTP or HTTPS.
      *
      * @param secure <code>true</code> for HTTPS, <code>false</code> otherwise.
      * @return Builder instance.
@@ -635,7 +635,7 @@ public class TSDFileAPIClient {
 
             httpClientBuilder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
 
-            // Optionally disable SSL verification if checkCertificate is false
+            // Disable SSL verification if checkCertificate is false
             if (this.checkCertificate != null && !this.checkCertificate) {
               try {
                 // Create a trust manager that does not validate certificate chains

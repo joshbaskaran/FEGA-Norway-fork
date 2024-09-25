@@ -32,4 +32,4 @@ tasks.test {
     useJUnitPlatform()
 }
 
-// TODO: Configure the publishing settings for distributing the library/application.
+
