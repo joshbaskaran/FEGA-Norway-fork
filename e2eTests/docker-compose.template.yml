@@ -113,6 +113,7 @@ services:
       - <<TMP_CERTS_DIR>>/proxy/server.cert:/etc/ega/ssl/server.cert
       - <<TMP_CERTS_DIR>>/proxy/passport.pem:/etc/ega/jwt/passport.pem
       - <<TMP_CERTS_DIR>>/proxy/visa.pem:/etc/ega/jwt/visa.pem
+      #- custom_path:/app/static/ # Serves from a directory
     command: # See services/localega-tsd-proxy/Dockerfile
       - "java"
       - "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
