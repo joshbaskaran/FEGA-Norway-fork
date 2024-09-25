@@ -4,11 +4,16 @@ import com.auth0.jwt.JWT;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import javax.net.ssl.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +21,7 @@ import no.uio.ifi.tc.model.Environment;
 import no.uio.ifi.tc.model.pojo.*;
 import okhttp3.*;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Main class of the library, encapsulating TSD File API client methods. */
 @Slf4j
@@ -507,7 +513,7 @@ public class TSDFileAPIClient {
     }
 
     /**
-     * Defines whether use HTTP or HTTPS.
+     * Defines whether you use HTTP or HTTPS.
      *
      * @param secure <code>true</code> for HTTPS, <code>false</code> otherwise.
      * @return Builder instance.
@@ -595,11 +601,84 @@ public class TSDFileAPIClient {
      */
     public TSDFileAPIClient build() {
       OkHttpClient httpClient;
-      // TODO: Implement SSL client authentication in OkHttpClient
+
       if (this.OkhttpClient != null) {
         httpClient = this.OkhttpClient;
       } else {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+
+        // SSL Verification and Client Certificate Handling
+        if (StringUtils.isNotEmpty(clientCertificateStore)
+            && StringUtils.isNotEmpty(clientCertificateStorePassword)) {
+          try {
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            try (InputStream certInputStream = new FileInputStream(clientCertificateStore)) {
+              keyStore.load(certInputStream, clientCertificateStorePassword.toCharArray());
+            }
+
+            KeyManagerFactory keyManagerFactory =
+                KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            keyManagerFactory.init(keyStore, clientCertificateStorePassword.toCharArray());
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
+
+            final TrustManagerFactory trustManagerFactory =
+                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init((KeyStore) null);
+            final TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+            if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
+              throw new IllegalStateException(
+                  "Unexpected default trust managers:" + Arrays.toString(trustManagers));
+            }
+            final X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
+
+            httpClientBuilder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
+
+            // Disable SSL verification if checkCertificate is false
+            if (this.checkCertificate != null && !this.checkCertificate) {
+              try {
+                // Create a trust manager that does not validate certificate chains
+                TrustManager[] trustAllCerts =
+                    new TrustManager[] {
+                      new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(
+                            java.security.cert.X509Certificate[] chain, String authType)
+                            throws java.security.cert.CertificateException {}
+
+                        @Override
+                        public void checkServerTrusted(
+                            java.security.cert.X509Certificate[] chain, String authType)
+                            throws java.security.cert.CertificateException {}
+
+                        @Override
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                          return new java.security.cert.X509Certificate[] {};
+                        }
+                      }
+                    };
+
+                SSLContext insecureSslContext = SSLContext.getInstance("TLS");
+                insecureSslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+                SSLSocketFactory insecureSslSocketFactory = insecureSslContext.getSocketFactory();
+
+                httpClientBuilder.sslSocketFactory(
+                    insecureSslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+
+                // Disable hostname verification
+                httpClientBuilder.hostnameVerifier((hostname, session) -> true);
+              } catch (Exception e) {
+                throw new RuntimeException("Failed to disable SSL verification", e);
+              }
+            }
+
+          } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize SSL context", e);
+          }
+        }
+
         httpClient = httpClientBuilder.build();
       }
 
@@ -611,6 +690,10 @@ public class TSDFileAPIClient {
           this.environment == null ? DEFAULT_ENVIRONMENT : this.environment;
       tsdFileAPIClient.version = this.version == null ? DEFAULT_VERSION : this.version;
       tsdFileAPIClient.project = this.project == null ? DEFAULT_PROJECT : this.project;
+
+      if (StringUtils.isEmpty(this.accessKey)) {
+        throw new IllegalArgumentException("Access key must be set");
+      }
       tsdFileAPIClient.accessKey = this.accessKey;
 
       return tsdFileAPIClient;
