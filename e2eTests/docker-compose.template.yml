@@ -52,6 +52,7 @@ services:
     ports:
       - "5672:5672"
       - "15671:15671"
+      - "15678:15672"
     volumes:
       - <<TMP_CONFS_DIR>>/mq:/etc/rabbitmq
     command: sh -c "rabbitmq-plugins enable --offline rabbitmq_federation rabbitmq_federation_management rabbitmq_shovel rabbitmq_shovel_management && rabbitmq-server"
@@ -445,3 +446,67 @@ services:
       - CEGA_USERS_USER=dummy
     ports:
       - "8443:8443"
+
+
+  # Heartbeat
+
+  hbeat-pub:
+    container_name: hbeat-pub
+    hostname: hbeat-pub
+    image: hbeat-pub:latest
+    build: ../services/hbeat-pub
+    environment:
+      - HEARTBEAT_MODE=publisher
+      - RABBITMQ_HOST=<<MQ_HOST>>
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=<<PRIVATE_BROKER_USER>>
+      - RABBITMQ_PASS=<<PRIVATE_BROKER_PASSWORD>>
+      - RABBITMQ_VHOST=<<PRIVATE_BROKER_VHOST>>
+      - RABBITMQ_EXCHANGE=sda
+      - RABBITMQ_QUEUE=heartbeat
+      - RABBITMQ_ROUTING_KEY=sda_heartbeat
+      - RABBITMQ_TLS=false
+      - RABBITMQ_CA_CERT_PATH=
+      - RABBITMQ_TLS_PORT=5671
+      - PUBLISH_INTERVAL=60
+      - RABBITMQ_MANAGEMENT_PORT=15671
+    depends_on:
+      mq:
+        condition: service_healthy
+    links:
+      - mq
+
+  hbeat-sub:
+    container_name: hbeat-sub
+    hostname: hbeat-sub
+    image: hbeat-sub:latest
+    build: ../services/hbeat-pub
+    environment:
+      - HEARTBEAT_MODE=subscriber
+      - RABBITMQ_HOST=<<MQ_HOST>>
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=<<PRIVATE_BROKER_USER>>
+      - RABBITMQ_PASS=<<PRIVATE_BROKER_PASSWORD>>
+      - RABBITMQ_VHOST=<<PRIVATE_BROKER_VHOST>>
+      - RABBITMQ_EXCHANGE=sda
+      - RABBITMQ_QUEUE=heartbeat
+      - RABBITMQ_ROUTING_KEY=sda_heartbeat
+      - RABBITMQ_TLS=false
+      - RABBITMQ_CA_CERT_PATH=
+      - RABBITMQ_TLS_PORT=5671
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+    depends_on:
+      mq:
+        condition: service_healthy
+    links:
+      - mq
+
+
+  redis:
+    container_name: redis
+    hostname: redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"

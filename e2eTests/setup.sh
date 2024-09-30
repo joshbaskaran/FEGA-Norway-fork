@@ -83,7 +83,7 @@ function apply_configs() {
   cp -R "$CONFS_DIR"/postgres/* "$TMP_CONFS_DIR"/postgres
   frepl "<<POSTGRES_PASSWORD>>" "$POSTGRES_PASSWORD" $f
 
-  # ingest, verify, finalize, mapper
+  # ingest, verify, finalize, mapper, hbeat-pub
   frepl "<<BROKER_HOST>>" "$MQ_HOST" $f
   frepl "<<PRIVATE_BROKER_USER>>" "$PRIVATE_BROKER_USER" $f
   frepl "<<PRIVATE_BROKER_PASSWORD>>" "$PRIVATE_BROKER_PASSWORD" $f
@@ -274,10 +274,10 @@ function clean() {
   rm -rf $E2E_DIR/docker-compose.yml
   docker rmi cega-mock:latest \
              tsd-proxy:latest \
+             hbeat-pub:latest \
+             hbeat-sub:latest \
              tsd-api-mock:latest \
-             mq-interceptor:latest \
-             mq-interceptor:latest \
-             postgres --force > /dev/null 2>&1
+             mq-interceptor:latest --force > /dev/null 2>&1
   echo "Cleanup completed 💯"
 }
 
