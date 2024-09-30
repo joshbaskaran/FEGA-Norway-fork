@@ -1,8 +1,8 @@
 package no.elixir.fega.ltp.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 
 @Data
