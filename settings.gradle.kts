@@ -9,7 +9,7 @@ include("services:cega-mock")
 include("services:tsd-api-mock")
 include("services:mq-interceptor")
 include("services:localega-tsd-proxy")
-include("services:hbeat-pub")
+include("services:heartbeat")
 
 include("e2eTests")
 
@@ -20,4 +20,4 @@ findProject(":services:cega-mock")?.name = "cega-mock"
 findProject(":services:tsd-api-mock")?.name = "tsd-api-mock"
 findProject(":services:mq-interceptor")?.name = "mq-interceptor"
 findProject(":services:localega-tsd-proxy")?.name = "localega-tsd-proxy"
-findProject(":services:hbeat-pub")?.name = "hbeat-pub"
+findProject(":services:heartbeat")?.name = "heartbeat"

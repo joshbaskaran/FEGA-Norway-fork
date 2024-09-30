@@ -450,11 +450,11 @@ services:
 
   # Heartbeat
 
-  hbeat-pub:
-    container_name: hbeat-pub
-    hostname: hbeat-pub
-    image: hbeat-pub:latest
-    build: ../services/hbeat-pub
+  heartbeat-pub:
+    container_name: heartbeat-pub
+    hostname: heartbeat-pub
+    image: heartbeat-pub:latest
+    build: ../services/heartbeat
     environment:
       - HEARTBEAT_MODE=publisher
       - RABBITMQ_HOST=<<MQ_HOST>>
@@ -476,11 +476,11 @@ services:
     links:
       - mq
 
-  hbeat-sub:
-    container_name: hbeat-sub
-    hostname: hbeat-sub
-    image: hbeat-sub:latest
-    build: ../services/hbeat-pub
+  heartbeat-sub:
+    container_name: heartbeat-sub
+    hostname: heartbeat-sub
+    image: heartbeat-sub:latest
+    build: ../services/heartbeat
     environment:
       - HEARTBEAT_MODE=subscriber
       - RABBITMQ_HOST=<<MQ_HOST>>
