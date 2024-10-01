@@ -77,11 +77,14 @@ services:
         condition: service_started
       postgres:
         condition: service_started
+      redis:
+        condition: service_started
     links:
       - tsd
       - mq
       - cegamq
       - postgres
+      - redis
     ports:
       - "10443:8080"
       - "5005:5005" # This is the JDWP debug port. See command below.
@@ -499,8 +502,11 @@ services:
     depends_on:
       mq:
         condition: service_healthy
+      redis:
+        condition: service_started
     links:
       - mq
+      - redis
 
 
   redis:
@@ -509,3 +515,6 @@ services:
     image: redis:alpine
     ports:
       - "6379:6379"
+    links:
+      - heartbeat-sub
+      - proxy
