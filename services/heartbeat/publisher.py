@@ -2,6 +2,7 @@ import json
 import re
 import socket
 import time
+from datetime import datetime, timezone
 
 import requests
 from loguru import logger
@@ -104,6 +105,7 @@ def publish_heartbeat(_, channel):
     # Extract hosts and RabbitMQ consumers from config
     hosts = config.get('heartbeat', {}).get('hosts', [])
     rmq_consumers = config.get('heartbeat', {}).get('rmq_consumers', [])
+    utc_timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S %Z')
     # Infinite loop to send heartbeat every minute (or configured interval)
     while True:
         # Check hosts and RabbitMQ consumers
@@ -112,7 +114,7 @@ def publish_heartbeat(_, channel):
         message = {
             "status": "heartbeat",
             "service": "publisher",
-            "timestamp": time.time(),
+            "timestamp": utc_timestamp,
             "hosts": hosts_result,
             "rmq_consumers": rmq_result
         }
