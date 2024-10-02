@@ -2,6 +2,7 @@ plugins {
     id("java-library")
     id("io.freefair.lombok") version "8.10"
     id("formatting-conventions")
+    id("maven-publish")
 }
 
 group = "elixir.no"
@@ -32,4 +33,20 @@ tasks.test {
     useJUnitPlatform()
 }
 
-// TODO: Configure the publishing settings for distributing the library/application.
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
+    repositories {
+        maven {
+            name = "fega-norway-tsd-file-api-client"
+            url = uri("https://maven.pkg.github.com/ELIXIR-NO/FEGA-Norway")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
