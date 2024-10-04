@@ -601,8 +601,8 @@ public class TSDFileAPIClient {
     public TSDFileAPIClient build() {
       OkHttpClient httpClient;
 
-      boolean disableSsl =
-          Boolean.parseBoolean(Optional.ofNullable(System.getenv("DISABLE_SSL")).orElse("false"));
+      boolean enableSsl =
+          Boolean.parseBoolean(Optional.ofNullable(System.getenv("TSD_SECURE")).orElse("true"));
 
       if (this.OkhttpClient != null) {
         httpClient = this.OkhttpClient;
@@ -610,7 +610,7 @@ public class TSDFileAPIClient {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
 
         // SSL Verification and Client Certificate Handling
-        if (!disableSsl
+        if (enableSsl
             && StringUtils.isNotEmpty(clientCertificateStore)
             && StringUtils.isNotEmpty(clientCertificateStorePassword)) {
           try {
@@ -648,7 +648,7 @@ public class TSDFileAPIClient {
 
       TSDFileAPIClient tsdFileAPIClient = new TSDFileAPIClient(httpClient);
 
-      tsdFileAPIClient.protocol = !disableSsl ? "https" : "http";
+      tsdFileAPIClient.protocol = enableSsl ? "https" : "http";
       tsdFileAPIClient.host = this.host == null ? DEFAULT_HOST : this.host;
       tsdFileAPIClient.environment =
           this.environment == null ? DEFAULT_ENVIRONMENT : this.environment;
