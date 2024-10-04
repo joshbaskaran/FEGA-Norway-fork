@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import javax.net.ssl.*;
@@ -602,13 +601,17 @@ public class TSDFileAPIClient {
     public TSDFileAPIClient build() {
       OkHttpClient httpClient;
 
+      boolean disableSsl =
+          Boolean.parseBoolean(Optional.ofNullable(System.getenv("DISABLE_SSL")).orElse("false"));
+
       if (this.OkhttpClient != null) {
         httpClient = this.OkhttpClient;
       } else {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
 
         // SSL Verification and Client Certificate Handling
-        if (StringUtils.isNotEmpty(clientCertificateStore)
+        if (!disableSsl
+            && StringUtils.isNotEmpty(clientCertificateStore)
             && StringUtils.isNotEmpty(clientCertificateStorePassword)) {
           try {
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -627,53 +630,14 @@ public class TSDFileAPIClient {
                 TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init((KeyStore) null);
             final TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
-            if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
-              throw new IllegalStateException(
-                  "Unexpected default trust managers:" + Arrays.toString(trustManagers));
-            }
             final X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
 
             httpClientBuilder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
 
-            // Disable SSL verification if checkCertificate is false
+            // Optionally disable SSL verification if needed
             if (this.checkCertificate != null && !this.checkCertificate) {
-              try {
-                // Create a trust manager that does not validate certificate chains
-                TrustManager[] trustAllCerts =
-                    new TrustManager[] {
-                      new X509TrustManager() {
-                        @Override
-                        public void checkClientTrusted(
-                            java.security.cert.X509Certificate[] chain, String authType)
-                            throws java.security.cert.CertificateException {}
-
-                        @Override
-                        public void checkServerTrusted(
-                            java.security.cert.X509Certificate[] chain, String authType)
-                            throws java.security.cert.CertificateException {}
-
-                        @Override
-                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                          return new java.security.cert.X509Certificate[] {};
-                        }
-                      }
-                    };
-
-                SSLContext insecureSslContext = SSLContext.getInstance("TLS");
-                insecureSslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-
-                SSLSocketFactory insecureSslSocketFactory = insecureSslContext.getSocketFactory();
-
-                httpClientBuilder.sslSocketFactory(
-                    insecureSslSocketFactory, (X509TrustManager) trustAllCerts[0]);
-
-                // Disable hostname verification
-                httpClientBuilder.hostnameVerifier((hostname, session) -> true);
-              } catch (Exception e) {
-                throw new RuntimeException("Failed to disable SSL verification", e);
-              }
+              httpClientBuilder.hostnameVerifier((hostname, session) -> true);
             }
-
           } catch (Exception e) {
             throw new RuntimeException("Failed to initialize SSL context", e);
           }
@@ -684,7 +648,7 @@ public class TSDFileAPIClient {
 
       TSDFileAPIClient tsdFileAPIClient = new TSDFileAPIClient(httpClient);
 
-      tsdFileAPIClient.protocol = this.secure == null || this.secure ? "https" : "http";
+      tsdFileAPIClient.protocol = !disableSsl ? "https" : "http";
       tsdFileAPIClient.host = this.host == null ? DEFAULT_HOST : this.host;
       tsdFileAPIClient.environment =
           this.environment == null ? DEFAULT_ENVIRONMENT : this.environment;

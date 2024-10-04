@@ -86,6 +86,7 @@ services:
       - "10443:8080"
       - "5005:5005" # This is the JDWP debug port. See command below.
     environment:
+      - DISABLE_SSL=true
       - SSL_ENABLED=false
       - TSD_SECURE=false
       - DB_PORT=5432
