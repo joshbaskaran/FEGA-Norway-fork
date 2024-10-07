@@ -11,24 +11,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HeartbeatController {
 
-    private final HeartbeatService heartbeatService;
+  private final HeartbeatService heartbeatService;
 
-    public HeartbeatController(HeartbeatService heartbeatService) {
-        this.heartbeatService = heartbeatService;
+  public HeartbeatController(HeartbeatService heartbeatService) {
+    this.heartbeatService = heartbeatService;
+  }
+
+  @GetMapping("/heartbeat")
+  public ResponseEntity<Heartbeat> getHeartbeatStatus() {
+    try {
+      Heartbeat heartbeat = heartbeatService.getHeartbeat();
+      return ResponseEntity.status(
+              heartbeat.getStatus() == Heartbeat.Status.ALL_OK
+                  ? HttpStatus.OK
+                  : HttpStatus.SERVICE_UNAVAILABLE)
+          .body(heartbeat);
+    } catch (JsonProcessingException e) {
+      return ResponseEntity.internalServerError().build();
     }
-
-    @GetMapping("/heartbeat")
-    public ResponseEntity<Heartbeat> getHeartbeatStatus() {
-        try {
-            Heartbeat heartbeat = heartbeatService.getHeartbeat();
-            return ResponseEntity.status(
-                    heartbeat.getStatus() == Heartbeat.Status.ALL_OK
-                            ? HttpStatus.OK
-                            : HttpStatus.SERVICE_UNAVAILABLE
-            ).body(heartbeat);
-        } catch (JsonProcessingException e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
+  }
 }

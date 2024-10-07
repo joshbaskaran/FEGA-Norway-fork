@@ -1,11 +1,6 @@
 package no.elixir.fega.ltp.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.slf4j.Slf4j;
-import no.elixir.fega.ltp.dto.Heartbeat;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,139 +8,140 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import no.elixir.fega.ltp.dto.Heartbeat;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class HeartbeatService {
 
-    private final RedisTemplate<String, String> redisTemplate;
+  private final RedisTemplate<String, String> redisTemplate;
 
-    public HeartbeatService(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+  public HeartbeatService(RedisTemplate<String, String> redisTemplate) {
+    this.redisTemplate = redisTemplate;
+  }
+
+  public Heartbeat getHeartbeat() throws JsonProcessingException {
+
+    Heartbeat heartbeat = new Heartbeat();
+
+    heartbeat.setServices(processKeys("service:*").values());
+    heartbeat.setQueues(processKeys("queue:*").values());
+
+    boolean servicesOk = areAllComponentsOk(heartbeat.getServices());
+    boolean queuesOk = areAllComponentsOk(heartbeat.getQueues());
+
+    // Set the default status
+    Heartbeat.Status status = Heartbeat.Status.MISSING_SERVICES_AND_QUEUES;
+
+    // Update the status based on the conditions
+    if (queuesOk && servicesOk) {
+      status = Heartbeat.Status.ALL_OK;
+    } else if (queuesOk) {
+      status = Heartbeat.Status.MISSING_SERVICES;
+    } else if (servicesOk) {
+      status = Heartbeat.Status.MISSING_QUEUES;
     }
 
-    public Heartbeat getHeartbeat() throws JsonProcessingException {
+    // Set the final status and description
+    heartbeat.setStatus(status);
+    heartbeat.setDescription(status.getDescription());
 
-        Heartbeat heartbeat = new Heartbeat();
+    return heartbeat;
+  }
 
-        heartbeat.setServices(processKeys("service:*").values());
-        heartbeat.setQueues(processKeys("queue:*").values());
+  private Map<String, Heartbeat.Component> processKeys(String pattern) {
+    Set<String> keys = redisTemplate.keys(pattern);
+    Map<String, Heartbeat.Component> records = new HashMap<>();
+    if (keys != null) {
+      for (String key : keys) {
+        evaluateComponentStatus(key, records);
+      }
+    }
+    return records;
+  }
 
-        boolean servicesOk = areAllComponentsOk(heartbeat.getServices());
-        boolean queuesOk = areAllComponentsOk(heartbeat.getQueues());
+  private void evaluateComponentStatus(String key, Map<String, Heartbeat.Component> records) {
 
-        // Set the default status
-        Heartbeat.Status status = Heartbeat.Status.MISSING_SERVICES_AND_QUEUES;
+    int NAME = 1, STATUS = 2;
+    String[] data = key.split(":");
+    assert data.length == 3;
 
-        // Update the status based on the conditions
-        if (queuesOk && servicesOk) {
-            status = Heartbeat.Status.ALL_OK;
-        } else if (queuesOk) {
-            status = Heartbeat.Status.MISSING_SERVICES;
-        } else if (servicesOk) {
-            status = Heartbeat.Status.MISSING_QUEUES;
-        }
+    // Retrieve the value (timestamp) from Redis
+    String value = redisTemplate.opsForValue().get(key);
 
-        // Set the final status and description
-        heartbeat.setStatus(status);
-        heartbeat.setDescription(status.getDescription());
+    try {
+      var status = Heartbeat.Component.Status.fromString(data[STATUS]);
+      LocalDateTime timestamp = null;
+      if (value != null) {
+        // Parse the time to local date time
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss 'UTC'");
+        timestamp = LocalDateTime.parse(value, formatter);
+      }
+      // If this component doesn't exist in the records yet, create it
+      if (!records.containsKey(data[NAME])) {
+        records.put(data[NAME], new Heartbeat.Component());
+      }
+      Heartbeat.Component component = records.get(data[NAME]);
+      // Update the component name
+      component.setName(data[NAME]);
+      // Set the last seen ok or failed based on the current status
+      if (status == Heartbeat.Component.Status.OK) {
+        component.setLast_seen_ok(timestamp);
+      } else if (status == Heartbeat.Component.Status.NOT_OK) {
+        component.setLast_seen_failed(timestamp);
+      }
+      // Now process the final component status based on the rules
+      determineFinalStatus(status, component);
+    } catch (IllegalArgumentException e) {
+      log.info("Unknown heartbeat status: {}", data[STATUS]);
+    }
+  }
 
-        return heartbeat;
+  private void determineFinalStatus(
+      Heartbeat.Component.Status currentStatus, Heartbeat.Component component) {
 
+    LocalDateTime lastSeenOk = component.getLast_seen_ok();
+    LocalDateTime lastSeenFailed = component.getLast_seen_failed();
+
+    if (lastSeenOk != null && lastSeenFailed != null) {
+      // Calculate the difference between the timestamps
+      Duration difference = Duration.between(lastSeenFailed, lastSeenOk);
+      // If last seen OK is more recent than last seen failed and
+      // the difference is more than 10 minutes
+      if (lastSeenOk.isAfter(lastSeenFailed) && difference.toMinutes() >= 10) {
+        component.setStatus(Heartbeat.Component.Status.OK);
+      }
+      // If last seen failed is more recent than last seen OK and
+      // the difference is at least 3 minutes
+      else if (lastSeenFailed.isAfter(lastSeenOk) && difference.toMinutes() >= 3) {
+        component.setStatus(Heartbeat.Component.Status.NOT_OK);
+      }
     }
 
-    private Map<String, Heartbeat.Component> processKeys(String pattern) {
-        Set<String> keys = redisTemplate.keys(pattern);
-        Map<String, Heartbeat.Component> records = new HashMap<>();
-        if (keys != null) {
-            for (String key : keys) {
-                evaluateComponentStatus(key, records);
-            }
-        }
-        return records;
+    // If there is no last_seen_failed timestamp, consider it OK
+    else if (lastSeenOk != null) {
+      component.setStatus(Heartbeat.Component.Status.OK);
     }
-
-    private void evaluateComponentStatus(String key, Map<String, Heartbeat.Component> records) {
-
-        int NAME = 1, STATUS = 2;
-        String[] data = key.split(":");
-        assert data.length == 3;
-
-        // Retrieve the value (timestamp) from Redis
-        String value = redisTemplate.opsForValue().get(key);
-
-        try {
-            var status = Heartbeat.Component.Status.fromString(data[STATUS]);
-            LocalDateTime timestamp = null;
-            if (value != null) {
-                // Parse the time to local date time
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss 'UTC'");
-                timestamp = LocalDateTime.parse(value, formatter);
-            }
-            // If this component doesn't exist in the records yet, create it
-            if (!records.containsKey(data[NAME])) {
-                records.put(data[NAME], new Heartbeat.Component());
-            }
-            Heartbeat.Component component = records.get(data[NAME]);
-            // Update the component name
-            component.setName(data[NAME]);
-            // Set the last seen ok or failed based on the current status
-            if (status == Heartbeat.Component.Status.OK) {
-                component.setLast_seen_ok(timestamp);
-            } else if (status == Heartbeat.Component.Status.NOT_OK) {
-                component.setLast_seen_failed(timestamp);
-            }
-            // Now process the final component status based on the rules
-            determineFinalStatus(status, component);
-        } catch (IllegalArgumentException e) {
-            log.info("Unknown heartbeat status: {}", data[STATUS]);
-        }
-
+    // If there is no last_seen_ok timestamp, consider it NOT OK
+    else if (lastSeenFailed != null) {
+      component.setStatus(Heartbeat.Component.Status.NOT_OK);
     }
-
-    private void determineFinalStatus(Heartbeat.Component.Status currentStatus, Heartbeat.Component component) {
-
-        LocalDateTime lastSeenOk = component.getLast_seen_ok();
-        LocalDateTime lastSeenFailed = component.getLast_seen_failed();
-
-        if (lastSeenOk != null && lastSeenFailed != null) {
-            // Calculate the difference between the timestamps
-            Duration difference = Duration.between(lastSeenFailed, lastSeenOk);
-            // If last seen OK is more recent than last seen failed and
-            // the difference is more than 10 minutes
-            if (lastSeenOk.isAfter(lastSeenFailed) && difference.toMinutes() >= 10) {
-                component.setStatus(Heartbeat.Component.Status.OK);
-            }
-            // If last seen failed is more recent than last seen OK and
-            // the difference is at least 3 minutes
-            else if (lastSeenFailed.isAfter(lastSeenOk) && difference.toMinutes() >= 3) {
-                component.setStatus(Heartbeat.Component.Status.NOT_OK);
-            }
-        }
-
-        // If there is no last_seen_failed timestamp, consider it OK
-        else if (lastSeenOk != null) {
-            component.setStatus(Heartbeat.Component.Status.OK);
-        }
-        // If there is no last_seen_ok timestamp, consider it NOT OK
-        else if (lastSeenFailed != null) {
-            component.setStatus(Heartbeat.Component.Status.NOT_OK);
-        }
-        // If nothing is set fallback to the value given
-        // by the heartbeat service
-        else {
-            component.setStatus(currentStatus);
-        }
-
+    // If nothing is set fallback to the value given
+    // by the heartbeat service
+    else {
+      component.setStatus(currentStatus);
     }
+  }
 
-    private boolean areAllComponentsOk(Collection<Heartbeat.Component> components) {
-        for (Heartbeat.Component component : components) {
-            if (component.getStatus() == Heartbeat.Component.Status.NOT_OK) {
-                return false;  // If any component is NOT_OK, return false
-            }
-        }
-        return true;  // If all components are OK, return true
+  private boolean areAllComponentsOk(Collection<Heartbeat.Component> components) {
+    for (Heartbeat.Component component : components) {
+      if (component.getStatus() == Heartbeat.Component.Status.NOT_OK) {
+        return false; // If any component is NOT_OK, return false
+      }
     }
-
+    return true; // If all components are OK, return true
+  }
 }
