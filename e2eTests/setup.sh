@@ -53,6 +53,9 @@ function apply_configs() {
   frepl "<<PASSWORD_HASH>>" "$PRIVATE_BROKER_HASH" $definitions_json_file
   frepl "<<VIRTUAL_HOST>>" "$PRIVATE_BROKER_VHOST" $definitions_json_file
 
+  # heartbeat-pub
+  cp -R "$CONFS_DIR"/heartbeat-pub/* "$TMP_CONFS_DIR"/heartbeat-pub
+
   # proxy
   frepl "<<PROXY_ROOT_CERT_PASSWORD>>" "$ROOT_CERT_PASSWORD" $f
   frepl "<<PROXY_TSD_ROOT_CERT_PASSWORD>>" "$TSD_ROOT_CERT_PASSWORD" $f
@@ -256,7 +259,8 @@ function init() {
   mkdir -p $TMP_CONFS_DIR/cegaauth \
     $TMP_CONFS_DIR/cegamq \
     $TMP_CONFS_DIR/mq \
-    $TMP_CONFS_DIR/postgres
+    $TMP_CONFS_DIR/postgres \
+    $TMP_CONFS_DIR/heartbeat-pub
   mkdir -p $TMP_CERTS_DIR \
    $TMP_CERTS_DIR/tsd \
    $TMP_CERTS_DIR/db \

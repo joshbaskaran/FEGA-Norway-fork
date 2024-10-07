@@ -472,6 +472,8 @@ services:
       - RABBITMQ_TLS_PORT=5671
       - PUBLISH_INTERVAL=60
       - RABBITMQ_MANAGEMENT_PORT=15671
+    volumes:
+      - <<TMP_CONFS_DIR>>/heartbeat-pub/publisher_config.json:/publisher_config.json
     depends_on:
       mq:
         condition: service_healthy

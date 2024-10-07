@@ -100,9 +100,12 @@ def check_hosts(hosts):
 
 
 def publish_heartbeat(_, channel):
-    # Read the heartbeat config from a file (replace with actual path)
-    with open("heartbeat_config.json", "r") as f:
+    # Read the publisher config json
+    # If not path is specified, we look the configuration file in the
+    # HOME directory of the container.
+    with open("/publisher_config.json", "r") as f:
         config = json.load(f)
+        logger.info("Publisher configuration loaded.")
     # Extract hosts and RabbitMQ consumers from config
     hosts = config.get('heartbeat', {}).get('hosts', [])
     rmq_consumers = config.get('heartbeat', {}).get('rmq_consumers', [])
