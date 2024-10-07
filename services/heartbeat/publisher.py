@@ -9,6 +9,7 @@ from loguru import logger
 
 from config import Config
 from logging_config import setup_logging
+from models import Component
 
 setup_logging()
 
@@ -67,12 +68,12 @@ def normalize_rmq_consumers_response(rmq_consumers_conf, actual_consumers_data):
                 for consumer in actual_consumers
             )
             if found:
-                services_status.append({"name": name, "status": "ok"})
+                services_status.append(Component(name, "ok").to_dict())
             else:
-                services_status.append({"name": name, "status": "missing"})
+                services_status.append(Component(name, "not_ok").to_dict())
                 queue_ok = False  # Mark queue as not ok if any listener is missing
         # Append queue status
-        queues_status.append({"name": queue_name, "status": "ok" if queue_ok else "missing listeners"})
+        queues_status.append(Component(queue_name, "ok" if queue_ok else "not_ok").to_dict())
     # Return the transformed result
     return {
         "queues_status": queues_status,
@@ -91,10 +92,10 @@ def check_hosts(hosts):
         try:
             sock = socket.create_connection((host, port), timeout=5)
             sock.close()
-            results.append({'name': name, 'status': 'ok'})
+            results.append(Component(name, "ok").to_dict())
         except (socket.timeout, socket.error) as e:
             logger.error(f"Host '{host}' on port '{port}' is down: {str(e)}")
-            results.append({'name': name, 'status': 'missing'})
+            results.append(Component(name, "not_ok").to_dict())
     return results
 
 

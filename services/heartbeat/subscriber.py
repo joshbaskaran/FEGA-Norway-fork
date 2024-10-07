@@ -5,6 +5,7 @@ from loguru import logger
 
 from config import Config
 from logging_config import setup_logging
+from models import Component
 
 setup_logging()
 
@@ -28,24 +29,24 @@ def process_heartbeat_message(message):
         data = json.loads(message)
         # Connect to Redis
         redis_client = connect_redis()
+
         # Process the 'hosts' array
         for host in data.get('hosts', []):
-            host_name = host.get('name')
-            host_status = host.get('status')
-            redis_client.set(f"service_status:{host_name}", host_status)
-            logger.info(f"Set Redis key 'service_status:{host_name}' with value '{host_status}'")
-        # Process the 'rmq_consumers' -> 'queues_status'
-        for queue in data['rmq_consumers'].get('queues_status', []):
-            queue_name = queue.get('name')
-            queue_status = queue.get('status')
-            redis_client.set(f"queue_status:{queue_name}", queue_status)
-            logger.info(f"Set Redis key 'queue_status:{queue_name}' with value '{queue_status}'")
+            c = Component(**host)
+            redis_client.set(f"service:{c.name}:{c.status}", c.timestamp)
+            logger.info(f"Set Redis key 'service:{c.name}:{c.status}' with value '{c.timestamp}'")
         # Process the 'rmq_consumers' -> 'services_status'
         for service in data['rmq_consumers'].get('services_status', []):
-            service_name = service.get('name')
-            service_status = service.get('status')
-            redis_client.set(f"service_status:{service_name}", service_status)
-            logger.info(f"Set Redis key 'service_status:{service_name}' with value '{service_status}'")
+            c = Component(**service)
+            redis_client.set(f"service:{c.name}:{c.status}", c.timestamp)
+            logger.info(f"Set Redis key 'service:{c.name}:{c.status}' with value '{c.timestamp}'")
+
+        # Process the 'rmq_consumers' -> 'queues_status'
+        for queue in data['rmq_consumers'].get('queues_status', []):
+            c = Component(**queue)
+            redis_client.set(f"queue:{c.name}:{c.status}", c.timestamp)
+            logger.info(f"Set Redis key 'queue:{c.name}:{c.status}' with value '{c.timestamp}'")
+
     except Exception as e:
         logger.error(f"Error processing heartbeat message: {str(e)}")
         raise
