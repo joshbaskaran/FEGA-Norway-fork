@@ -3,6 +3,7 @@ plugins {
     id("extra-java-module-info")
     id("io.freefair.lombok") version "8.10"
     id("formatting-conventions")
+    id("maven-publish")
 }
 
 group = "no.elixir"
@@ -34,4 +35,22 @@ extraJavaModuleInfo {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
+    repositories {
+        maven {
+            name = "fega-norway-crypt4gh"
+            url = uri("https://maven.pkg.github.com/ELIXIR-NO/FEGA-Norway")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
