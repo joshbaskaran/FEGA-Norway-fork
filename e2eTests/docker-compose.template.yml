@@ -455,8 +455,7 @@ services:
   heartbeat-pub:
     container_name: heartbeat-pub
     hostname: heartbeat-pub
-    image: heartbeat-pub:latest
-    build: ../services/heartbeat
+    image: ghcr.io/elixir-no/pipeline-heartbeat:latest
     environment:
       - HEARTBEAT_MODE=publisher
       - RABBITMQ_HOST=<<MQ_HOST>>
@@ -483,8 +482,7 @@ services:
   heartbeat-sub:
     container_name: heartbeat-sub
     hostname: heartbeat-sub
-    image: heartbeat-sub:latest
-    build: ../services/heartbeat
+    image: ghcr.io/elixir-no/pipeline-heartbeat:latest
     environment:
       - HEARTBEAT_MODE=subscriber
       - RABBITMQ_HOST=<<MQ_HOST>>

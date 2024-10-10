@@ -23,7 +23,7 @@ function rebuild_and_deploy_proxy() {
 
 function rebuild_and_deploy_heartbeat_sub() {
   docker rm heartbeat-sub -f > /dev/null &&
-  docker rmi heartbeat-sub:latest -f > /dev/null &&
+  docker rmi ghcr.io/elixir-no/pipeline-heartbeat:latest -f > /dev/null &&
   cd e2eTests &&
   docker compose up -d heartbeat-sub > /dev/null &&
   cd .. &&
@@ -32,11 +32,12 @@ function rebuild_and_deploy_heartbeat_sub() {
 
 function rebuild_and_deploy_heartbeat_pub() {
   docker rm heartbeat-pub -f > /dev/null &&
-  docker rmi heartbeat-pub:latest -f > /dev/null &&
+  docker rmi ghcr.io/elixir-no/pipeline-heartbeat:latest -f > /dev/null &&
   cd e2eTests &&
   docker compose up -d heartbeat-pub > /dev/null &&
   cd .. &&
-  echo "Task done ✅ Built and redeployed heartbeat-pub."
+  echo "Task done ✅ Built and redeployed heartbeat-pub." &&
+  echo "Note that if you have any static config changes (mapped via e2eTests/confs), you should manually map it again."
 }
 
 function rebuild_and_deploy_tsd() {

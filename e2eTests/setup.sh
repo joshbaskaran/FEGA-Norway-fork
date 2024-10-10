@@ -278,8 +278,7 @@ function clean() {
   rm -rf $E2E_DIR/docker-compose.yml
   docker rmi cega-mock:latest \
              tsd-proxy:latest \
-             heartbeat-pub:latest \
-             heartbeat-sub:latest \
+             ghcr.io/elixir-no/pipeline-heartbeat:latest \
              tsd-api-mock:latest \
              mq-interceptor:latest --force > /dev/null 2>&1
   echo "Cleanup completed 💯"

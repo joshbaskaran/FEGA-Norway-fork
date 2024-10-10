@@ -72,3 +72,8 @@ tsd:
 mq:
   exchange: ${EXCHANGE:cega}
   routing-key: ${ROUTING_KEY:files.inbox}
+
+heartbeat:
+  ok_if_ok_is_after_failed_and_diff_in_minutes_ge: 10
+  not_ok_if_failed_is_after_ok_and_diff_in_minutes_ge: 3
+

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import no.elixir.fega.ltp.dto.Heartbeat;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,12 @@ import org.springframework.stereotype.Service;
 public class HeartbeatService {
 
   private final RedisTemplate<String, String> redisTemplate;
+
+  @Value("${heartbeat.ok_if_ok_is_after_failed_and_diff_in_minutes_ge}")
+  private int okAfterFailDiffMinGE;
+
+  @Value("${heartbeat.not_ok_if_failed_is_after_ok_and_diff_in_minutes_ge}")
+  private int notOkFailedAfterOkMinGE;
 
   public HeartbeatService(RedisTemplate<String, String> redisTemplate) {
     this.redisTemplate = redisTemplate;
@@ -94,13 +101,13 @@ public class HeartbeatService {
         component.setLast_seen_failed(timestamp);
       }
       // Now process the final component status based on the rules
-      determineFinalStatus(status, component);
+      evaluateFinalStatusOfComponent(status, component);
     } catch (IllegalArgumentException e) {
       log.info("Unknown heartbeat status: {}", data[STATUS]);
     }
   }
 
-  private void determineFinalStatus(
+  private void evaluateFinalStatusOfComponent(
       Heartbeat.Component.Status currentStatus, Heartbeat.Component component) {
 
     LocalDateTime lastSeenOk = component.getLast_seen_ok();
@@ -109,29 +116,29 @@ public class HeartbeatService {
     if (lastSeenOk != null && lastSeenFailed != null) {
       // Calculate the difference between the timestamps
       Duration difference = Duration.between(lastSeenFailed, lastSeenOk);
-      // If last seen OK is more recent than last seen failed and
-      // the difference is more than 10 minutes
-      if (lastSeenOk.isAfter(lastSeenFailed) && difference.toMinutes() >= 10) {
+      if (lastSeenOk.isAfter(lastSeenFailed) && difference.toMinutes() >= okAfterFailDiffMinGE) {
+        // If last seen OK is more recent than last seen failed and
+        // the difference is more than 10 minutes
         component.setStatus(Heartbeat.Component.Status.OK);
-      }
-      // If last seen failed is more recent than last seen OK and
-      // the difference is at least 3 minutes
-      else if (lastSeenFailed.isAfter(lastSeenOk) && difference.toMinutes() >= 3) {
+      } else if (lastSeenFailed.isAfter(lastSeenOk)
+          && difference.toMinutes() >= notOkFailedAfterOkMinGE) {
+        // If last seen failed is more recent than last seen OK and
+        // the difference is at least 3 minutes
         component.setStatus(Heartbeat.Component.Status.NOT_OK);
+      } else {
+        // If nothing meets the criteria fallback to the value given
+        // by the heartbeat service
+        component.setStatus(currentStatus);
       }
-    }
-
-    // If there is no last_seen_failed timestamp, consider it OK
-    else if (lastSeenOk != null) {
+    } else if (lastSeenOk != null) {
+      // If there is no last_seen_failed timestamp, consider it OK
       component.setStatus(Heartbeat.Component.Status.OK);
-    }
-    // If there is no last_seen_ok timestamp, consider it NOT OK
-    else if (lastSeenFailed != null) {
+    } else if (lastSeenFailed != null) {
+      // If there is no last_seen_ok timestamp, consider it NOT OK
       component.setStatus(Heartbeat.Component.Status.NOT_OK);
-    }
-    // If nothing is set fallback to the value given
-    // by the heartbeat service
-    else {
+    } else {
+      // If nothing is set fallback to the value given
+      // by the heartbeat service
       component.setStatus(currentStatus);
     }
   }

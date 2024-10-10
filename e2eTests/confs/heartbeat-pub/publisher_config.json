@@ -19,10 +19,6 @@
           {
             "tag": "mq-interceptor",
             "name": "mq-interceptor"
-          },
-          {
-            "tag": "my-interceptor",
-            "name": "my-interceptor"
           }
         ]
       },
