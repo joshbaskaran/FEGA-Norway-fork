@@ -24,6 +24,9 @@ spring:
       port: 6379
       database: 0
 
+  cache:
+    type: simple
+
 spring.rabbitmq:
   host: ${BROKER_HOST:public-mq}
   port: ${BROKER_PORT:5671}
