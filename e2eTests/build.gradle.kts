@@ -71,4 +71,5 @@ tasks.test {
         ":services:mq-interceptor:test",
         ":services:localega-tsd-proxy:test"
     )
+    testLogging.showStandardStreams = true
 }
