@@ -24,8 +24,10 @@ spring:
       port: 6379
       database: 0
 
-  # We choose to use simple in-memory caching instead of Redis for better compatibility
-  # and to avoid serialization/deserialization issues with certain classes.
+  # We choose to use simple in-memory caching instead of Redis for
+  # better compatibility and to avoid serialization/deserialization
+  # issues with certain classes. Spring Boot automatically uses Redis
+  # when spring-boot-starter-data-redis is on the classpath.
   cache:
     type: simple
 
