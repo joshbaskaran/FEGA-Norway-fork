@@ -18,6 +18,19 @@ spring:
     resources:
       static-locations: classpath:/static/,file:/app/static
 
+  data:
+    redis:
+      host: redis
+      port: 6379
+      database: 0
+
+  # We choose to use simple in-memory caching instead of Redis for
+  # better compatibility and to avoid serialization/deserialization
+  # issues with certain classes. Spring Boot automatically uses Redis
+  # when spring-boot-starter-data-redis is on the classpath.
+  cache:
+    type: simple
+
 spring.rabbitmq:
   host: ${BROKER_HOST:public-mq}
   port: ${BROKER_PORT:5671}
@@ -66,3 +79,8 @@ tsd:
 mq:
   exchange: ${EXCHANGE:cega}
   routing-key: ${ROUTING_KEY:files.inbox}
+
+heartbeat:
+  ok_if_ok_is_after_failed_and_diff_in_minutes_ge: 10
+  not_ok_if_failed_is_after_ok_and_diff_in_minutes_ge: 3
+
