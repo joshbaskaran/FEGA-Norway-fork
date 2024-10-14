@@ -60,3 +60,7 @@ jobs:
           ./gradlew clean
           ./gradlew start-docker-containers
           ./gradlew :e2eTests:test --stacktrace
+      - name: Containers status
+        if: failure()
+        run: |
+          docker ps
