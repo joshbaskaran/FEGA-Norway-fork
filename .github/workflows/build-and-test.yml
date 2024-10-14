@@ -59,7 +59,7 @@ jobs:
         run: |
           ./gradlew clean
           ./gradlew start-docker-containers
-          sleep 10
+          sleep 20
           ./gradlew :e2eTests:test --stacktrace
       - name: Containers status
         if: failure()
