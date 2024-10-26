@@ -20,9 +20,9 @@ spring:
 
   data:
     redis:
-      host: redis
-      port: 6379
-      database: 0
+      host: ${REDIS_HOSTNAME:redis}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DB:0}
 
   # We choose to use simple in-memory caching instead of Redis for
   # better compatibility and to avoid serialization/deserialization
