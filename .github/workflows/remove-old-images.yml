@@ -1,8 +1,7 @@
 name: Remove Old Images
 on:
-  push:
-#  schedule:
-#    - cron: '10 02 * * 1'
+  schedule:
+    - cron: '10 02 * * 1'
 jobs:
   remove-old-images:
     runs-on: ubuntu-latest
@@ -15,4 +14,3 @@ jobs:
           image-names: 'fega-norway'
           image-tags: '*-[0-9]* sha-* latest'
           token: ${{ secrets.GITHUB_TOKEN }}
-          dry-run: 'true'
