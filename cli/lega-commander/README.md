@@ -7,21 +7,18 @@
 [![DeepSource](https://deepsource.io/gh/elixir-oslo/lega-commander.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/elixir-oslo/lega-commander/?ref=repository-badge)
 
 ## Installation / Update
-
-### Linux
-run the command below on your terminal:
+1. For the most updated build from the current `main` branch:
+```bash
+go install github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander@latest
 ```
-curl -fsSL https://raw.githubusercontent.com/elixir-oslo/lega-commander/master/install.sh | sudo sh
+2. For the latest release version:
+```bash
+go install github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander
 ```
-
-### MacOS
-run the command below on your terminal:
+3. For a specific release:
+```bash
+go install github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander@v1.2.3 # or whichever version you need
 ```
-curl -fsSL https://raw.githubusercontent.com/elixir-oslo/lega-commander/master/install.sh | sh
-```
-
-### Windows
-Go to the [releases page](https://github.com/elixir-oslo/lega-commander/releases) and download the latest binary manually.
 
 ## Configuration
 Before using the lega commander, make sure all the environment variables required for authentication are set:
@@ -49,7 +46,7 @@ Table below shows how there variables must be set:
  Norwegian Federated EGA instance: https://ega.elixir.no.
  If you want to specify another instance, you can set `LOCAL_EGA_INSTANCE_URL` environment variable. 
 
-
+go install github.com/ELIXIR-NO/FEGA-Norway/cli/lega-commander@latest
 ## Usage
 
 > For the time being, all of **upload** and **download** commands **should** not run with `-b` argument.
