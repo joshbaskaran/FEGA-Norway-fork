@@ -33,7 +33,7 @@ jobs:
           latest_tag=$(git tag --list "$component_name-*" | sort -V | tail -n 1)
 
           if [ -z "$latest_tag" ]; then
-            exit 1
+            new_version="0.0.1"
           else
             version_part=${latest_tag#"$component_name-"}
             IFS='.' read -r major minor patch <<< "$version_part"
