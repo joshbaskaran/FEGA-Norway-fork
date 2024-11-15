@@ -25,7 +25,7 @@ However, in some environments, the local message server may not be allowed to co
 and it must therefore rely on a trusted proxy service to pass messages between the two MQ instances.
 Another issue is that the credentials used to authenticate users against the Central EGA server may be different from those used on the Local EGA server.
 
-The MQ-interceptor solves both of these problem by performing the following tasks:
+The MQ-interceptor solves both of these problems by performing the following tasks:
 
 1. It takes messages from the Central EGA message server and reposts them on the Local EGA message server, and vice versa.
 2. Before reposting a message, it converts the "user" field in the message body from an identifier known to Central EGA to a different identifier type used by the Local EGA, or vice versa depending on the direction of the message.
