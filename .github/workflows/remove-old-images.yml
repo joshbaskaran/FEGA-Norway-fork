@@ -12,5 +12,5 @@ jobs:
           account: '${{ github.repository_owner }}'
           cut-off: '8w'
           image-names: 'fega-norway'
-          image-tags: '*-[0-9]* sha-* latest'
+          image-tags: '*-[0-9]* sha* latest'
           token: ${{ secrets.GITHUB_TOKEN }}
