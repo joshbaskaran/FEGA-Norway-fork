@@ -26,4 +26,7 @@ public class Visa {
   private List<List<Map<?, ?>>> conditions; // conditions
 
   private String by; // by identifier
+
+  private String token;
+
 }

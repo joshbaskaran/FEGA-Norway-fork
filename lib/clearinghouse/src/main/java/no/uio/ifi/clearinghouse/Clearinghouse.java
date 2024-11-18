@@ -154,6 +154,7 @@ public enum Clearinghouse {
         String visaJson = new Gson().toJson(claims.get(GA_4_GH_VISA_V_1));
         Visa visa = new Gson().fromJson(visaJson, Visa.class);
         visa.setSub(jws.getPayload().getSubject());
+        visa.setToken(visaToken);
         return Optional.of(visa);
       }
     } catch (SignatureException e) {
