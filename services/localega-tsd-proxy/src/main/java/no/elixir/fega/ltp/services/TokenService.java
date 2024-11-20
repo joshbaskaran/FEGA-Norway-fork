@@ -35,7 +35,7 @@ public class TokenService {
    * <p>This method supports two scenarios:
    *
    * <p>1. Direct Visa Token Input: If the JWT token includes the ga4gh_visa_v1 claim, it is treated
-   * as a direct Visa token. This approach is commonly used in end-to-end (E2E) testing setups,
+   * as a direct Visa token. This approach is commonly used in our end-to-end (E2E) testing setup,
    * where the proxy accepts a Visa token directly for testing and debugging purposes. In this case,
    * the Visa token is verified using verifyVisaTokenAndTransformToVisaObject, and the resulting
    * Visa object is added to the list.
@@ -46,6 +46,8 @@ public class TokenService {
    * function validates the Passport-Scoped Access Token using either a PEM public key or an OpenID
    * Connect configuration URL, retrieves Visa tokens from the /userinfo endpoint, and transforms
    * them into Visa objects.
+   *
+   * <p>---
    *
    * <p>The method first checks if the ga4gh_visa_v1 claim is present in the JWT token: - If the
    * claim is present, the token is treated as a direct Visa token, verified, and transformed. - If
@@ -61,7 +63,7 @@ public class TokenService {
    * processes and dynamic retrieval of Visa tokens.
    *
    * <p>By verifying Visa tokens in both cases, the method ensures that only valid and trusted
-   * tokens are processed, providing a flexible and secure mechanism for handling Visa tokens.
+   * tokens are processed. This is the mechanism for handling Visa tokens in proxy service.
    *
    * @param jwtToken the JWT token, which can be either a direct Visa token or a Passport-Scoped
    *     Access Token
@@ -96,11 +98,7 @@ public class TokenService {
   }
 
   /**
-   * Extracts a specific fragment from a Passport-Scoped Access Token (JWT).
-   *
-   * <p>The JWT token is a Passport-Scoped Access Token, which is an OIDC access token with a scope
-   * that includes the identifier `ga4gh_passport_v1`. The access token must be a JWS-encoded JWT
-   * containing `openid` and `ga4gh_passport_v1` entries in the value of its scope claim.
+   * Extracts a specific fragment from a JWT Token.
    *
    * <p>This method splits the JWT token into its constituent parts (header, payload, and
    * signature), decodes the selected fragment (as specified by the {@link TokenFragment}), and
@@ -139,12 +137,16 @@ public class TokenService {
    * `/userinfo` endpoint. Each Visa token is then verified and transformed into a {@link Visa}
    * object. Only valid Visa tokens are included in the final result.
    *
+   * <p>To get a better understanding please refer to the docs and playground mentioned in links.
+   *
    * @param passportScopedAccessToken the Passport-Scoped Access Token (a JWS-encoded JWT) used to
    *     authenticate and retrieve Visa tokens. It must be valid and include the `ga4gh_passport_v1`
    *     scope.
    * @return a {@link List} of {@link Visa} objects representing the verified Visa tokens.
    * @throws IllegalArgumentException if the access token is invalid, cannot be verified, or if
    *     required public key files are missing or unreadable.
+   * @link <a href="https://ga4gh.github.io/data-security/aai-openid-connect-profile">docs</a>
+   * @link <a href="https://ga4gh-echo.aai.lifescience-ri.eu/index.html">playground</a>
    */
   public List<Visa> fetchTheFullPassportUsingPassportScopedAccessTokenAndGetVisas(
       String passportScopedAccessToken) {
@@ -229,8 +231,7 @@ public class TokenService {
    * @param visas the {@link List<Visa>} visas to filter.
    * @param visaType the {@link VisaType} to filter by; if {@code null}, all Visa types are
    *     included.
-   * @return {@code true} if the Visa matches the specified type or if no type is specified; {@code
-   *     false} otherwise.
+   * @return {@code List<Visa>} filtered visas.
    */
   public List<Visa> filterByVisaType(List<Visa> visas, VisaType visaType) {
     if (visaType == null) {
