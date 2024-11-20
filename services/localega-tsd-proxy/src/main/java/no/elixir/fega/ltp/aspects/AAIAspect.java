@@ -2,23 +2,17 @@ package no.elixir.fega.ltp.aspects;
 
 import static no.elixir.fega.ltp.aspects.ProcessArgumentsAspect.ELIXIR_ID;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import no.elixir.fega.ltp.authentication.CEGACredentialsProvider;
 import no.elixir.fega.ltp.dto.Credentials;
-import no.uio.ifi.clearinghouse.Clearinghouse;
+import no.elixir.fega.ltp.services.TokenService;
 import no.uio.ifi.clearinghouse.model.Visa;
-import no.uio.ifi.clearinghouse.model.VisaType;
 import org.apache.commons.codec.digest.Crypt;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.auth.AuthenticationException;
@@ -27,7 +21,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -45,20 +38,16 @@ public class AAIAspect {
 
   protected HttpServletRequest request;
   protected CEGACredentialsProvider cegaCredentialsProvider;
-
-  @Value("${ga4gh.passport.openid-configuration-url}")
-  private String openIDConfigurationURL;
-
-  @Value("${ga4gh.passport.public-key-path}")
-  private String passportPublicKeyPath;
-
-  @Value("${ga4gh.visa.public-key-path}")
-  private String visaPublicKeyPath;
+  protected TokenService tokenService;
 
   @Autowired
-  public AAIAspect(HttpServletRequest request, CEGACredentialsProvider cegaCredentialsProvider) {
+  public AAIAspect(
+      HttpServletRequest request,
+      CEGACredentialsProvider cegaCredentialsProvider,
+      TokenService tokenService) {
     this.request = request;
     this.cegaCredentialsProvider = cegaCredentialsProvider;
+    this.tokenService = tokenService;
   }
 
   /**
@@ -75,19 +64,16 @@ public class AAIAspect {
       log.info("Authentication attempt without Elixir AAI token provided");
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
-    String jwtToken = optionalBearerAuth.get().replace("Bearer ", "");
+    String passportScopedAccessToken = optionalBearerAuth.get().replace("Bearer ", "");
     try {
-      var tokenArray = jwtToken.split("[.]");
-      byte[] decodedPayload = Base64.getUrlDecoder().decode(tokenArray[1]);
-      String decodedPayloadString = new String(decodedPayload);
-      Gson gson = new Gson();
-      JsonObject claims = gson.fromJson(decodedPayloadString, JsonObject.class);
-      List<Visa> controlledAccessGrantsVisas = getVisas(jwtToken, claims.keySet());
+      String subject = tokenService.getSubject(passportScopedAccessToken);
+      List<Visa> controlledAccessGrantsVisas =
+          tokenService.getControlledAccessGrantsVisas(passportScopedAccessToken);
       log.info(
           "Elixir user {} authenticated and provided following valid GA4GH Visas: {}",
-          claims.get(Claims.SUBJECT).getAsString(),
+          subject,
           controlledAccessGrantsVisas);
-      request.setAttribute(ELIXIR_ID, claims.get(Claims.SUBJECT).getAsString());
+      request.setAttribute(ELIXIR_ID, subject);
       return joinPoint.proceed();
     } catch (Exception e) {
       log.info(e.getMessage(), e);
@@ -104,7 +90,8 @@ public class AAIAspect {
    */
   @Around(
       "execution(public * no.elixir.fega.ltp.controllers.rest.ProxyController.*(..)) && "
-          + "!execution(public * no.elixir.fega.ltp.controllers.rest.ProxyController.stream(jakarta.servlet.http.HttpServletResponse, String, String))") // we don't need CEGA auth for Data Out endpoints
+          + "!execution(public * no.elixir.fega.ltp.controllers.rest.ProxyController.stream(jakarta.servlet.http.HttpServletResponse, String, String))")
+  // we don't need CEGA auth for Data Out endpoints
   public Object authenticateCEGA(ProceedingJoinPoint joinPoint) throws Throwable {
     if (((MethodSignature) joinPoint.getSignature())
         .getMethod()
@@ -142,44 +129,6 @@ public class AAIAspect {
     return StringUtils.startsWithIgnoreCase(hash, "$2")
         ? BCrypt.checkpw(password, hash)
         : ObjectUtils.nullSafeEquals(hash, Crypt.crypt(password, hash));
-  }
-
-  protected List<Visa> getVisas(String jwtToken, Set<String> claims) {
-    boolean isVisa = claims.contains("ga4gh_visa_v1");
-    Collection<Visa> visas = new ArrayList<>();
-    if (isVisa) {
-      getVisa(jwtToken).ifPresent(visas::add);
-    } else {
-      visas.addAll(getVisas(jwtToken));
-    }
-    return visas.stream()
-        .filter(v -> v.getType().equalsIgnoreCase(VisaType.ControlledAccessGrants.name()))
-        .collect(Collectors.toList());
-  }
-
-  protected Collection<Visa> getVisas(String accessToken) {
-    Collection<String> visaTokens;
-    try {
-      String passportPublicKey = Files.readString(Path.of(passportPublicKeyPath));
-      visaTokens =
-          Clearinghouse.INSTANCE.getVisaTokensWithPEMPublicKey(accessToken, passportPublicKey);
-    } catch (IOException e) {
-      visaTokens = Clearinghouse.INSTANCE.getVisaTokens(accessToken, openIDConfigurationURL);
-    }
-    return visaTokens.stream()
-        .map(this::getVisa)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .collect(Collectors.toList());
-  }
-
-  protected Optional<Visa> getVisa(String visaToken) {
-    try {
-      String visaPublicKey = Files.readString(Path.of(visaPublicKeyPath));
-      return Clearinghouse.INSTANCE.getVisaWithPEMPublicKey(visaToken, visaPublicKey);
-    } catch (IOException e) {
-      return Clearinghouse.INSTANCE.getVisa(visaToken);
-    }
   }
 
   protected Optional<String> getBasicAuth() {
