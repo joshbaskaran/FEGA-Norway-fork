@@ -9,26 +9,25 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    @Bean
-    @ConfigurationProperties(prefix = "spring.rabbitmq.connections.cega")
-    public CachingConnectionFactory cegaConnectionFactory() {
-        return new CachingConnectionFactory();
-    }
+  @Bean
+  @ConfigurationProperties(prefix = "spring.rabbitmq.connections.cega")
+  public CachingConnectionFactory cegaConnectionFactory() {
+    return new CachingConnectionFactory();
+  }
 
-    @Bean
-    public RabbitTemplate cegaRabbitTemplate(CachingConnectionFactory cegaConnectionFactory) {
-        return new RabbitTemplate(cegaConnectionFactory);
-    }
+  @Bean
+  public RabbitTemplate cegaRabbitTemplate(CachingConnectionFactory cegaConnectionFactory) {
+    return new RabbitTemplate(cegaConnectionFactory);
+  }
 
-    @Bean
-    @ConfigurationProperties(prefix = "spring.rabbitmq.connections.tsd")
-    public CachingConnectionFactory tsdConnectionFactory() {
-        return new CachingConnectionFactory();
-    }
+  @Bean
+  @ConfigurationProperties(prefix = "spring.rabbitmq.connections.tsd")
+  public CachingConnectionFactory tsdConnectionFactory() {
+    return new CachingConnectionFactory();
+  }
 
-    @Bean
-    public RabbitTemplate tsdRabbitTemplate(CachingConnectionFactory tsdConnectionFactory) {
-        return new RabbitTemplate(tsdConnectionFactory);
-    }
-
+  @Bean
+  public RabbitTemplate tsdRabbitTemplate(CachingConnectionFactory tsdConnectionFactory) {
+    return new RabbitTemplate(tsdConnectionFactory);
+  }
 }

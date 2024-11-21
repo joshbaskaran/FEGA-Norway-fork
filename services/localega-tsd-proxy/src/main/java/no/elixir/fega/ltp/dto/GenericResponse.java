@@ -9,6 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GenericResponse {
 
-    private String message;
-
+  private String message;
 }

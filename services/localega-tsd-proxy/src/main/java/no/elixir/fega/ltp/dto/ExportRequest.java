@@ -15,36 +15,34 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ExportRequest {
 
-    @NotBlank(message = "The field 'jwtToken' must not be blank.")
-    @JsonProperty
-    private String jwtToken;
+  @NotBlank(message = "The field 'jwtToken' must not be blank.")
+  @JsonProperty
+  private String jwtToken;
 
-    @NotBlank(message = "The field 'id' must not be blank.")
-    @JsonProperty
-    private String id;
+  @NotBlank(message = "The field 'id' must not be blank.")
+  @JsonProperty
+  private String id;
 
-    @NotBlank(message = "The field 'userPublicKey' must not be blank.")
-    @JsonProperty
-    private String userPublicKey;
+  @NotBlank(message = "The field 'userPublicKey' must not be blank.")
+  @JsonProperty
+  private String userPublicKey;
 
-    @NotNull(message = "The field 'type' must not be null. Should be either 'fileId' or 'datasetId'.")
-    @JsonProperty
-    private ExportType type = ExportType.DATASET_ID;
+  @NotNull(message = "The field 'type' must not be null. Should be either 'fileId' or 'datasetId'.") @JsonProperty
+  private ExportType type = ExportType.DATASET_ID;
 
-    public String toJson() {
-        JsonObject obj = new JsonObject();
-        obj.addProperty("jwtToken", jwtToken);
-        obj.addProperty(type.value, id);
-        obj.addProperty("userPublicKey", userPublicKey);
-        return obj.getAsString();
-    }
+  public String toJson() {
+    JsonObject obj = new JsonObject();
+    obj.addProperty("jwtToken", jwtToken);
+    obj.addProperty(type.value, id);
+    obj.addProperty("userPublicKey", userPublicKey);
+    return obj.getAsString();
+  }
 
-    @ToString
-    @AllArgsConstructor
-    public enum ExportType {
-        FILE_ID("fileId"),
-        DATASET_ID("datasetId");
-        private final String value;
-    }
-
+  @ToString
+  @AllArgsConstructor
+  public enum ExportType {
+    FILE_ID("fileId"),
+    DATASET_ID("datasetId");
+    private final String value;
+  }
 }
