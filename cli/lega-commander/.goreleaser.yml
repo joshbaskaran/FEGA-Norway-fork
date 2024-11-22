@@ -3,6 +3,8 @@ release:
         owner: ELIXIR-NO
         name: FEGA-Norway
 
+project_name: lega-commander
+
 builds:
     - goos:
           - darwin
