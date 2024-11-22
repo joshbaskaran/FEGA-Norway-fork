@@ -76,7 +76,7 @@ The MQ-interceptor service can be configured by setting the following environmen
 None of these variables have default fallback values, and MQ-interceptor will usually fail to start if they are not set explicitly. The only variable that is not required is VERIFY_CERT, and the MQ-interceptor will always verify certificates unless this variable is explicitly set to "false".
 
 ## Build and execute
-The MQ-interceptor is written in the [GO language](https://go.dev/) and requires the [GO compiler](https://go.dev/doc/install) to build.
+The MQ-interceptor is written in the [Go language](https://go.dev/) and requires the [Go compiler](https://go.dev/doc/install) to build.
 ```bash
 go build
 ```
