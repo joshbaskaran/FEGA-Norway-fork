@@ -3,18 +3,18 @@ name: Build and test
 on:
   push:
     branches: [main]
-    paths:
-      - "lib/**"
-      - "services/**"
-      - "buildSrc/**"
-      - "cli/**"
+#    paths:
+#      - "lib/**"
+#      - "services/**"
+#      - "buildSrc/**"
+#      - "cli/**"
   pull_request:
     branches: [main]
-    paths:
-      - "lib/**"
-      - "services/**"
-      - "buildSrc/**"
-      - "cli/**"
+#    paths:
+#      - "lib/**"
+#      - "services/**"
+#      - "buildSrc/**"
+#      - "cli/**"
 
 jobs:
   build-and-test:
