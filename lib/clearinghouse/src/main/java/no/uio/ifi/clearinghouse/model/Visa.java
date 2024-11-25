@@ -26,4 +26,15 @@ public class Visa {
   private List<List<Map<?, ?>>> conditions; // conditions
 
   private String by; // by identifier
+
+  /**
+   * The raw token required for APIs above the Clearing House to delegate tasks to other services
+   * (such as SDA and DOA). This field is marked as transient to prevent it from being serialized
+   * and exposed unintentionally during object serialization processes. The token is necessary for
+   * internal operations but should not be persisted or transmitted in insecure contexts.
+   *
+   * <p>FIXME: We need to remove this in the future to enhance security and ensure sensitive
+   * information is not exposed.
+   */
+  @ToString.Exclude private transient String rawToken;
 }
