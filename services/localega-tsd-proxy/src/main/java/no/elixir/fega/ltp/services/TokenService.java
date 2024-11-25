@@ -112,7 +112,7 @@ public class TokenService {
    * @throws IllegalArgumentException if the JWT token format is invalid or the specified fragment
    *     is missing.
    */
-  public JsonObject extractFragmentFromJWT(String jwtToken, TokenFragment tokenFragment) {
+  private JsonObject extractFragmentFromJWT(String jwtToken, TokenFragment tokenFragment) {
     var fragments = jwtToken.split("[.]");
     byte[] decodedPayload = Base64.getUrlDecoder().decode(fragments[tokenFragment.ordinal()]);
     String decodedPayloadString = new String(decodedPayload);
@@ -208,7 +208,7 @@ public class TokenService {
    *     invalid token format, missing claims, or failure to access required resources (e.g., public
    *     key file or JWK endpoint).
    */
-  public Optional<Visa> verifyVisaTokenAndTransformToVisaObject(String visaToken) {
+  private Optional<Visa> verifyVisaTokenAndTransformToVisaObject(String visaToken) {
     // Conditional logic for Visa token verification.
     try { // PUBLIC_KEY mode uses a local PEM public key.
       // Read the public key from a file located at `visaPublicKeyPath`.
