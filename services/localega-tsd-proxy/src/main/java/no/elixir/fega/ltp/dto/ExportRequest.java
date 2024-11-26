@@ -1,5 +1,6 @@
 package no.elixir.fega.ltp.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.JsonObject;
 import jakarta.validation.constraints.NotBlank;
@@ -15,9 +16,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ExportRequest {
 
-  @NotBlank(message = "The field 'jwtToken' must not be blank.")
-  @JsonProperty
-  private String jwtToken;
+  @JsonIgnore private String jwtToken;
 
   @NotBlank(message = "The field 'id' must not be blank.")
   @JsonProperty
