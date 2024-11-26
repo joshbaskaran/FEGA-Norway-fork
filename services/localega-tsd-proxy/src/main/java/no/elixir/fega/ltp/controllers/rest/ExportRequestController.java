@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import no.elixir.fega.ltp.dto.ExportRequest;
 import no.elixir.fega.ltp.dto.GenericResponse;
+import no.elixir.fega.ltp.exceptions.GenericException;
 import no.elixir.fega.ltp.services.ExportRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -36,9 +37,9 @@ public class ExportRequestController {
     String accessToken = bearerAuth.replace("Bearer ", "");
     try {
       exportRequestService.exportRequest(accessToken, body);
-    } catch (Exception e) {
+    } catch (GenericException e) {
       log.info(e.getMessage(), e);
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new GenericResponse(e.getMessage()));
+      return ResponseEntity.status(e.getHttpStatus()).body(new GenericResponse(e.getMessage()));
     }
     return ResponseEntity.status(HttpStatus.OK)
         .body(new GenericResponse("Export request completed successfully"));

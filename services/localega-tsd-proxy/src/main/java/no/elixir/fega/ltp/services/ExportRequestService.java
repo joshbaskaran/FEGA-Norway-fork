@@ -7,12 +7,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import no.elixir.fega.ltp.dto.ExportRequest;
+import no.elixir.fega.ltp.exceptions.GenericException;
 import no.uio.ifi.clearinghouse.model.Visa;
 import no.uio.ifi.clearinghouse.model.VisaType;
 import org.apache.http.entity.ContentType;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -34,7 +36,8 @@ public class ExportRequestService {
     this.tsdRabbitTemplate = tsdRabbitTemplate;
   }
 
-  public void exportRequest(String accessToken, ExportRequest exportRequest) throws Exception {
+  public void exportRequest(String accessToken, ExportRequest exportRequest)
+      throws GenericException {
 
     String subject = tokenService.getSubject(accessToken);
     List<Visa> controlledAccessGrantsVisas =
@@ -61,7 +64,7 @@ public class ExportRequestService {
           subject,
           exportRequest.getId(),
           exportRequest.getType());
-      throw new Exception("No visas found");
+      throw new GenericException(HttpStatus.BAD_REQUEST, "No visas found");
     }
 
     collect.stream()
@@ -71,7 +74,7 @@ public class ExportRequestService {
               log.info(
                   "Found {} visa(s). Using the first visa to make the request.", collect.size());
 
-              exportRequest.setJwtToken(null); // FIXME required raw token string here
+              exportRequest.setJwtToken(visa.getRawToken());
 
               tsdRabbitTemplate.convertAndSend(
                   exchange,
