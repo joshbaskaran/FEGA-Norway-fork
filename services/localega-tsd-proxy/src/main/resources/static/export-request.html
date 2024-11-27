@@ -8,6 +8,8 @@
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
     >
+    <link rel="stylesheet" href="@sweetalert2/theme-bulma/bulma.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             display: flex;
@@ -89,7 +91,6 @@
         </div>
     </form>
 
-    <div class="response" id="responseMessage"></div>
 </div>
 
 <script>
@@ -134,6 +135,7 @@
         }
         // Construct payload
         const payload = {
+            accessToken,
             id,
             userPublicKey,
             type
@@ -143,21 +145,34 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Proxy-Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify(payload)
             });
 
-            const result = await response.json();
-            const responseMessage = document.getElementById('responseMessage');
+            const result = await response?.json();
             if (response.ok) {
-                responseMessage.innerHTML = `<p class="has-text-success">${result.message || 'Request submitted successfully!'}</p>`;
+                Swal.fire({
+                    title: 'Request submitted successfully',
+                    text: result.message,
+                    icon: 'success',
+                    confirmButtonText: 'Close'
+                })
             } else {
-                responseMessage.innerHTML = `<p class="has-text-danger">${result.message || 'Failed to submit request.'}</p>`;
+                Swal.fire({
+                    title: 'Failed to submit request',
+                    text: result.message,
+                    icon: 'error',
+                    confirmButtonText: 'Close'
+                })
             }
         } catch (error) {
             console.error(error);
-            document.getElementById('responseMessage').innerHTML = `<p class="has-text-danger">Error: ${error.message}</p>`;
+            Swal.fire({
+                title: 'Unexpected error',
+                text: error.message,
+                icon: 'error',
+                confirmButtonText: 'Close'
+            })
         }
     });
 </script>

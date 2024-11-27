@@ -36,13 +36,13 @@ public class ExportRequestService {
     this.tsdRabbitTemplate = tsdRabbitTemplate;
   }
 
-  public void exportRequest(String accessToken, ExportRequest exportRequest)
-      throws GenericException {
+  public void exportRequest(ExportRequest exportRequest)
+      throws GenericException, IllegalArgumentException {
 
-    String subject = tokenService.getSubject(accessToken);
+    String subject = tokenService.getSubject(exportRequest.getAccessToken());
     List<Visa> controlledAccessGrantsVisas =
         tokenService.filterByVisaType(
-            tokenService.fetchTheFullPassportUsingPassportScopedAccessTokenAndGetVisas(accessToken),
+            tokenService.fetchTheFullPassportUsingPassportScopedAccessTokenAndGetVisas(exportRequest.getAccessToken()),
             VisaType.ControlledAccessGrants);
     log.info(
         "Elixir user {} authenticated and provided following valid GA4GH Visas: {}",
@@ -79,7 +79,7 @@ public class ExportRequestService {
               tsdRabbitTemplate.convertAndSend(
                   exchange,
                   routingKey,
-                  exportRequest.toJson(),
+                  exportRequest.getInfoRequiredForDOAExportRequestAsJson(),
                   m -> {
                     m.getMessageProperties()
                         .setContentType(ContentType.APPLICATION_JSON.getMimeType());

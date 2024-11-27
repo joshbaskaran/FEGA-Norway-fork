@@ -16,6 +16,12 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ExportRequest {
 
+  // This is the user's Passport Scoped Access Token.
+  @NotBlank(message = "The field 'accessToken' must not be blank.")
+  @JsonProperty
+  private String accessToken;
+
+  // This is the visa token that DOA expects
   @JsonIgnore private String jwtToken;
 
   @NotBlank(message = "The field 'id' must not be blank.")
@@ -29,7 +35,7 @@ public class ExportRequest {
   @NotNull(message = "The field 'type' must not be null. Should be either 'fileId' or 'datasetId'.") @JsonProperty
   private ExportType type = ExportType.DATASET_ID;
 
-  public String toJson() {
+  public String getInfoRequiredForDOAExportRequestAsJson() {
     JsonObject obj = new JsonObject();
     obj.addProperty("jwtToken", jwtToken);
     obj.addProperty(type.value, id);

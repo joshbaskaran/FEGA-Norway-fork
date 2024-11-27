@@ -24,7 +24,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   web:
     resources:
-      static-locations: classpath:/static/,file:/app/static
+      static-locations: classpath:/static/,file:/app/static/
 
   data:
     redis:
@@ -57,6 +57,12 @@ spring:
         virtual-host: ${TSD_MQ_VHOST:/}
         username: ${TSD_MQ_USERNAME:admin}
         password: ${TSD_MQ_PASSWORD:admin}
+
+  security:
+    user:
+      name: ${ADMIN_USER:admin}  # Default user if not provided
+      password: ${ADMIN_PASSWORD:admin123}  # Default password if not provided
+      roles: ${ADMIN_ROLE:ADMIN}  # Default role if not provided
 
 elixir:
   client:
