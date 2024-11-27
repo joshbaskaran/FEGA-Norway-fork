@@ -1,6 +1,6 @@
 module github.com/ELIXIR-NO/FEGA-Norway/mq-interceptor
 
-go 1.21.8
+go 1.23.3
 
 require (
 	github.com/lib/pq v1.10.9
