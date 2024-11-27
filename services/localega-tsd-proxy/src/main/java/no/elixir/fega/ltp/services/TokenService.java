@@ -115,7 +115,8 @@ public class TokenService {
    * @throws IllegalArgumentException if the JWT token format is invalid or the specified fragment
    *     is missing.
    */
-  private JsonObject extractFragmentFromJWT(String jwtToken, TokenFragment tokenFragment) throws IllegalArgumentException {
+  private JsonObject extractFragmentFromJWT(String jwtToken, TokenFragment tokenFragment)
+      throws IllegalArgumentException {
     var fragments = jwtToken.split("[.]");
     String fragment = fragments[tokenFragment.ordinal()];
     if (!isValidBase64Url(fragment)) {
@@ -252,11 +253,9 @@ public class TokenService {
   /**
    * Validates whether the given input string is a valid Base64 URL-encoded string.
    *
-   * <p>
-   * A valid Base64 URL string contains only alphanumeric characters, hyphens ('-'),
-   * underscores ('_'), and at most two '=' padding characters. The input is
-   * checked against a regular expression to ensure it conforms to these rules.
-   * </p>
+   * <p>A valid Base64 URL string contains only alphanumeric characters, hyphens ('-'), underscores
+   * ('_'), and at most two '=' padding characters. The input is checked against a regular
+   * expression to ensure it conforms to these rules.
    *
    * @param input the string to validate
    * @return {@code true} if the input is a valid Base64 URL-encoded string, {@code false} otherwise
@@ -264,7 +263,6 @@ public class TokenService {
   private boolean isValidBase64Url(String input) {
     return BASE64URL_PATTERN.matcher(input).matches();
   }
-
 
   public enum TokenFragment {
     HEADER,

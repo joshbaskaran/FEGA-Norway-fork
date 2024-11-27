@@ -42,7 +42,8 @@ public class ExportRequestService {
     String subject = tokenService.getSubject(exportRequest.getAccessToken());
     List<Visa> controlledAccessGrantsVisas =
         tokenService.filterByVisaType(
-            tokenService.fetchTheFullPassportUsingPassportScopedAccessTokenAndGetVisas(exportRequest.getAccessToken()),
+            tokenService.fetchTheFullPassportUsingPassportScopedAccessTokenAndGetVisas(
+                exportRequest.getAccessToken()),
             VisaType.ControlledAccessGrants);
     log.info(
         "Elixir user {} authenticated and provided following valid GA4GH Visas: {}",

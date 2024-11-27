@@ -18,26 +18,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ExportRequestController {
 
-    private final ExportRequestService exportRequestService;
+  private final ExportRequestService exportRequestService;
 
-    @Autowired
-    public ExportRequestController(ExportRequestService exportRequestService) {
-        this.exportRequestService = exportRequestService;
-    }
+  @Autowired
+  public ExportRequestController(ExportRequestService exportRequestService) {
+    this.exportRequestService = exportRequestService;
+  }
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @PostMapping("/export")
-    public ResponseEntity<GenericResponse> exportRequest(@RequestBody @NotNull ExportRequest body) {
-        try {
-            exportRequestService.exportRequest(body);
-        } catch (GenericException e) {
-            log.info(e.getMessage(), e);
-            return ResponseEntity.status(e.getHttpStatus()).body(new GenericResponse(e.getMessage()));
-        } catch (IllegalArgumentException e) {
-            log.info(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new GenericResponse(e.getMessage()));
-        }
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new GenericResponse("Export request completed successfully"));
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  @PostMapping("/export")
+  public ResponseEntity<GenericResponse> exportRequest(@RequestBody @NotNull ExportRequest body) {
+    try {
+      exportRequestService.exportRequest(body);
+    } catch (GenericException e) {
+      log.info(e.getMessage(), e);
+      return ResponseEntity.status(e.getHttpStatus()).body(new GenericResponse(e.getMessage()));
+    } catch (IllegalArgumentException e) {
+      log.info(e.getMessage(), e);
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(new GenericResponse(e.getMessage()));
     }
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(new GenericResponse("Export request completed successfully"));
+  }
 }
