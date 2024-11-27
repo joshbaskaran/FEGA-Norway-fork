@@ -2,6 +2,7 @@ release:
     github:
         owner: ELIXIR-NO
         name: FEGA-Norway
+    name_template: "{{.ProjectName}}-{{.Version}}-assets"
 
 project_name: lega-commander
 
