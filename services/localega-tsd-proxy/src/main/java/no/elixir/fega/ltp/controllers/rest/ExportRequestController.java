@@ -9,7 +9,6 @@ import no.elixir.fega.ltp.services.ExportRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +24,6 @@ public class ExportRequestController {
     this.exportRequestService = exportRequestService;
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN')")
   @PostMapping("/export")
   public ResponseEntity<GenericResponse> exportRequest(@RequestBody @NotNull ExportRequest body) {
     try {
