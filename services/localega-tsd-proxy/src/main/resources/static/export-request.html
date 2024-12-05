@@ -97,6 +97,7 @@
     // Get references to the file input and textarea
     const publicKeyFile = document.getElementById('publicKeyFile');
     const publicKeyString = document.getElementById('publicKeyString');
+
     // Disable textarea if file is selected
     publicKeyFile.addEventListener('change', () => {
         if (publicKeyFile.files.length > 0) {
@@ -106,6 +107,7 @@
             publicKeyString.disabled = false; // Enable the textarea if no file is selected
         }
     });
+
     // Disable file input if textarea is filled
     publicKeyString.addEventListener('input', () => {
         if (publicKeyString.value.trim().length > 0) {
@@ -115,6 +117,7 @@
             publicKeyFile.disabled = false; // Enable the file input if textarea is empty
         }
     });
+
     // Form submission handler
     document.getElementById('exportForm').addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -133,6 +136,34 @@
                 reader.readAsText(publicKeyFile.files[0]);
             });
         }
+
+        // Trigger SweetAlert to collect username and password
+        const { value: credentials } = await Swal.fire({
+            title: 'Enter Credentials',
+            html: `
+                <input id="username" class="swal2-input" placeholder="Username" />
+                <input id="password" type="password" class="swal2-input" placeholder="Password" />
+            `,
+            focusConfirm: false,
+            preConfirm: () => {
+                return {
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value
+                };
+            }
+        });
+
+        if (!credentials || !credentials.username || !credentials.password) {
+            // If no credentials are provided, don't proceed
+            Swal.fire({
+                title: 'No credentials provided',
+                text: 'Please enter your username and password to submit the form.',
+                icon: 'error',
+                confirmButtonText: 'Close'
+            });
+            return; // Abort the submission process
+        }
+
         // Construct payload
         const payload = {
             accessToken,
@@ -140,11 +171,16 @@
             userPublicKey,
             type
         };
+
+        // Encode username and password to base64
+        const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
+
         try {
             const response = await fetch('/export', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Basic ${encodedCredentials}`
                 },
                 body: JSON.stringify(payload)
             });
