@@ -37,7 +37,8 @@ public class SecurityConfig {
   /**
    * Configures the application's security filter chain to define request access rules and
    * authentication mechanisms. Apart from this {@link SecurityFilterChain} there's another Bean
-   * configured in the application entry. Please see {@code LocalEGATSDProxyApplication#filterChain}.
+   * configured in the application entry. Please see {@code
+   * LocalEGATSDProxyApplication#filterChain}.
    *
    * <p>The method allows requests to paths matching "/export/**" only for users with the role
    * "ADMIN", while granting unrestricted access to all other paths. It disables CSRF protection for
