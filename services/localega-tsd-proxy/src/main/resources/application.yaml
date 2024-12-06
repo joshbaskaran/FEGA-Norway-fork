@@ -60,9 +60,8 @@ spring:
 
   security:
     user:
-      name: ${ADMIN_USER:admin}  # Default user if not provided
-      password: ${ADMIN_PASSWORD:admin123}  # Default password if not provided
-      roles: ${ADMIN_ROLE:ADMIN}  # Default role if not provided
+      name: ${ADMIN_USER}
+      password: ${ADMIN_PASSWORD}
 
 elixir:
   client:
