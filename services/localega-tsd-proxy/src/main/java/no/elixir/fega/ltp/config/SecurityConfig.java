@@ -16,29 +16,43 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
+  private static final String ROLE_ADMIN = "ADMIN";
+
   @Value("${spring.security.user.name}")
   private String username;
 
   @Value("${spring.security.user.password}")
   private String password;
 
-  @Value("${spring.security.user.roles}")
-  private String role;
-
-  // In-memory authentication with a user named "admin" and ROLE_ADMIN
   @Bean
   public UserDetailsService userDetailsService() {
+    validateCredentials(this.username, this.password); // Validate username and password
     return new InMemoryUserDetailsManager(
         User.withUsername(this.username)
             .password(passwordEncoder().encode(this.password)) // encode password
-            .roles(this.role) // Set role from configuration
+            .roles(ROLE_ADMIN) // Set role from configuration
             .build());
   }
 
+  /**
+   * Configures the application's security filter chain to define request access rules and
+   * authentication mechanisms. Apart from this {@link SecurityFilterChain} there's another Bean
+   * configured in the application entry. Please see {@code LocalEGATSDProxyApplication#filterChain}.
+   *
+   * <p>The method allows requests to paths matching "/export/**" only for users with the role
+   * "ADMIN", while granting unrestricted access to all other paths. It disables CSRF protection for
+   * simplicity in contexts where it is unnecessary. HTTP Basic Authentication is enabled to allow
+   * clients to authenticate using the Authorization header with a base64-encoded username and
+   * password.
+   *
+   * @param http The HttpSecurity instance to configure the security filter chain.
+   * @return A SecurityFilterChain instance to enforce the configured security policies.
+   * @throws Exception If an error occurs while building the HttpSecurity configuration.
+   */
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(
-            auth -> auth.requestMatchers("/export/**").hasRole("ADMIN").anyRequest().permitAll())
+            auth -> auth.requestMatchers("/export/**").hasRole(ROLE_ADMIN).anyRequest().permitAll())
         .csrf(AbstractHttpConfigurer::disable)
         .httpBasic(Customizer.withDefaults()); // Enable basic HTTP authentication
     return http.build();
@@ -47,5 +61,21 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder(); // Encode passwords
+  }
+
+  /**
+   * Validates the username and password based on given requirements.
+   *
+   * @throws IllegalArgumentException If the username or password doesn't meet the requirements.
+   */
+  private void validateCredentials(String username, String password) {
+    if (username == null || username.length() < 5) {
+      throw new IllegalArgumentException(
+          "Username must be at least 5 characters long and not empty.");
+    }
+    if (password == null || password.length() < 10) {
+      throw new IllegalArgumentException(
+          "Password must be at least 10 characters long and not empty.");
+    }
   }
 }
