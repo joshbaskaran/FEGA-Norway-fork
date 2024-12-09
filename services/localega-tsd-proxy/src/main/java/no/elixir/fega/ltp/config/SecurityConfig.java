@@ -3,6 +3,7 @@ package no.elixir.fega.ltp.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -51,8 +52,10 @@ public class SecurityConfig {
    * @throws Exception If an error occurs while building the HttpSecurity configuration.
    */
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(
+  @Order(1)
+  public SecurityFilterChain basicAuthFilterChain(HttpSecurity http) throws Exception {
+    http.securityMatcher("/export/**")
+        .authorizeHttpRequests(
             auth -> auth.requestMatchers("/export/**").hasRole(ROLE_ADMIN).anyRequest().permitAll())
         .csrf(AbstractHttpConfigurer::disable)
         .httpBasic(Customizer.withDefaults()); // Enable basic HTTP authentication
