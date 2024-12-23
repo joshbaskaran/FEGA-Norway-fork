@@ -22,7 +22,7 @@ dependencies {
     implementation("com.rfksystems:blake2b:2.0.0")
     implementation("at.favre.lib:bkdf:0.6.0")
     implementation("com.lambdaworks:scrypt:1.4.0")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
