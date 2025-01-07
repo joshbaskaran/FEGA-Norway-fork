@@ -12,5 +12,14 @@ jobs:
           account: '${{ github.repository_owner }}'
           cut-off: '8w'
           image-names: 'fega-norway'
-          image-tags: '*-[0-9]* sha* latest'
+          image-tags: '*-[0-9]* *-latest'
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove untagged images
+        uses: snok/container-retention-policy@v3.0.0
+        with:
+          account: '${{ github.repository_owner }}'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image-names: "*"
+          tag-selection: untagged
+          cut-off: 1h
