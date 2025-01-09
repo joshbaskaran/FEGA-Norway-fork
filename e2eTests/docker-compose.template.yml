@@ -141,6 +141,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=<<POSTGRES_PASSWORD>>
     volumes:
+      - postgres-data:/var/lib/postgresql/data/
       - postgres-confs:/docker-entrypoint-initdb.d/
 
   # SDA
@@ -567,6 +568,7 @@ services:
       - tsd-certs:/volumes/tsd-certs
       - mq-confs-and-certs:/volumes/mq-confs-and-certs
       - proxy-certs:/volumes/proxy-certs
+      - postgres-data:/volumes/postgres-data
       - postgres-confs:/volumes/postgres-confs
       - db-data:/volumes/db-data
       - db-certs:/volumes/db-certs
@@ -584,6 +586,7 @@ volumes:
   tsd-certs:
   mq-confs-and-certs:
   proxy-certs:
+  postgres-data:
   postgres-confs:
   db-certs:
   db-data:
