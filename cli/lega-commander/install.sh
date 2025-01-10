@@ -9,6 +9,7 @@ $this: Download Go binaries for lega-commander from ELIXIR-NO/FEGA-Norway
 
 Usage: $this [-b] bindir [-d] [tag]
   -b sets bindir or installation directory, Defaults to /usr/local/bin
+  -t sets a specific tag (e.g. "vX.Y.Z") to install
   -d turns on debug logging
    [tag] is a tag from
    https://github.com/ELIXIR-NO/FEGA-Norway/releases
@@ -20,16 +21,16 @@ EOF
 
 parse_args() {
   BINDIR=${BINDIR:-/usr/local/bin}
-  while getopts "b:dhx?" arg; do
+  while getopts "b:t:dhx?" arg; do
     case "$arg" in
       b) BINDIR="$OPTARG" ;;
+      t) TAG="$OPTARG" ;;
       d) log_set_priority 10 ;;
       h|\?) usage "$0" ;;
       x) set -x ;;
     esac
   done
   shift $((OPTIND - 1))
-  TAG=$1
 }
 
 execute() {
@@ -129,10 +130,8 @@ get_binaries() {
 tag_to_version() {
   if [ -n "$TAG" ]; then
     # User explicitly provided a tag
-    REALTAG=$(github_release "$OWNER/$REPO" "$TAG") || {
-      log_crit "Failed to fetch specified tag from GitHub."
-      exit 1
-    }
+    REALTAG="$TAG"
+    log_info "Using user-specified tag: $REALTAG"
   else
     # Auto-fetch the latest
     log_info "Checking GitHub for the latest tag"
