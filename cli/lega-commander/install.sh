@@ -127,31 +127,42 @@ get_binaries() {
 }
 
 tag_to_version() {
-  if [ -z "${TAG}" ]; then
-    log_info "Checking GitHub for the latest tag."
+  if [ -n "$TAG" ]; then
+    # User explicitly provided a tag
+    REALTAG=$(github_release "$OWNER/$REPO" "$TAG") || {
+      log_crit "Failed to fetch specified tag from GitHub."
+      exit 1
+    }
   else
-    log_info "Checking GitHub for tag '${TAG}'."
+    # Auto-fetch the latest
+    log_info "Checking GitHub for the latest tag"
+    REALTAG=$(github_get_latest "$OWNER/$REPO") || {
+      log_crit "Failed to find the latest tag."
+      exit 1
+    }
   fi
 
-  REALTAG=$(github_release "$OWNER/$REPO" "${TAG}") || {
-    log_crit "Failed to fetch tag from GitHub."
-    exit 1
-  }
+  log_info "REALTAG: $REALTAG"
 
-  log_info "REALTAG: ${REALTAG}"
+  REALTAG=$(echo "$REALTAG" | tr -d '[:space:]')
 
-  if echo "$REALTAG" | grep -q '^v'; then
-    # If it starts with 'v', strip the 'v' to get VERSION
-    VERSION=${REALTAG#v}
-    TAG="$REALTAG"
-  else
-    # Assume the tag follows 'lega-commander-<version>'
-    VERSION=${REALTAG#lega-commander-}
-    TAG="v${VERSION}"
-  fi
+  case "$REALTAG" in
+    v*)
+      VERSION=${REALTAG#v}
+      TAG="$REALTAG"
+      ;;
+    lega-commander-*)
+      VERSION=${REALTAG#lega-commander-}
+      TAG="v${VERSION}"
+      ;;
+    *)
+      VERSION="$REALTAG"
+      TAG="v${REALTAG}"
+      ;;
+  esac
 
-  log_info "VERSION: ${VERSION}"
-  log_info "TAG: ${TAG}"
+  log_info "VERSION: $VERSION"
+  log_info "TAG: $TAG"
 }
 
 adjust_format() {
@@ -329,11 +340,51 @@ http_copy() {
   echo "$body"
 }
 
+github_get_latest() {
+  owner_repo="$1"
+
+  # 1) Get all releases as JSON
+  releases_json=$(http_copy "https://api.github.com/repos/${owner_repo}/releases" \
+                             "Accept:application/vnd.github.v3+json") || {
+    log_crit "Failed to list releases from GitHub."
+    return 1
+  }
+
+  #Extract all tag_name fields, filtering those that begin with "lega-commander-"
+  #Then parse out the version portion after 'lega-commander-'
+
+  cmd_results=$(
+    echo "$releases_json" |
+      sed -n 's/.*"tag_name":[[:space:]]*"\([^"]*\)".*/\1/p' |
+      grep '^lega-commander-' |
+      sed 's/^lega-commander-//'
+  )
+
+  if [ -z "$cmd_results" ]; then
+    log_crit "No releases found with tag_name starting 'lega-commander-'."
+    return 1
+  fi
+
+  # Sort them descending and pick the top
+  latest_version=$(printf "%s\n" "$cmd_results" | sort -rV | head -n1)
+
+  # Rebuild the final tag name
+  latest_tag="lega-commander-$latest_version"
+
+  echo "$latest_tag"
+}
+
+
+
 github_release() {
   owner_repo=$1
   version=$2
   [ -z "$version" ] && version="latest"
-  giturl="https://api.github.com/repos/${owner_repo}/releases/${version}"
+  if [ "$version" = "latest" ]; then
+    giturl="https://api.github.com/repos/${owner_repo}/releases/latest"
+  else
+    giturl="https://api.github.com/repos/${owner_repo}/releases/tags/${version}"
+  fi
   json=$(http_copy "$giturl" "Accept:application/vnd.github.v3+json") || return 1
   # Extract the tag_name field using POSIX-compliant whitespace matching
   version=$(echo "$json" | tr -s '\n' ' ' | sed -n 's/.*"tag_name":[[:space:]]*"\([^"]*\)".*/\1/p')
