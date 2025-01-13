@@ -20,6 +20,6 @@ jobs:
         with:
           account: '${{ github.repository_owner }}'
           token: ${{ secrets.GITHUB_TOKEN }}
-          image-names: "*"
+          image-names: "fega-norway"
           tag-selection: untagged
           cut-off: 1h
