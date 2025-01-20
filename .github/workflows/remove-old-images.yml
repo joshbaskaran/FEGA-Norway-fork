@@ -2,6 +2,7 @@ name: Remove Old Images
 on:
   schedule:
     - cron: '10 02 * * 1'
+  workflow_dispatch:
 jobs:
   remove-old-images:
     runs-on: ubuntu-latest
@@ -13,13 +14,13 @@ jobs:
           cut-off: '8w'
           image-names: 'fega-norway'
           image-tags: '*-[0-9]* *-latest'
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PACKAGE_TOKEN }}
 
       - name: Remove untagged images
         uses: snok/container-retention-policy@v3.0.0
         with:
           account: '${{ github.repository_owner }}'
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PACKAGE_TOKEN }}
           image-names: "fega-norway"
           tag-selection: untagged
           cut-off: 1h
