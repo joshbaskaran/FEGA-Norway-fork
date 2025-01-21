@@ -23,12 +23,12 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.17.0")
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.auth0:jwks-rsa:0.22.1")
-    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
     implementation("org.slf4j:slf4j-jdk14:2.0.16")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.bouncycastle:bcprov-jdk15to18:1.79")
-    testImplementation("org.bouncycastle:bcpkix-jdk15to18:1.79")
+    testImplementation("org.bouncycastle:bcprov-jdk15to18:1.80")
+    testImplementation("org.bouncycastle:bcpkix-jdk15to18:1.80")
 }
 
 publishing {
