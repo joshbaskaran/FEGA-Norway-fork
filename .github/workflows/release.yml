@@ -347,6 +347,7 @@ jobs:
           workdir: cli/lega-commander
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CGO_ENABLED: "0"
       - name: Create GitHub release
         if: success()
         uses: softprops/action-gh-release@v2
