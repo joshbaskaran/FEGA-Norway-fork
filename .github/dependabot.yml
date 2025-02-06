@@ -11,6 +11,21 @@ updates:
     commit-message:
       prefix: "[GitHub Action]"
 
+  # e2eTests
+  - package-ecosystem: gradle
+    directory: "/e2eTests"
+    groups:
+      all-modules:
+        patterns:
+          - "*"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Oslo"
+    commit-message:
+      prefix: "[e2eTests]"
+
   # buildSrc
   - package-ecosystem: gradle
     directory: "/buildSrc"
