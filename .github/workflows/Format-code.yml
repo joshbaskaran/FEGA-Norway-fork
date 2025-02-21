@@ -1,61 +1,50 @@
-name: Check formatting
+name: Fetch New Version
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "lib/**"
-      - "services/**"
-      - "buildSrc/**"
-  pull_request:
-    branches: [main]
-    paths:
-      - "lib/**"
-      - "services/**"
-      - "buildSrc/**"
+  workflow_call:
+    inputs:
+      component_name:
+        description: "The name of the component"
+        required: true
+        type: string
+    outputs:
+      new_version:
+        description: "The new incremented version for the component"
+        value: ${{ jobs.get-latest-tag.outputs.new_version }}
+
 
 jobs:
-  check-formatting:
+  get-latest-tag:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      pull-requests: write
-
+    outputs:
+      new_version: ${{ steps.set_output.outputs.new_version }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "21"
+      - name: Fetch all tags
+        run: git fetch --tags
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/cache
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Check and apply formatting
-        id: format
+      - name: Give a new tag for the component
+        id: get_tag
         run: |
-          ./gradlew spotlessApply
-          git diff --quiet || echo "::set-output name=changes::true"
+          component_name="${{ inputs.component_name }}"
+          
+          latest_tag=$(git tag --list "$component_name-*" | sort -V | tail -n 1)
 
-      - name: Commit and Push Changes
-        if: steps.format.outputs.changes == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          BRANCH_NAME=${{ github.head_ref }}
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          git add -A
-          git commit -m "Code formatting applied"
-          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/ELIXIR-NO/FEGA-Norway.git HEAD:refs/heads/$BRANCH_NAME
+          if [ -z "$latest_tag" ]; then
+            new_version="0.0.1"
+          else
+            version_part=${latest_tag#"$component_name-"}
+            IFS='.' read -r major minor patch <<< "$version_part"
+          
+            new_version="$major.$minor.$((patch + 1))"
+          fi
+
+          echo "Latest tag for $component_name: $latest_tag"
+          echo "New version for $component_name: $new_version"
+          echo "new_version=$new_version" >> $GITHUB_ENV
+
+      - name: Set output for the reusable workflow
+        id: set_output
+        run: echo "new_version=${{ env.new_version }}" >> $GITHUB_OUTPUT
