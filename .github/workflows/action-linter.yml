@@ -3,16 +3,22 @@ name: Lint GitHub Actions
 on:
   pull_request:
     paths:
-      - '.github/workflows/**'
+      - '**.yaml'
+      - '**.yml'
+      - '**.json'
 
 jobs:
   lint:
-    name: Run actionlint
+    name: Run Linter
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run actionlint
+      - name: Validate
+        uses: GrantBirki/json-yaml-validate@v3.2.1
+
+      - name: Run Actionlint
         uses: raven-actions/actionlint@v2
+        if: always()
