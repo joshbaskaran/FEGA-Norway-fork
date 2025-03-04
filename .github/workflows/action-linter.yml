@@ -1,0 +1,26 @@
+name: Lint GitHub Actions
+
+on:
+  pull_request:
+    paths:
+      - '**.yaml'
+      - '**.yml'
+      - '**.json'
+
+jobs:
+  lint:
+    name: Run Linter
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate
+        uses: GrantBirki/json-yaml-validate@v3.2.1
+
+      - name: Run Actionlint
+        uses: raven-actions/actionlint@v2
+        with:
+          flags: "-ignore SC2086"
+        if: always()

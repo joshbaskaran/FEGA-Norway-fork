@@ -1,16 +1,12 @@
 name: "CodeQL"
 
 on:
-  pull_request:
-    branches: [ "main" ]
-    types:
-      - closed
-  schedule:
-    - cron: '00 9 * * 1'
+  push:
+    branches:
+      - main
 
 jobs:
   analyze:
-    if: github.event.pull_request.merged == true
     name: Analyze
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}

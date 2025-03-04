@@ -10,8 +10,8 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.12.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.12.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("com.rabbitmq:amqp-client:5.25.0")
     testImplementation("com.konghq:unirest-java:3.14.5")
@@ -19,7 +19,7 @@ dependencies {
     testImplementation("com.auth0:java-jwt:4.5.0") // FIXME: io.jsonwebtoken
     testImplementation("commons-io:commons-io:2.18.0")
     testImplementation(project(":lib:crypt4gh"))
-    testImplementation("org.slf4j:slf4j-api:2.0.16")
+    testImplementation("org.slf4j:slf4j-api:2.0.17")
     testImplementation("org.skyscreamer:jsonassert:1.5.3")
     implementation("io.github.cdimascio:java-dotenv:5.2.2")
 }
