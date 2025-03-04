@@ -12,9 +12,9 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      localega-tsd-proxy: ${{ steps.changes.outputs.crypt4gh }}
-      mq-interceptor: ${{ steps.changes.outputs.clearinghouse }}
-      cega-mock: ${{ steps.changes.outputs.lega-commander }}
+      crypt4gh: ${{ steps.changes.outputs.crypt4gh }}
+      clearinghouse: ${{ steps.changes.outputs.clearinghouse }}
+      lega-commander: ${{ steps.changes.outputs.lega-commander }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
