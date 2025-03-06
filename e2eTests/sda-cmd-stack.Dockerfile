@@ -1,3 +1,6 @@
+# This Dockerfile is for debugging purposes.
+# To exec into certain SDA images, replace the base image.
+# The rest of the multi-stage build will allow you to exec into it.
 FROM ghcr.io/neicnordic/sensitive-data-archive:PR1293 AS base
 
 # Use a more feature-complete base image for debugging
