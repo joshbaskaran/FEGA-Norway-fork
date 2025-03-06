@@ -35,8 +35,6 @@ mkdir -p /volumes/proxy-certs/ssl/ /volumes/proxy-certs/jwt/ /volumes/proxy-cert
   cp jwt.pub.pem /volumes/proxy-certs/jwt/passport.pem &&
   cp jwt.pub.pem /volumes/proxy-certs/jwt/visa.pem &&
   cp truststore.p12 /volumes/proxy-certs/store/truststore.p12
-#  cp server_with_fullchain.p12 /volumes/proxy-certs/ssl/server_with_fullchain.p12 &&
-#  cp truststore.p12 /volumes/proxy-certs/store/truststore.p12
 
 # db
 cp server.pem /volumes/db-certs/pg.pem &&
@@ -77,3 +75,7 @@ mkdir -p /volumes/doa-certs/ssl/ /volumes/doa-certs/jwt/ /volumes/doa-certs/cryp
 cp server.pem /volumes/cegamq-certs/mq.pem &&
   cp server-key.pem /volumes/cegamq-certs/mq-key.pem &&
   cp rootCA.pem /volumes/cegamq-certs/ca.pem
+
+# heartbeat-(pub/sub)
+mkdir -p /volumes/heartbeat-confs/certs &&
+  cp rootCA.pem /volumes/heartbeat-confs/certs

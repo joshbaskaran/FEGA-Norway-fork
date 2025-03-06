@@ -14,30 +14,30 @@ echo "CAROOT is $(mkcert -CAROOT)"
 
 # Generate SSL/TLS certificates targeting
 # localhost. We specify 6 different hostnames.
-mkcert localhost db vault mq tsd proxy cegamq
+mkcert localhost db vault mq tsd proxy cegamq doa
 
 # Generate the client certificates for the services.
-mkcert -client localhost db vault mq tsd proxy cegamq
+mkcert -client localhost db vault mq tsd proxy cegamq doa
 
 # Convert server and client cert to PKCS12 format.
 openssl pkcs12 -export \
-  -out localhost+6.p12 \
-  -in localhost+6.pem \
-  -inkey localhost+6-key.pem \
+  -out localhost+7.p12 \
+  -in localhost+7.pem \
+  -inkey localhost+7-key.pem \
   -passout pass:"${SERVER_CERT_PASSWORD}"
 openssl pkcs12 -export \
-  -out localhost+6-client.p12 \
-  -in localhost+6-client.pem \
-  -inkey localhost+6-client-key.pem \
+  -out localhost+7-client.p12 \
+  -in localhost+7-client.pem \
+  -inkey localhost+7-client-key.pem \
   -passout pass:"${CLIENT_CERT_PASSWORD}"
 
 # Convert client key to DER format
 openssl pkcs8 -topk8 \
   -inform PEM \
-  -in localhost+6-client-key.pem \
+  -in localhost+7-client-key.pem \
   -outform DER \
   -nocrypt \
-  -out localhost+6-client-key.der
+  -out localhost+7-client-key.der
 
 # Generate private and public JWT keys
 openssl genpkey -algorithm RSA \
@@ -65,44 +65,13 @@ openssl pkcs12 -export \
   -passout pass:${ROOT_CERT_PASSWORD}
 
 # Step 11: Rename server and client certificates
-cp localhost+6.pem server.pem
-cp localhost+6-key.pem server-key.pem
-cp localhost+6.p12 server.p12
-cp localhost+6-client.pem client.pem
-cp localhost+6-client-key.pem client-key.pem
-cp localhost+6-client-key.der client-key.der
-cp localhost+6-client.p12 client.p12
-
-#keytool -importcert -trustcacerts -noprompt \
-#  -alias fega \
-#  -file rootCA.pem \
-#  -keystore "truststore.p12" \
-#  -storetype PKCS12 \
-#  -storepass ${TRUSTSTORE_PASSWORD}
-
-#cat server.pem $(mkcert -CAROOT)/rootCA.pem > fullchain.pem
-
-#openssl pkcs12 -export \
-#  -out server_with_fullchain.p12 \
-#  -inkey server-key.pem \
-#  -in fullchain.pem \
-#  -name fega \
-#  -password pass:"${SERVER_CERT_PASSWORD}"
-
-# keytool -importkeystore
-# -srckeystore localhost+6.p12 \
-# -srcstoretype PKCS12 \
-# -destkeystore keystore.jks -deststoretype JKS \
-# -srcstorepass "${SERVER_CERT_PASSWORD}" \
-# -deststorepass "${SERVER_CERT_PASSWORD}" \
-# -noprompt
-
-# keytool -importcert -trustcacerts
-# -noprompt \
-# -alias rootCA \
-# -file rootCA.pem \
-# -keystore keystore.jks \
-# -storepass "${SERVER_CERT_PASSWORD}"
+cp localhost+7.pem server.pem
+cp localhost+7-key.pem server-key.pem
+cp localhost+7.p12 server.p12
+cp localhost+7-client.pem client.pem
+cp localhost+7-client-key.pem client-key.pem
+cp localhost+7-client-key.der client-key.der
+cp localhost+7-client.p12 client.p12
 
 keytool -importcert -trustcacerts -noprompt \
   -alias fega-root-ca \

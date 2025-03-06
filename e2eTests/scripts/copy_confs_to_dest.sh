@@ -8,7 +8,8 @@ cd confs || exit 1
 cp -R ./mq/* /volumes/mq-confs-and-certs/
 
 # heartbeat-pub
-cp -R ./heartbeat-pub/* /volumes/heartbeat-pub-confs
+# We use a common volume for both pub/sub components.
+cp -R ./heartbeat-pub/* /volumes/heartbeat-confs
 
 # postgres
 cp -R ./postgres/* /volumes/postgres-confs/

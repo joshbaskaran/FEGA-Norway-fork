@@ -54,17 +54,20 @@ public class Environment {
       this.sda_db_host = "localhost";
       this.sda_doa_host = "localhost";
       this.proxy_host = "localhost";
+      this.proxy_port = dotenv.get("PROXY_PORT");
+      this.sda_doa_port = dotenv.get("SDA_DOA_PORT");
     } else if ("container".equalsIgnoreCase(this.runtime)) {
       this.broker_host = dotenv.get("BROKER_HOST");
       this.sda_db_host = dotenv.get("SDA_DB_HOST");
       this.sda_doa_host = dotenv.get("SDA_DOA_HOST");
       this.proxy_host = dotenv.get("PROXY_HOST");
+      this.proxy_port = "8080";
+      this.sda_doa_port = "8080";
     } else {
       throw new IllegalArgumentException("Invalid RUNTIME value: " + this.runtime);
     }
 
     // Common variable initialization
-    this.proxy_port = dotenv.get("PROXY_PORT");
     this.broker_port = dotenv.get("BROKER_PORT");
     this.broker_username = dotenv.get("BROKER_USERNAME");
     this.broker_password = dotenv.get("BROKER_PASSWORD");
@@ -76,7 +79,6 @@ public class Environment {
     this.ega_box_username = dotenv.get("EGA_BOX_USERNAME");
     this.ega_box_password = dotenv.get("EGA_BOX_PASSWORD");
     this.sda_db_port = dotenv.get("SDA_DB_PORT");
-    this.sda_doa_port = dotenv.get("SDA_DOA_PORT");
     this.truststore_password = dotenv.get("TRUSTSTORE_PASSWORD");
   }
 
