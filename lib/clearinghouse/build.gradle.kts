@@ -38,7 +38,7 @@ publishing {
             pom {
                 name.set("Clearinghouse")
                 description.set("GA4GH passports validation and parsing")
-                url.set("https://github.com/ELIXIR-NO/FEGA-Norway/lib/clearinghouse")
+                url.set("https://github.com/ELIXIR-NO/FEGA-Norway/tree/main/lib/clearinghouse")
                 scm {
                     url.set("https://github.com/ELIXIR-NO/FEGA-Norway")
                 }

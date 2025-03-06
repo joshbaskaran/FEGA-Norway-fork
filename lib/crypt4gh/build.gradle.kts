@@ -51,7 +51,7 @@ publishing {
             pom {
                 name.set("Crypt4GH")
                 description.set("Crypt4GH standard implementation")
-                url.set("https://github.com/ELIXIR-NO/FEGA-Norway/lib/crypt4gh")
+                url.set("https://github.com/ELIXIR-NO/FEGA-Norway/tree/main/lib/crypt4gh")
                 scm {
                     url.set("https://github.com/ELIXIR-NO/FEGA-Norway")
                 }
