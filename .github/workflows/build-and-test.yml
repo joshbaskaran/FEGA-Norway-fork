@@ -60,6 +60,7 @@ jobs:
           ./gradlew clean
           ./gradlew start-docker-containers
           sleep 20
+          RUNTIME=local
           ./gradlew :e2eTests:test --stacktrace
       - name: Containers status
         if: failure()
