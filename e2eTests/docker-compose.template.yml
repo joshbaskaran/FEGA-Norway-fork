@@ -618,9 +618,6 @@ services:
       - storage:/storage
     healthcheck:
       test: [ "CMD", "sh", "-c", "[ -f /storage/ready ]" ]  # Check for the ready file
-      interval: 5s
-      timeout: 10s
-      retries: 10
 
 
   # E2E Setup
@@ -641,6 +638,8 @@ services:
       db:
         condition: service_healthy
       mq:
+        condition: service_healthy
+      file-orchestrator:
         condition: service_healthy
     volumes:
       - storage:/storage
