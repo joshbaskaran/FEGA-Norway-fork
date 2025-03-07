@@ -63,8 +63,8 @@ jobs:
           # Wait for the e2e-tests container to complete
           echo "Waiting for e2e-tests container to complete..."
           while [ "$(docker inspect --format='{{.State.Running}}' e2e-tests 2>/dev/null)" == "true" ]; do
-            echo "e2e-tests still running, waiting..."
-            sleep 10
+            echo "e2e-tests still running, waiting for 5 seconds..."
+            sleep 5
           done
 
           # Show the logs from the e2e-tests container
