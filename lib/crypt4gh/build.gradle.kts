@@ -1,7 +1,6 @@
 plugins {
     id("java")
     id("extra-java-module-info")
-    id("io.freefair.lombok") version "8.12.2.1"
     id("formatting-conventions")
     id("maven-publish")
 }
