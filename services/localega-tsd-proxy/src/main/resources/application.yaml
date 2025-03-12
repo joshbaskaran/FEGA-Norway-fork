@@ -1,9 +1,3 @@
-server.ssl:
-  enabled: ${SSL_ENABLED:true}
-  key-store-type: PKCS12
-  key-store: file:${SERVER_KEYSTORE_PATH:/etc/ega/ssl/server.cert}
-  key-store-password: ${SERVER_CERT_PASSWORD}
-
 spring:
 
   autoconfigure:
@@ -48,8 +42,8 @@ spring:
         username: ${BROKER_USERNAME:admin}
         password: ${BROKER_PASSWORD:guest}
         ssl:
-          validate-server-certificate: ${BROKER_VALIDATE:true}
-          enabled: ${BROKER_SSL_ENABLED:true}
+          validate-server-certificate: true
+          enabled: true
           algorithm: TLSv1.2
       tsd:
         host: ${TSD_MQ_HOST:mq}
@@ -57,6 +51,10 @@ spring:
         virtual-host: ${TSD_MQ_VHOST:/}
         username: ${TSD_MQ_USERNAME:admin}
         password: ${TSD_MQ_PASSWORD:admin}
+        ssl:
+          validate-server-certificate: true
+          enabled: true
+          algorithm: TLSv1.2
 
   security:
     user:
@@ -96,13 +94,34 @@ tsd:
 
 mq:
   cega:
+    host: ${BROKER_HOST:public-mq}
+    port: ${BROKER_PORT:5671}
+    virtual-host: ${BROKER_VHOST:/}
+    username: ${BROKER_USERNAME:admin}
+    password: ${BROKER_PASSWORD:guest}
     exchange: ${EXCHANGE:cega}
     routing-key: ${ROUTING_KEY:files.inbox}
+    tls: true
+    truststore: ${TRUSTSTORE}
+    truststore-password: ${TRUSTSTORE_PASSWORD}
   tsd:
+    host: ${TSD_MQ_HOST:mq}
+    port: ${TSD_MQ_PORT:5671}
+    virtual-host: ${TSD_MQ_VHOST:/}
+    username: ${TSD_MQ_USERNAME:admin}
+    password: ${TSD_MQ_PASSWORD:admin}
     exchange: ${TSD_MQ_EXCHANGE:sda}
     routing-key: ${TSD_MQ_ROUTING_KEY:exportRequests}
+    tls: true
+    truststore: ${TRUSTSTORE}
+    truststore-password: ${TRUSTSTORE_PASSWORD}
 
 heartbeat:
   ok_if_ok_is_after_failed_and_diff_in_minutes_ge: 10
   not_ok_if_failed_is_after_ok_and_diff_in_minutes_ge: 3
 
+server.ssl:
+  enabled: ${SSL_ENABLED:true}
+  key-store-type: PKCS12
+  key-store: file:/etc/ega/ssl/server.p12
+  key-store-password: ${SERVER_CERT_PASSWORD}

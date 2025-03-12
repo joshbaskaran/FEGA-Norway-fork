@@ -1,15 +1,18 @@
 package no.uio.ifi.tc;
 
-import com.auth0.jwt.JWT;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import io.jsonwebtoken.JwtException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.net.ssl.*;
@@ -456,8 +459,20 @@ public class TSDFileAPIClient {
   }
 
   private String getEndpoint(String token, String appId, String path) {
-    return String.format(
-        "/%s/%s%s", appId, JWT.decode(token).getClaim(USER_CLAIM).asString(), path);
+    try {
+      String[] parts = token.split("\\.");
+      if (parts.length != 3) {
+        throw new IllegalArgumentException("Invalid JWT format");
+      }
+      String payloadJson =
+          new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+      Map<String, Object> payload = new Gson().fromJson(payloadJson, Map.class);
+      String userClaim = (String) payload.get(USER_CLAIM);
+      return String.format("/%s/%s%s", appId, userClaim, path);
+    } catch (Exception e) {
+      log.error("Error decoding JWT token: {}", e.getMessage());
+      throw new JwtException("Invalid JWT token", e);
+    }
   }
 
   private String getURL(String endpoint) {

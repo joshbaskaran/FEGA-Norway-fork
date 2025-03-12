@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("maven-publish")
-    id("io.freefair.lombok") version "8.12.2"
+    id("io.freefair.lombok") version "8.12.2.1"
     id("formatting-conventions")
     id("jsonwebtoken")
     id("okhttp")
@@ -35,6 +35,18 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
+            pom {
+                name.set("Clearinghouse")
+                description.set("GA4GH passports validation and parsing")
+                url.set("https://github.com/ELIXIR-NO/FEGA-Norway/tree/main/lib/clearinghouse")
+                scm {
+                    url.set("https://github.com/ELIXIR-NO/FEGA-Norway")
+                }
+                issueManagement {
+                    system.set("GitHub")
+                    url.set("https://github.com/ELIXIR-NO/FEGA-Norway/issues")
+                }
+            }
         }
     }
     repositories {

@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("extra-java-module-info")
-    id("io.freefair.lombok") version "8.12.2"
+    id("io.freefair.lombok") version "8.12.2.1"
     id("formatting-conventions")
     id("maven-publish")
 }
@@ -43,6 +43,18 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
+            pom {
+                name.set("Crypt4GH")
+                description.set("Crypt4GH standard implementation")
+                url.set("https://github.com/ELIXIR-NO/FEGA-Norway/tree/main/lib/crypt4gh")
+                scm {
+                    url.set("https://github.com/ELIXIR-NO/FEGA-Norway")
+                }
+                issueManagement {
+                    system.set("GitHub")
+                    url.set("https://github.com/ELIXIR-NO/FEGA-Norway/issues")
+                }
+            }
         }
     }
     repositories {
