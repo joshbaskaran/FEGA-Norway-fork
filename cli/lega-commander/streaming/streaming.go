@@ -193,7 +193,7 @@ func (s defaultStreamer) uploadFile(file *os.File, stat os.FileInfo, uploadID *s
                 return fmt.Errorf(
                     "File %s is already in the inbox.\n"+
                         "If you want to replace it, remove it first using:\n"+
-                        "  lega-commander files -d %s",
+                        "  lega-commander inbox -d %s",
                     file.Name(),
                     filepath.Base(uploadedFile.FileName),
                 )
