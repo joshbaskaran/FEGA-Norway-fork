@@ -155,19 +155,17 @@ func (s defaultStreamer) uploadFolder(folder *os.File, resume, straight bool) er
 
         err = s.Upload(entryPath, resume, straight)
         if err != nil {
-            if errMsg := err.Error();
-               containsIgnoreCase(errMsg, "is already uploaded.") {
-                warnings = append(
-                    warnings,
-                    fmt.Sprintf("Skipped %s: already in the inbox", entry.Name()),
-                )
+            errMsg := err.Error()
+            if strings.Contains(errMsg, "is already in the inbox") {
+                warnings = append(warnings,
+                    fmt.Sprintf("Skipped %s: already in the inbox", entry.Name()))
                 continue
             }
             return err
         }
     }
     if len(warnings) > 0 {
-        fmt.Println(aurora.Yellow("WARNING: Some files in the folder were skipped:"))
+        fmt.Println(aurora.Yellow("WARNING: Some files were skipped:"))
         for _, w := range warnings {
             fmt.Println(aurora.Yellow("  - " + w))
         }
