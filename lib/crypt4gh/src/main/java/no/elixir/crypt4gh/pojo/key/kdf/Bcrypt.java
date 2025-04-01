@@ -70,10 +70,12 @@ import java.security.NoSuchAlgorithmException;
  */
 public final class Bcrypt {
 
-  // Blowfish parameters
+  /** Number of rounds in the Blowfish Feistel network */
   private static final int BLOWFISH_NUM_ROUNDS = 16;
 
-  // Initial contents of key schedule
+  /**
+   * Initial values of the key schedule: P-array. The values are based on hexadecimal digits of pi.
+   */
   private static final int[] P_orig = {
     0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344,
     0xa4093822, 0x299f31d0, 0x082efa98, 0xec4e6c89,
@@ -81,6 +83,11 @@ public final class Bcrypt {
     0xc0ac29b7, 0xc97c50dd, 0x3f84d5b5, 0xb5470917,
     0x9216d5d9, 0x8979fb1b
   };
+
+  /**
+   * Initial values of the key schedule: S-boxes. The four S-boxes are concatenated into a single
+   * array with 1024 entries. The values are based on hexadecimal digits of pi.
+   */
   private static final int[] S_orig = {
     0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7,
     0xb8e1afed, 0x6a267e96, 0xba7c9045, 0xf12c7f99,
@@ -340,16 +347,20 @@ public final class Bcrypt {
     0xb74e6132, 0xce77e25b, 0x578fdfe3, 0x3ac372e6
   };
 
-  // bcrypt IV: "OrpheanBeholderScryDoubt". The C implementation calls
-  // this "ciphertext", but it is really plaintext or an IV. We keep
-  // the name to make code comparison easier.
+  /**
+   * Bcrypt Initialization Vector: "OrpheanBeholderScryDoubt". The C implementation calls this
+   * "ciphertext", but it is really plaintext or an IV. We keep the name to make code comparison
+   * easier.
+   */
   private static final int[] bf_crypt_ciphertext = {
     0x4f727068, 0x65616e42, 0x65686f6c,
     0x64657253, 0x63727944, 0x6f756274
   };
 
-  // This is the magic value "OxychromaticBlowfishSwatDynamite"
-  // which is used as the 32-byte plaintext input for bcrypt_pbkdf
+  /**
+   * This is the magic value "OxychromaticBlowfishSwatDynamite", which is used as the 32-byte
+   * plaintext input for bcrypt_pbkdf
+   */
   private static final int[] bcrypt_pbkdf_ciphertext = {
     0x4F787963, 0x68726F6D, 0x61746963,
     0x426C6F77, 0x66697368, 0x53776174,
@@ -358,18 +369,33 @@ public final class Bcrypt {
 
   Bcrypt() {}
 
+  /**
+   * Performs the central password hashing step in the Bcrypt scheme based on the IV
+   * "OrpheanBeholderScryDoubt". Note that this implementation follows the description in the
+   * original paper, which is different from the OpenBSD-implementation of Bcrypt and others based
+   * on it.
+   *
+   * @param rounds actual number of rounds to hash (not the binary logarithm)
+   * @param salt the binary salt to hash with the password
+   * @param password the password to hash
+   * @return an array containing the binary hashed password
+   * @throws IllegalArgumentException if the rounds parameter is negative
+   */
   byte[] cryptRaw(long rounds, byte[] salt, byte[] password) {
     return cryptRaw(rounds, salt, password, bf_crypt_ciphertext.clone());
   }
 
   /**
-   * Perform the central password hashing step in the bcrypt scheme
+   * Performs the central password hashing step in the Bcrypt scheme using a provided IV. Note that
+   * this implementation follows the description in the original paper, which is different from the
+   * OpenBSD-implementation of Bcrypt and others based on it.
    *
-   * @param rounds the actual rounds, not the binary logarithm
+   * @param rounds actual number of rounds to hash (not the binary logarithm)
    * @param salt the binary salt to hash with the password
-   * @param password the password to hash of rounds of hashing to apply
-   * @param cdata the plaintext to encrypt
+   * @param password the password to hash
+   * @param cdata the plaintext to encrypt (magic word IV)
    * @return an array containing the binary hashed password
+   * @throws IllegalArgumentException if the rounds parameter is negative
    */
   byte[] cryptRaw(long rounds, byte[] salt, byte[] password, int[] cdata) {
     if (rounds < 0) {
@@ -411,11 +437,13 @@ public final class Bcrypt {
 
   /**
    * Perform the "enhanced key schedule" step described by Provos and Mazieres in "A
-   * Future-Adaptable Password Scheme" <a
-   * href="http://www.openbsd.org/papers/bcrypt-paper.ps">bcrypt-paper.ps</a>
+   * Future-Adaptable Password Scheme".
    *
-   * @param data salt information
-   * @param key password information
+   * @param P the P-array (part of key schedule)
+   * @param S the S-boxes (part of key schedule)
+   * @param data a salt value
+   * @param key the encryption key (password)
+   * @see <a href="http://www.openbsd.org/papers/bcrypt-paper.ps">bcrypt-paper.ps</a>
    */
   private void enhancedKeySchedule(int[] P, int[] S, byte[] data, byte[] key) {
     int i;
@@ -447,7 +475,7 @@ public final class Bcrypt {
   }
 
   /**
-   * Cyclically extract a word of key material
+   * Cyclically extract a word of key material.
    *
    * @param data the string to extract the data from
    * @param offp a "pointer" (as a one-entry array) to the current offset into data
@@ -468,9 +496,12 @@ public final class Bcrypt {
   }
 
   /**
-   * Key the Blowfish cipher
+   * Key the Blowfish cipher. This is a special implementation of the "enhancedKeySchedule" function
+   * (called "ExpandKey" in the paper) which does not make use of a salt.
    *
-   * @param key an array containing the key
+   * @param P the P-array (part of key schedule)
+   * @param S the S-boxes (part of key schedule)
+   * @param key an array containing the encryption key
    */
   private void key(int[] P, int[] S, byte[] key) {
     int i;
@@ -494,8 +525,10 @@ public final class Bcrypt {
   }
 
   /**
-   * Blowfish encipher a single 64-bit block encoded as two 32-bit halves
+   * Blowfish encipher a single 64-bit block encoded as two 32-bit halves.
    *
+   * @param P the P-array (part of key schedule)
+   * @param S the S-boxes (part of key schedule)
    * @param lr an array containing the two 32-bit half blocks
    * @param off the position in the array of the blocks
    */
@@ -523,7 +556,7 @@ public final class Bcrypt {
   }
 
   /**
-   * Hashes the given input with SHA-512
+   * Hashes the given input with SHA-512.
    *
    * @param input The array of bytes to be hashed
    * @return A 64-byte long hash (512 bits)

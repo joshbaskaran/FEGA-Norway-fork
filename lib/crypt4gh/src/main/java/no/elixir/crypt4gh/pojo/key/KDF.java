@@ -13,16 +13,26 @@ import no.elixir.crypt4gh.pojo.key.kdf.SCrypt;
 
 /** Key Derivation Function. */
 public enum KDF {
+  /** Scrypt key derivation function */
   SCRYPT,
+  /**
+   * Bcrypt_pbkdf key derivation function (mislabelled as Bcrypt, but Bcrypt is a password hashing
+   * function and not a KDF)
+   */
   BCRYPT,
+  /** PBKDF2 key derivation function wrapping SHA256 */
   PBKDF2_HMAC_SHA256,
+  /** No key derivation function */
   NONE;
 
+  /** Key length for ChaCha20 (32 bytes = 256 bites) */
   public static final int KEY_LENGTH = 32;
+
+  /** Name of the PBKDF2_hmac_SHA256 algorithm in the secret key factory */
   public static final String PBKDF_2_WITH_HMAC_SHA_256 = "PBKDF2WithHmacSHA256";
 
   /**
-   * Derives key, depending on the KDF.
+   * Derives a key from a password and salt using the key-derivation function (KDF).
    *
    * @param rounds Number of iterations.
    * @param password Password.
@@ -37,7 +47,8 @@ public enum KDF {
       case BCRYPT:
         return Bcrypt.bcrypt_pbkdf(toBytes(password), salt, rounds, KEY_LENGTH);
       case PBKDF2_HMAC_SHA256:
-        KeySpec spec = new PBEKeySpec(password, salt, rounds, KEY_LENGTH * 8);
+        KeySpec spec =
+            new PBEKeySpec(password, salt, rounds, KEY_LENGTH * 8); // note: key length in bits
         SecretKeyFactory factory = SecretKeyFactory.getInstance(PBKDF_2_WITH_HMAC_SHA_256);
         return factory.generateSecret(spec).getEncoded();
       case NONE:
@@ -47,7 +58,13 @@ public enum KDF {
     }
   }
 
-  // conversion without String creation for a better security
+  /**
+   * Converts a character array (encoded in UTF-8) into a byte array. The conversions does not
+   * involve String creation for better security.
+   *
+   * @param chars a character array
+   * @param a byte array
+   */
   private byte[] toBytes(char[] chars) {
     CharBuffer charBuffer = CharBuffer.wrap(chars);
     ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);

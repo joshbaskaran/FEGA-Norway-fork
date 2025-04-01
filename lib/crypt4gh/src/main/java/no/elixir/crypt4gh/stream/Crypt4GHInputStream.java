@@ -42,7 +42,7 @@ public class Crypt4GHInputStream extends FilterInputStream {
     boolean skip = true;
     for (long length : lengthsArray) {
       lengths.add(new DataEditListEntry(length, skip));
-      skip = !skip;
+      skip = !skip; // alternate between skipping and keeping segments from the edit list
     }
   }
 
@@ -114,6 +114,7 @@ public class Crypt4GHInputStream extends FilterInputStream {
     return i;
   }
 
+  /** Reads the next byte of data from this stream according to the Data Edit List */
   private synchronized int readWithDataEditList() throws IOException {
     if (!lengths.isEmpty()) {
       DataEditListEntry dataEditListEntry = lengths.peek();
@@ -143,6 +144,9 @@ public class Crypt4GHInputStream extends FilterInputStream {
     return useDataEditList ? skipWithDataEditList(n) : in.skip(n);
   }
 
+  /**
+   * Skips over and discards n bytes of data from this input stream according to the Data Edit List
+   */
   private synchronized long skipWithDataEditList(long n) throws IOException {
     long bytesSkipped = 0;
     if (!lengths.isEmpty()) {

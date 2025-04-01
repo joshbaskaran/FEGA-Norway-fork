@@ -32,26 +32,52 @@ import org.apache.commons.lang3.ArrayUtils;
 /** A bunch of methods for generating/constructing/reading/writing/deriving keys. */
 public class KeyUtils {
 
+  /** Size of the salt used by the key derivation functions */
   public static final int SALT_LENGTH = 16;
 
+  /** Name of the ChaCha20 algorithm */
   public static final String CHA_CHA_20 = "ChaCha20";
+
+  /** Name of the X25519 algorithm */
   public static final String X25519 = "X25519";
 
+  /** Header line to use at the start of OpenSSL public key files */
   public static final String BEGIN_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----";
+
+  /** Footer line to use at the end of OpenSSL public key files */
   public static final String END_PUBLIC_KEY = "-----END PUBLIC KEY-----";
+
+  /** Header line to use at the start of OpenSSL private key files */
   public static final String BEGIN_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----";
+
+  /** Footer line to use at the end of OpenSSL private key files */
   public static final String END_PRIVATE_KEY = "-----END PRIVATE KEY-----";
+
+  /** Header line to use at the start of Crypt4GH public key files */
   public static final String BEGIN_CRYPT4GH_PUBLIC_KEY = "-----BEGIN CRYPT4GH PUBLIC KEY-----";
+
+  /** Footer line to use at the end of Crypt4GH public key files */
   public static final String END_CRYPT4GH_PUBLIC_KEY = "-----END CRYPT4GH PUBLIC KEY-----";
+
+  /** Header line to use at the start of encrypted Crypt4GH private key files */
   public static final String BEGIN_CRYPT4GH_ENCRYPTED_PRIVATE_KEY =
       "-----BEGIN CRYPT4GH ENCRYPTED PRIVATE KEY-----";
+
+  /** Footer line to use at the end of encrypted Crypt4GH private key files */
   public static final String END_CRYPT4GH_ENCRYPTED_PRIVATE_KEY =
       "-----END CRYPT4GH ENCRYPTED PRIVATE KEY-----";
 
+  /** The magic word used at the beginning of Crypt4GH formatted key files */
   public static final String CRYPT4GH_AUTH_MAGIC = "c4gh-v1";
 
+  /** Singleton instance of this class */
   private static KeyUtils ourInstance = new KeyUtils();
 
+  /**
+   * Returns a singleton instance of this class.
+   *
+   * @return a KeyUtils object
+   */
   public static KeyUtils getInstance() {
     return ourInstance;
   }
@@ -412,6 +438,7 @@ public class KeyUtils {
    * @param key Key to write.
    * @param password Password to lock private key.
    * @throws IOException If the file can't be written.
+   * @throws GeneralSecurityException if a private key could not be encrypted
    */
   public void writeCrypt4GHKey(Writer writer, Key key, char[] password)
       throws IOException, GeneralSecurityException {
@@ -468,6 +495,7 @@ public class KeyUtils {
    * @param key Key to write.
    * @param password Password to lock private key.
    * @throws IOException If the file can't be written.
+   * @throws GeneralSecurityException if a private key could not be encrypted
    */
   public void writeCrypt4GHKey(File keyFile, Key key, char[] password)
       throws IOException, GeneralSecurityException {
@@ -476,17 +504,37 @@ public class KeyUtils {
     }
   }
 
+  /**
+   * Reads a String field from a Crypt4GH key file provided as a ByteBuffer. Each string field
+   * starts with the length of the String represented as a Short (2-byte big-endian) followed by the
+   * bytes for the actual String.
+   *
+   * @param byteBuffer a buffer holding a Crypt4GH private key file
+   * @return a String read from the byteBuffer
+   */
   private String decodeString(ByteBuffer byteBuffer) {
     short length = byteBuffer.getShort();
     return new String(decodeArray(byteBuffer, length));
   }
 
+  /**
+   * Reads a specified number of bytes from the provided ByteBuffer.
+   *
+   * @param byteBuffer a buffer to read from
+   * @param length the number of bytes to read from the buffer
+   * @return an array of bytes read from the ByteBuffer
+   */
   private byte[] decodeArray(ByteBuffer byteBuffer, int length) {
     byte[] array = new byte[length];
     byteBuffer.get(array);
     return array;
   }
 
+  /**
+   * Encodes a String into a byte array for inclusion in a Crypt4GH private key file. The String is
+   * represented by the length of the String as a Short (2-byte big-endian) followed by the bytes
+   * for the actual string
+   */
   private byte[] encodeString(String string) {
     short length = (short) string.length();
     return ByteBuffer.allocate(2 + length)
@@ -496,6 +544,11 @@ public class KeyUtils {
         .array();
   }
 
+  /**
+   * Encodes a byte array for inclusion in a Crypt4GH private key file. The byte array is
+   * represented by the length of the array as a Short (2-byte big-endian) followed by the actual
+   * bytes
+   */
   private byte[] encodeArray(byte[] array) {
     short length = (short) array.length;
     return ByteBuffer.allocate(2 + length)
