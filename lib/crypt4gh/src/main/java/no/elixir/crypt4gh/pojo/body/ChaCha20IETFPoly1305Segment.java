@@ -25,13 +25,34 @@ import org.apache.commons.lang3.ArrayUtils;
 @Data
 public class ChaCha20IETFPoly1305Segment extends Segment implements EncryptableEntity {
 
+  /** Size of the nonce used by ChaCha20 (IETF version uses a 12 bytes = 96 bits nonce) */
   public static final int NONCE_SIZE = 12;
+
+  /** Size of the Message Authentication Code returned by Poly1305 (16 bytes) */
   public static final int MAC_SIZE = 16;
 
+  /** The nonce used in the initialization of the ChaCha20 matrix */
   private byte[] nonce = new byte[NONCE_SIZE];
+
+  /** The encrypted data in this segment */
   private byte[] encryptedData;
+
+  /** The Message Authentication Code calculated by Poly1305 from the encrypted segment */
   private byte[] mac = new byte[MAC_SIZE];
 
+  /**
+   * Creates a new segment based on the ChaCha20-Poly1305 encryption cipher from a given data block.
+   * The provided data block may be unencrypted or encrypted. If the data block is already
+   * encrypted, it should start with a nonce followed by the encrypted data and end with a MAC
+   * value.
+   *
+   * @param data the segment data (either encrypted or unencrypted)
+   * @param dataEncryptionParameters containing the ChaCha20 data encryption key
+   * @param encrypt if {@code true}, the data is expected to be unencrypted, and it will then be
+   *     encrypted with a randomly generated nonce. if {@code false}, the data is expected to be
+   *     encrypted already, and it will then be deserialized and decrypted.
+   * @throws GeneralSecurityException if something goes wrong during encryption/decryption
+   */
   ChaCha20IETFPoly1305Segment(
       byte[] data,
       ChaCha20IETFPoly1305EncryptionParameters dataEncryptionParameters,
@@ -48,6 +69,14 @@ public class ChaCha20IETFPoly1305Segment extends Segment implements EncryptableE
     }
   }
 
+  /**
+   * Serializes the fields in this segment into a byte array. The serialized segment will contain a
+   * nonce, followed by the encrypted data and end with a MAC value. All fields are stored in
+   * little-endian format.
+   *
+   * @return a byte array containing the encrypted data block
+   * @throws IOException if any of the fields cannot be serialized
+   */
   @Override
   public byte[] serialize() throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

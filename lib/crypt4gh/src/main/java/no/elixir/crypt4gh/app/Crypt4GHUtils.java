@@ -21,16 +21,35 @@ class Crypt4GHUtils {
 
   private static Crypt4GHUtils ourInstance = new Crypt4GHUtils();
 
+  /**
+   * Returns a singleton instance of this class.
+   *
+   * @return a Crypt4GHUtils object
+   */
   static Crypt4GHUtils getInstance() {
     return ourInstance;
   }
 
   private KeyUtils keyUtils = KeyUtils.getInstance();
   private ConsoleUtils consoleUtils = ConsoleUtils.getInstance();
+
+  /** The required minimum length for passwords protecting the private key file */
   private int minPwdLength = 8;
 
   private Crypt4GHUtils() {}
 
+  /**
+   * Generates a new X25519 key pair and saves the public and private keys to disk. The keys can be
+   * saved in either OpenSSL or Crypt4GH format, and private keys saved in the Crypt4GH format can
+   * be encrypted and protected with a chosen password. The public key file will have the suffix
+   * ".pub.pem" and the private key file will have the suffix ".sec.pem".
+   *
+   * @param keyName the file name to use for the two key files
+   * @param keyFormat should be either "CRYPT4GH" or "OPENSSL" (case-insensitive)
+   * @param keyPassword a password used to encrypt the private key file
+   * @throws Exception if the key files cannot be generated for various reasons
+   * @see <a href="https://crypt4gh.readthedocs.io/en/latest/keys.html">Crypt4GH Key Format</a>
+   */
   void generateX25519KeyPair(String keyName, String keyFormat, String keyPassword)
       throws Exception {
     KeyUtils keyUtils = KeyUtils.getInstance();
@@ -77,6 +96,18 @@ class Crypt4GHUtils {
     Files.setPosixFilePermissions(secFile.toPath(), perms);
   }
 
+  /**
+   * Encrypts the specified data file in Crypt4GH format and saves the result to a new file. The
+   * encrypted file will be named after the original with the suffix ".enc".
+   *
+   * @param dataFilePath the path to the file that should be encrypted
+   * @param privateKeyFilePath the path to the sender's private key file
+   * @param publicKeyFilePath the path to the recipient's public key file
+   * @throws GeneralSecurityException In case the Crypt4GH header is malformed
+   * @throws IOException if an I/O error occurs
+   * @throws IllegalArgumentException if the public or private key file cannot be found or if the
+   *     private key cannot be decrypted
+   */
   void encryptFile(String dataFilePath, String privateKeyFilePath, String publicKeyFilePath)
       throws IOException, GeneralSecurityException {
     File dataInFile = new File(dataFilePath);
@@ -117,6 +148,16 @@ class Crypt4GHUtils {
     }
   }
 
+  /**
+   * Decrypts the specified file in Crypt4GH format and saves the result to a new file. The
+   * decrypted file will be named after the original with the suffix ".dec".
+   *
+   * @param dataFilePath the path to the file that should be decrypted
+   * @param privateKeyFilePath the path to the recipient's private key file
+   * @throws GeneralSecurityException In case the Crypt4GH header is malformed
+   * @throws IOException if an I/O error occurs
+   * @throws IllegalArgumentException if the private key file cannot be found or cannot be decrypted
+   */
   void decryptFile(String dataFilePath, String privateKeyFilePath)
       throws IOException, GeneralSecurityException {
     File dataInFile = new File(dataFilePath);
@@ -151,6 +192,14 @@ class Crypt4GHUtils {
     }
   }
 
+  /**
+   * Reads and returns a private key from a file (in OpenSSL or Crypt4GH format).
+   *
+   * @param privateKeyFilePath path to the private key file
+   * @return private key
+   * @throws IOException If the file can't be read
+   * @throws GeneralSecurityException If the key can't be constructed from the given file
+   */
   private PrivateKey readPrivateKey(String privateKeyFilePath)
       throws IOException, GeneralSecurityException {
     PrivateKey privateKey;
