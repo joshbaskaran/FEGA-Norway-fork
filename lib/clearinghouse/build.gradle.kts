@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("maven-publish")
-    id("io.freefair.lombok") version "8.12.2.1"
+    id("io.freefair.lombok") version "8.13.1"
     id("formatting-conventions")
     id("jsonwebtoken")
     id("okhttp")
@@ -25,7 +25,7 @@ dependencies {
     implementation("com.auth0:jwks-rsa:0.22.1")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
     implementation("org.slf4j:slf4j-jdk14:2.0.17")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.12.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.12.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.bouncycastle:bcprov-jdk15to18:1.80")
     testImplementation("org.bouncycastle:bcpkix-jdk15to18:1.80")

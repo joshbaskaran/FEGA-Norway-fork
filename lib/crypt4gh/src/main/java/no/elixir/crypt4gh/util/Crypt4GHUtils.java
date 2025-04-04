@@ -18,8 +18,14 @@ import no.elixir.crypt4gh.stream.Crypt4GHInputStream;
 /** A bunch of methods mostly for working with Crypt4GH headers. */
 public class Crypt4GHUtils {
 
+  /** A singleton instance of this class */
   private static Crypt4GHUtils ourInstance = new Crypt4GHUtils();
 
+  /**
+   * Returns a singleton instance of this class.
+   *
+   * @return a Crypt4GHUtils object
+   */
   public static Crypt4GHUtils getInstance() {
     return ourInstance;
   }
@@ -54,9 +60,9 @@ public class Crypt4GHUtils {
   /**
    * Adds recipient to a header.
    *
-   * @param serializedHeader Serialized header to add recipient to.
-   * @param privateKeyForDecryption Private key top decrypt the header.
-   * @param newRecipientPublicKey Public key of a new recipient.
+   * @param serializedHeader serialized header to add recipient to.
+   * @param privateKeyForDecryption private key to decrypt the header.
+   * @param newRecipientPublicKey public key of a new recipient.
    * @return Header with added recipient.
    * @throws IOException In case of I/O error.
    * @throws GeneralSecurityException In case of encryption related error.
@@ -75,6 +81,16 @@ public class Crypt4GHUtils {
     }
   }
 
+  /**
+   * Gets the header packets from an existing header and encrypts them for a new recipient.
+   *
+   * @param header a Crypt4GH header.
+   * @param privateKeyForDecryption private key to decrypt the header.
+   * @param newRecipientPublicKey public key of a new recipient.
+   * @return a list of header packets encrypted for new recipient
+   * @throws IOException In case of I/O error.
+   * @throws GeneralSecurityException In case of encryption-related error.
+   */
   private List<HeaderPacket> getHeaderPacketsWithNewRecipient(
       Header header, PrivateKey privateKeyForDecryption, PublicKey newRecipientPublicKey)
       throws IOException, GeneralSecurityException {
