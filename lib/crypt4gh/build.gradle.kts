@@ -48,6 +48,10 @@ publishing {
                 name.set("Crypt4GH")
                 description.set("Crypt4GH standard implementation")
                 url.set("https://github.com/ELIXIR-NO/FEGA-Norway/tree/main/lib/crypt4gh")
+                organization {
+                    name.set("Elixir Norway")
+                    url.set("https://elixir.no")
+                }
                 licenses {
                     license {
                         name.set("MIT License")
@@ -87,7 +91,7 @@ publishing {
                         roles.forEach { rolesNode.appendNode("role", it) }
                     }
 
-                    addDeveloper("dtitov", "Dmytro Titov", listOf("Lead Developer"))
+                    addDeveloper("dtitov", "Dmytro Titov", listOf("Lead Developer (emeritus)"))
                     addDeveloper("kjetilkl", "Kjetil Klepper", listOf("Developer", "Maintainer"))
                     addDeveloper("a-ghanem", "Ahmed Ghanem", listOf("Maintainer"))
                     addDeveloper("lyytinen", "Jussi Lyytinen", listOf("Contributor"))
