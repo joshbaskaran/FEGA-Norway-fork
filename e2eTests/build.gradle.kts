@@ -24,8 +24,8 @@ dependencies {
     testImplementation("org.slf4j:slf4j-api:2.0.17")
     testImplementation("org.skyscreamer:jsonassert:1.5.3")
     implementation("io.github.cdimascio:java-dotenv:5.2.2")
-    testCompileOnly("org.projectlombok:lombok:1.18.36")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
+    testCompileOnly("org.projectlombok:lombok:1.18.38")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 }
 
 // Start setup scripts.

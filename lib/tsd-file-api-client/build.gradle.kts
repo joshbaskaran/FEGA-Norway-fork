@@ -12,9 +12,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.projectlombok:lombok:1.18.36")
-    compileOnly("org.projectlombok:lombok:1.18.36")
-    annotationProcessor("org.projectlombok:lombok:1.18.36")
+    implementation("org.projectlombok:lombok:1.18.38")
+    compileOnly("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
 
     implementation("org.apache.commons:commons-lang3:3.17.0")
     implementation("commons-io:commons-io:2.18.0")
