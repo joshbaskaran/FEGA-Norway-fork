@@ -32,7 +32,7 @@ public class PublishMQAspect {
 
   private final Gson gson;
 
-  private final RabbitTemplate rabbitTemplate;
+  private final RabbitTemplate tsdRabbitTemplate;
 
   @Value("${tsd.project}")
   private String tsdProjectId;
@@ -40,17 +40,17 @@ public class PublishMQAspect {
   @Value("${tsd.inbox-location}")
   private String tsdInboxLocation;
 
-  @Value("${mq.exchange}")
+  @Value("${mq.tsd.exchange}")
   private String exchange;
 
-  @Value("${mq.routing-key}")
+  @Value("${mq.tsd.inbox-routing-key}")
   private String routingKey;
 
   @Autowired
-  public PublishMQAspect(HttpServletRequest request, Gson gson, RabbitTemplate rabbitTemplate) {
+  public PublishMQAspect(HttpServletRequest request, Gson gson, RabbitTemplate tsdRabbitTemplate) {
     this.request = request;
     this.gson = gson;
-    this.rabbitTemplate = rabbitTemplate;
+    this.tsdRabbitTemplate = tsdRabbitTemplate;
   }
 
   /**
@@ -97,7 +97,7 @@ public class PublishMQAspect {
         new EncryptedIntegrity[] {
           new EncryptedIntegrity(SHA256.toLowerCase(), request.getAttribute(SHA256).toString())
         });
-    publishMessage(fileDescriptor);
+    publishMessage(fileDescriptor, Operation.UPLOAD.name().toLowerCase());
   }
 
   /**
@@ -134,12 +134,12 @@ public class PublishMQAspect {
         String.format(tsdInboxLocation, tsdProjectId, request.getAttribute(ELIXIR_ID).toString())
             + fileName);
     fileDescriptor.setOperation(Operation.REMOVE.name().toLowerCase());
-    publishMessage(fileDescriptor);
+    publishMessage(fileDescriptor, Operation.REMOVE.name().toLowerCase());
   }
 
-  private void publishMessage(FileDescriptor fileDescriptor) {
+  private void publishMessage(FileDescriptor fileDescriptor, String type) {
     String json = gson.toJson(fileDescriptor);
-    rabbitTemplate.convertAndSend(
+    tsdRabbitTemplate.convertAndSend(
         exchange,
         routingKey,
         json,
@@ -149,6 +149,10 @@ public class PublishMQAspect {
           return m;
         });
     log.info(
-        "Message published to {} exchange with routing key {}: {}", exchange, routingKey, json);
+        "{} message published to {} exchange with routing key {}: {}",
+        type,
+        exchange,
+        routingKey,
+        json);
   }
 }

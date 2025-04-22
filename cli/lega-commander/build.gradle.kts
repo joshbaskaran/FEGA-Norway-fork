@@ -2,8 +2,6 @@ plugins {
     base
 }
 
-version = "1.1.0"
-
 val legaTests = tasks.register("test", Exec::class) {
     group = "verification"
     description = "Test the LEGA Commander application"

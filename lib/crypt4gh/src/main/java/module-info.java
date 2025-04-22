@@ -1,11 +1,12 @@
+/**
+ * This module provides functionality for encrypting and decrypting data files with the Crypt4GH
+ * encryption standard developed by the Global Alliance for Genomics and Health (GA4GH)
+ */
 module no.elixir.crypt4gh {
   requires com.rfksystems.blake2b;
   requires org.apache.commons.lang3;
   requires org.apache.commons.io;
   requires org.apache.commons.cli;
-  requires bcrypt;
-  requires scrypt;
-  requires bkdf;
   requires org.slf4j;
   requires lombok;
 

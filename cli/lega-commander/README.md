@@ -1,27 +1,77 @@
 # lega-commander
-[![Build Status](https://github.com/elixir-oslo/lega-commander/workflows/Go/badge.svg)](https://github.com/elixir-oslo/lega-commander/actions)
-[![GoDoc](https://godoc.org/github.com/elixir-oslo/lega-commander?status.svg)](https://pkg.go.dev/github.com/elixir-oslo/lega-commander?tab=subdirectories)
-[![CodeFactor](https://www.codefactor.io/repository/github/elixir-oslo/lega-commander/badge)](https://www.codefactor.io/repository/github/elixir-oslo/lega-commander)
-[![Go Report Card](https://goreportcard.com/badge/github.com/elixir-oslo/lega-commander)](https://goreportcard.com/report/github.com/elixir-oslo/lega-commander)
-[![codecov](https://codecov.io/gh/elixir-oslo/lega-commander/branch/master/graph/badge.svg)](https://codecov.io/gh/elixir-oslo/lega-commander)
-[![DeepSource](https://deepsource.io/gh/elixir-oslo/lega-commander.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/elixir-oslo/lega-commander/?ref=repository-badge)
 
 ## Installation / Update
 
-### Linux
-run the command below on your terminal:
-```
-curl -fsSL https://raw.githubusercontent.com/elixir-oslo/lega-commander/master/install.sh | sudo sh
-```
+### Manual Installation (Linux/macOS)
 
-### MacOS
-run the command below on your terminal:
-```
-curl -fsSL https://raw.githubusercontent.com/elixir-oslo/lega-commander/master/install.sh | sh
-```
+1. **Download** the appropriate tarball for your operating system from the [releases page](https://github.com/ELIXIR-NO/FEGA-Norway/releases?q=lega-commander-*-assets).
+2. **(Optional) Verify** the file’s checksum using the checksum file provided in the same release.
+3. **Extract** the tarball (e.g., `tar -xzf <filename>.tar.gz`).
+4. **Move** the extracted binary (`lega-commander`) to a folder in your system’s PATH.
+
+**For example:**
+
+**Option 1:** Install system-wide (requires `sudo`):
+   ```
+   sudo cp lega-commander /usr/local/bin/
+   sudo chmod +x /usr/local/bin/lega-commander
+   ```
+**Option 2:**  Install for the current user (no `sudo` required):
+   ```
+   mkdir -p ~/.local/bin
+   cp lega-commander ~/.local/bin/
+   chmod +x ~/.local/bin/lega-commander
+   ```
+**Note:** Ensure ~/.local/bin is in your PATH.
 
 ### Windows
-Go to the [releases page](https://github.com/elixir-oslo/lega-commander/releases) and download the latest binary manually.
+1. Go to the [releases page](https://github.com/ELIXIR-NO/FEGA-Norway/releases?q=lega-commander-*-assets).
+2. The latest **lega-commander** release should be at the top of the page.
+3. Under the release title, locate the **"Assets"** section.
+4. Click on **"Assets"** (or the small arrow next to it) to expand the list.
+   ![Expand Assets](images/assets.png)
+5. In the expanded list, look for the file named **Windows_x86_64.zip** (or the version that matches your system).
+6. Click on the file to start the download.
+7. You can now execute `lega-commander.exe` from the extracted folder.
+
+### Automated Installation
+#### Linux
+Run the command below on your terminal:
+```
+curl -fsSL https://raw.githubusercontent.com/ELIXIR-NO/FEGA-Norway/main/cli/lega-commander/install.sh | sudo sh
+```
+
+#### MacOS
+Run the command below on your terminal:
+```
+curl -fsSL https://raw.githubusercontent.com/ELIXIR-NO/FEGA-Norway/main/cli/lega-commander/install.sh | sh
+```
+
+
+
+#### This script:
+1. Detects your OS and architecture.
+2. Fetches the latest (or specified) version of lega-commander from the GitHub releases.
+3. Verifies the downloaded binary against a checksum to ensure integrity.
+4. Extracts the binary and installs it to a suitable system directory (e.g., /usr/local/bin or $HOME/.local/bin).
+5. Removes temporary files and confirms a successful installation.
+
+
+#### Advanced Installation Options
+
+The installation script (`install.sh`) provides several options to customize the installation process.
+```
+Usage: $this [-b bindir] [-t tag] [-d] [-h]
+  -b  Sets bindir or installation directory (defaults to /usr/local/bin).
+  -t  Sets a specific tag (e.g., "vX.Y.Z") to install.
+  -d  Turns on debug logging (if available).
+  -h  Displays this help message.
+
+If no tag is specified, the latest release from:
+  https://github.com/ELIXIR-NO/FEGA-Norway/releases
+will be installed.
+```
+
 
 ## Configuration
 Before using the lega commander, make sure all the environment variables required for authentication are set:
@@ -95,6 +145,9 @@ that contains c4gh files, we can use this example command:
 ```
 lega-commander upload  -f /path/to/a/folder/containing/c4gh/files
 ```
+
+<!--
 ### How it works
 The flowchart below shows how lega commander connects to the other components of project in order to **UPLOAD** the file/folder:
 ![Flowchart of upload](flowchart_lega_commander.jpg)
+-->

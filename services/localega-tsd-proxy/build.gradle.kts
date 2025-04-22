@@ -5,7 +5,6 @@ plugins {
 }
 
 group = "no.elixir.fega"
-version = "2.0.0"
 
 dependencies {
     implementation(project(":lib:clearinghouse"))
@@ -14,7 +13,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.apache.commons:commons-lang3:3.17.0")
     implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("com.google.code.gson:gson:2.12.1")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-cache")
@@ -30,12 +29,4 @@ configurations {
         exclude(group = "commons-logging", module = "commons-logging")
         exclude(group = "org.slf4j", module = "slf4j-jdk14")
     }
-}
-
-// Build Docker image
-tasks.register("buildDockerImage", Exec::class) {
-    group = "build"
-    dependsOn("bootJar")
-    description = "Builds the Docker image for localega-tsd-proxy"
-    commandLine("docker", "build", "-t", "localega-tsd-proxy", ".")
 }

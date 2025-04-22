@@ -2,6 +2,9 @@ release:
     github:
         owner: ELIXIR-NO
         name: FEGA-Norway
+    name_template: "{{.ProjectName}}-{{.Version}}-assets"
+
+project_name: lega-commander
 
 builds:
     - goos:
@@ -24,13 +27,11 @@ archives:
           {{- else if eq .Arch "386" }}i386
           {{- else }}{{ .Arch }}{{ end }}
           {{- if .Arm }}v{{ .Arm }}{{ end -}}
+      format: tar.gz
+      format_overrides:
+        - goos: windows
+          format: zip
 
-#  -
-#    replacements:
-#      amd64: x86_64
-#      386: i386
-#
-#    name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
 
 changelog:
     sort: asc

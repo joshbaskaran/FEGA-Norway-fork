@@ -26,7 +26,7 @@ public class Crypt4GHOutputStream extends FilterOutputStream {
   private DataEncryptionParameters dataEncryptionParameters;
 
   /**
-   * Constructs the Crypt4GHOutputStream by wrapping existing OutputStream.
+   * Constructs the Crypt4GHOutputStream by wrapping an existing OutputStream.
    *
    * @param out Existing OutputStream.
    * @param writerPrivateKey Sender's private key.
@@ -108,6 +108,13 @@ public class Crypt4GHOutputStream extends FilterOutputStream {
     buffer[bytesCached++] = (byte) b; // it's actually always `byte`, not `int`
   }
 
+  /**
+   * Writes the bytes cached in the internal buffer to the underlying output stream. Flushing
+   * creates a new segment encrypted with .
+   *
+   * @throws IOException In case the bytes in the buffer can't be written to the output stream.
+   * @throws GeneralSecurityException In case the encryption fails.
+   */
   protected void flushBuffer() throws IOException, GeneralSecurityException {
     Segment segment =
         Segment.create(Arrays.copyOfRange(buffer, 0, bytesCached), dataEncryptionParameters);

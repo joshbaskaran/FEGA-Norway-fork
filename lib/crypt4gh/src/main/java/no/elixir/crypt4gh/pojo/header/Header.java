@@ -18,12 +18,32 @@ import no.elixir.crypt4gh.pojo.Crypt4GHEntity;
 @AllArgsConstructor
 public class Header implements Crypt4GHEntity {
 
+  /**
+   * The size of the header when not counting the individual header packets. This includes the magic
+   * word "crypt4gh" (8 bytes), the version number (4 byte integer) and the header packet count (4
+   * byte integer)
+   */
   public static final int UNENCRYPTED_HEADER_LENGTH = 8 + 4 + 4;
+
+  /** The magic word "crypt4gh" used at the start of a Crypt4GH file to identify it as such. */
   public static final String MAGIC_WORD = "crypt4gh";
+
+  /** The version number of the Crypt4GH standard supported by this implementation. */
   public static final int VERSION = 1;
 
+  /** The list of header packets included in the header. */
   @Getter private final List<HeaderPacket> headerPackets;
 
+  /**
+   * Reads a header from an input stream. The header packets that can be decrypted with the provided
+   * private key are added to the headerPackets list.
+   *
+   * @param inputStream a stream to read the header from
+   * @param readerPrivateKey the private key of the reader
+   * @throws IOException if something goes wrong while reading from the input stream
+   * @throws GeneralSecurityException if the input stream does not contain a valid Crypt4GH file or
+   *     the file has an unsupported version number.
+   */
   public Header(InputStream inputStream, PrivateKey readerPrivateKey)
       throws IOException, GeneralSecurityException {
     byte[] unencryptedHeaderBytes = inputStream.readNBytes(UNENCRYPTED_HEADER_LENGTH);
@@ -45,6 +65,13 @@ public class Header implements Crypt4GHEntity {
     }
   }
 
+  /**
+   * Returns a collection of all the Data Encryption Parameters packets found in this header.
+   *
+   * @return a collection of Data Encryption Parameters packets
+   * @throws GeneralSecurityException if no Data Encryption Parameters packets can be found in the
+   *     header
+   */
   public Collection<DataEncryptionParameters> getDataEncryptionParametersList()
       throws GeneralSecurityException {
     Collection<DataEncryptionParameters> result = new ArrayList<>();
@@ -61,6 +88,7 @@ public class Header implements Crypt4GHEntity {
     return result;
   }
 
+  /** Removes all the Data Edit List packets from the header. */
   public void removeDataEditList() {
     Iterator<HeaderPacket> iterator = headerPackets.iterator();
     while (iterator.hasNext()) {
@@ -73,6 +101,11 @@ public class Header implements Crypt4GHEntity {
     }
   }
 
+  /**
+   * Returns a Data Edit List packet found in the header.
+   *
+   * @return an Optional containing a Data Edit List, provided that one was found in this header
+   */
   public Optional<DataEditList> getDataEditList() {
     for (HeaderPacket headerPacket : headerPackets) {
       EncryptableHeaderPacket encryptablePayload = headerPacket.getEncryptablePayload();
@@ -84,6 +117,15 @@ public class Header implements Crypt4GHEntity {
     return Optional.empty();
   }
 
+  /**
+   * Serializes the complete header into a byte array. The header consists of the magic word
+   * "crypt4gh" followed by a version number, a number counting the header packets, and finally all
+   * of the individual header packets.
+   *
+   * @return a byte array containing the serialized header
+   * @throws IOException if some of the header packets cannot be serialized
+   * @throws GeneralSecurityException if some of the header packet payloads cannot be encrypted
+   */
   @Override
   public byte[] serialize() throws IOException, GeneralSecurityException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

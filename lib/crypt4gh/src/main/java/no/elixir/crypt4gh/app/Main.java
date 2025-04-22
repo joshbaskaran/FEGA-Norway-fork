@@ -5,14 +5,31 @@ import org.apache.commons.cli.*;
 /** Console application for encrypting/decrypting files. */
 public class Main {
 
+  /** Command-line option for generating a new key pair */
   public static final String GENERATE = "g";
+
+  /** Command-line option for encrypting a file */
   public static final String ENCRYPT = "e";
+
+  /** Command-line option for decrypting a file */
   public static final String DECRYPT = "d";
+
+  /** Command-line option for specifying the key format (OpenSSL or Crypt4GH) */
   public static final String KEY_FORMAT = "kf";
+
+  /** Command-line option for specifying the password for the private key file */
   public static final String KEY_PASSWORD = "kp";
+
+  /** Command-line option for the public key file */
   public static final String PUBLIC_KEY = "pk";
+
+  /** Command-line option for the private key file */
   public static final String SECRET_KEY = "sk";
+
+  /** Command-line option to display the version number */
   public static final String VERSION = "v";
+
+  /** Command-line option to display the help page */
   public static final String HELP = "h";
 
   /**
@@ -94,14 +111,25 @@ public class Main {
       }
     } catch (ParseException exp) {
       System.err.println(exp.getMessage());
+    } catch (IllegalArgumentException ex) {
+      System.err.println(ex.getMessage());
     }
   }
 
+  /**
+   * Prints out the version number for this release of Crypt4GH. The version is read from the
+   * Manifest file.
+   */
   private static void printVersion() {
     String implementationVersion = Main.class.getPackage().getImplementationVersion();
     System.out.println("Crypt4GH " + implementationVersion);
   }
 
+  /**
+   * Prints out a help page with descriptions of all command-line arguments.
+   *
+   * @param options Command line arguments.
+   */
   private static void printHelp(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp(

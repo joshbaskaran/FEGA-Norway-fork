@@ -9,15 +9,33 @@ import lombok.Data;
 import lombok.ToString;
 import no.elixir.crypt4gh.pojo.Crypt4GHEntity;
 
-/** Header packet, bearing its length encryption type and encrypted payload. */
+/** Header packet, bearing its length, encryption type and encrypted payload. */
 @ToString
 @Data
 public abstract class HeaderPacket implements Crypt4GHEntity {
 
+  /** The total size of this header packet */
   protected int packetLength;
+
+  /** The encryption method used to encrypt the payload in this header packet */
   protected HeaderEncryptionMethod packetEncryption;
+
+  /** The payload that can be encrypted and stored in this header packet */
   protected EncryptableHeaderPacket encryptablePayload;
 
+  /**
+   * Tries to read and decrypt a header packet from an input stream. If the header packet cannot be
+   * decrypted with the provided private key, an empty Optional is returned instead. This can happen
+   * if the header packet was encrypted for a different target recipient.
+   *
+   * @param inputStream the stream to read the header packet from
+   * @param readerPrivateKey the private key of the reader
+   * @return an Optional that may contain a header packet if it could successfully be decrypted with
+   *     the provided key
+   * @throws IOException if somewhing goes wrong while reading from the stream
+   * @throws GeneralSecurityException if the encryption method specified in the header packet was
+   *     not recognized
+   */
   static Optional<HeaderPacket> create(InputStream inputStream, PrivateKey readerPrivateKey)
       throws IOException, GeneralSecurityException {
     int packetLength = Crypt4GHEntity.getInt(inputStream.readNBytes(4));
