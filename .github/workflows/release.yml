@@ -434,7 +434,7 @@ jobs:
       - name: Generate changelog
         run: |
           mkdir -p /tmp/changelogs
-          ./gradlew generateAllChangelogs --outputDir=/tmp/changelogs
+          ./gradlew :generateAllChangelogs --outputDir=/tmp/changelogs
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
