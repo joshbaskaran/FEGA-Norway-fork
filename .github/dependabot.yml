@@ -34,6 +34,15 @@ updates:
       timezone: "Europe/Oslo"
     commit-message:
       prefix: "[e2eTests]"
+  - package-ecosystem: docker-compose
+    directory: "/e2eTests"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Oslo"
+    commit-message:
+      prefix: "[e2eTests]"
 
   # buildSrc
   - package-ecosystem: gradle
