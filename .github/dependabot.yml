@@ -1,223 +1,209 @@
 version: 2
 updates:
-  # Maintain dependencies for GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[GitHub Action]"
+      prefix: '[GitHub Action]'
 
-  # e2eTests
   - package-ecosystem: gradle
-    directory: "/e2eTests"
+    directory: /e2eTests
     groups:
       all-modules:
         patterns:
-          - "*"
+          - '*'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[e2eTests]"
+      prefix: '[e2eTests]'
   - package-ecosystem: docker
-    directory: "/e2eTests"
+    directory: /e2eTests
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[e2eTests]"
+      prefix: '[e2eTests]'
   - package-ecosystem: docker-compose
-    directory: "/e2eTests"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
-    commit-message:
-      prefix: "[e2eTests]"
-
-  # buildSrc
-  - package-ecosystem: gradle
-    directory: "/buildSrc"
+    directory: /e2eTests
     groups:
       all-modules:
         patterns:
-          - "*"
+          - '*'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[Conventions]"
+      prefix: '[e2eTests]'
 
-  # Libraries
-
-  ## clearinghouse
   - package-ecosystem: gradle
-    directory: "/lib/clearinghouse"
+    directory: /buildSrc
     groups:
       all-modules:
         patterns:
-          - "*"
+          - '*'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[Clearinghouse]"
+      prefix: '[Conventions]'
 
-  ## crypt4gh
   - package-ecosystem: gradle
-    directory: "/lib/crypt4gh"
+    directory: /lib/clearinghouse
     groups:
       all-modules:
         patterns:
-          - "*"
+          - '*'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[Crypt4gh]"
+      prefix: '[Clearinghouse]'
 
-  ## tsd-file-api-client
   - package-ecosystem: gradle
-    directory: "/lib/tsd-file-api-client"
+    directory: /lib/crypt4gh
     groups:
       all-modules:
         patterns:
-          - "*"
+          - '*'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[TSD-File-API-Client]"
+      prefix: '[Crypt4gh]'
 
-  # Services
-
-  ## tsd-api-mock
   - package-ecosystem: gradle
-    directory: "/services/tsd-api-mock"
+    directory: /lib/tsd-file-api-client
     groups:
       all-modules:
         patterns:
-          - "*"
+          - '*'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[TSD-API-mock]"
+      prefix: '[TSD-File-API-Client]'
+
+  - package-ecosystem: gradle
+    directory: /services/tsd-api-mock
+    groups:
+      all-modules:
+        patterns:
+          - '*'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
+    commit-message:
+      prefix: '[TSD-API-mock]'
   - package-ecosystem: docker
-    directory: "/services/tsd-api-mock"
+    directory: /services/tsd-api-mock
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[TSD-API-mock]"
+      prefix: '[TSD-API-mock]'
 
-  ## localega-tsd-proxy
   - package-ecosystem: gradle
-    directory: "/services/localega-tsd-proxy"
+    directory: /services/localega-tsd-proxy
     groups:
       all-modules:
         patterns:
-          - "*"
+          - '*'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[Localega-TSD-Proxy]"
+      prefix: '[Localega-TSD-Proxy]'
   - package-ecosystem: docker
-    directory: "/services/localega-tsd-proxy"
+    directory: /services/localega-tsd-proxy
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[Localega-TSD-Proxy]"
+      prefix: '[Localega-TSD-Proxy]'
 
-  ## MQ-Interceptor
   - package-ecosystem: gomod
-    directory: "/services/mq-interceptor"
+    directory: /services/mq-interceptor
     groups:
       all-modules:
         patterns:
-          - "*"
+          - '*'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[MQ-Interceptor]"
+      prefix: '[MQ-Interceptor]'
   - package-ecosystem: docker
-    directory: "/services/mq-interceptor"
+    directory: /services/mq-interceptor
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[MQ-Interceptor]"
+      prefix: '[MQ-Interceptor]'
 
-  ## CEGA-mock
   - package-ecosystem: gomod
-    directory: "/services/cega-mock"
+    directory: /services/cega-mock
     groups:
       all-modules:
         patterns:
-          - "*"
+          - '*'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[CEGA-mock]"
-
+      prefix: '[CEGA-mock]'
   - package-ecosystem: docker
-    directory: "/services/cega-mock"
+    directory: /services/cega-mock
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[CEGA-mock]"
+      prefix: '[CEGA-mock]'
 
-  # CLI
-
-  ## lega-commander
   - package-ecosystem: gomod
-    directory: "/cli/lega-commander"
+    directory: /cli/lega-commander
     groups:
       all-modules:
         patterns:
-          - "*"
+          - '*'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Oslo"
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Europe/Oslo
     commit-message:
-      prefix: "[Lega-Commander]"
+      prefix: '[Lega-Commander]'
