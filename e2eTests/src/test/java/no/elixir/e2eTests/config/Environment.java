@@ -27,24 +27,23 @@ public class Environment {
   // Constructor
   public Environment() {
     this.runtime = dotenv.get("E2E_RUNTIME");
-    this.cegaAuthUsername=dotenv.get("E2E_CEGAAUTH_USERNAME");
-    this.cegaAuthPassword=dotenv.get("E2E_CEGAAUTH_PASSWORD");
-    this.cegaConnString=dotenv.get("E2E_CEGAMQ_CONN_STR");
-    this.proxyHost=dotenv.get("E2E_PROXY_HOST");
-    this.proxyPort=dotenv.get("E2E_PROXY_PORT");
-    this.sdaDbHost=dotenv.get("E2E_SDA_DB_HOST");
-    this.sdaDbPort=dotenv.get("E2E_SDA_DB_PORT");
-    this.sdaDbUsername=dotenv.get("E2E_SDA_DB_USERNAME");
-    this.sdaDbPassword=dotenv.get("E2E_SDA_DB_PASSWORD");
-    this.sdaDbDatabaseName=dotenv.get("E2E_SDA_DB_DATABASE_NAME");
-    this.sdaDoaHost=dotenv.get("E2E_SDA_DOA_HOST");
-    this.sdaDoaPort=dotenv.get("E2E_SDA_DOA_PORT");
-    this.truststorePassword=dotenv.get("E2E_TRUSTSTORE_PASSWORD");
+    this.cegaAuthUsername = dotenv.get("E2E_CEGAAUTH_USERNAME");
+    this.cegaAuthPassword = dotenv.get("E2E_CEGAAUTH_PASSWORD");
+    this.cegaConnString = dotenv.get("E2E_CEGAMQ_CONN_STR");
+    this.proxyHost = dotenv.get("E2E_PROXY_HOST");
+    this.proxyPort = dotenv.get("E2E_PROXY_PORT");
+    this.sdaDbHost = dotenv.get("E2E_SDA_DB_HOST");
+    this.sdaDbPort = dotenv.get("E2E_SDA_DB_PORT");
+    this.sdaDbUsername = dotenv.get("E2E_SDA_DB_USERNAME");
+    this.sdaDbPassword = dotenv.get("E2E_SDA_DB_PASSWORD");
+    this.sdaDbDatabaseName = dotenv.get("E2E_SDA_DB_DATABASE_NAME");
+    this.sdaDoaHost = dotenv.get("E2E_SDA_DOA_HOST");
+    this.sdaDoaPort = dotenv.get("E2E_SDA_DOA_PORT");
+    this.truststorePassword = dotenv.get("E2E_TRUSTSTORE_PASSWORD");
   }
 
   // Method to construct and return the broker connection string
   public String getBrokerConnectionString() {
     return cegaConnString;
   }
-
 }

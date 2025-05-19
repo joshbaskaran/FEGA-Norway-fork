@@ -323,8 +323,7 @@ public class IngestionTest {
     String datasets =
         Unirest.get(
                 String.format(
-                    "https://%s:%s/metadata/datasets",
-                    env.getSdaDoaHost(), env.getSdaDoaPort()))
+                    "https://%s:%s/metadata/datasets", env.getSdaDoaHost(), env.getSdaDoaPort()))
             .header("Authorization", "Bearer " + token)
             .asString()
             .getBody();
@@ -357,8 +356,7 @@ public class IngestionTest {
     HttpResponse<byte[]> response =
         Unirest.get(
                 String.format(
-                    "https://%s:%s/files/%s",
-                    env.getSdaDoaHost(), env.getSdaDoaPort(), stableId))
+                    "https://%s:%s/files/%s", env.getSdaDoaHost(), env.getSdaDoaPort(), stableId))
             .header("Authorization", "Bearer " + token)
             .asBytes();
     if (response.getStatus() == 200) { // Check if the response is OK
