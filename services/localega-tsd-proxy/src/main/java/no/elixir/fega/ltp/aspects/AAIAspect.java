@@ -21,6 +21,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -40,14 +41,18 @@ public class AAIAspect {
   protected CEGACredentialsProvider cegaCredentialsProvider;
   protected TokenService tokenService;
 
+  private final String elixirAAIClientId;
+
   @Autowired
   public AAIAspect(
       HttpServletRequest request,
       CEGACredentialsProvider cegaCredentialsProvider,
-      TokenService tokenService) {
+      TokenService tokenService,
+      @Value("${elixir.client.id}") String elixirAAIClientId) {
     this.request = request;
     this.cegaCredentialsProvider = cegaCredentialsProvider;
     this.tokenService = tokenService;
+    this.elixirAAIClientId = elixirAAIClientId;
   }
 
   /**
@@ -66,6 +71,11 @@ public class AAIAspect {
     }
     String passportScopedAccessToken = optionalBearerAuth.get().replace("Bearer ", "");
     try {
+      String audience = tokenService.getAudience(passportScopedAccessToken);
+      if (!elixirAAIClientId.equals(audience))
+        throw new AuthenticationException(
+            String.format(
+                "Incorrect JWT audience! Expected '%s' but got '%s'", elixirAAIClientId, audience));
       String subject = tokenService.getSubject(passportScopedAccessToken);
       List<Visa> controlledAccessGrantsVisas =
           tokenService.getControlledAccessGrantsVisas(passportScopedAccessToken);
