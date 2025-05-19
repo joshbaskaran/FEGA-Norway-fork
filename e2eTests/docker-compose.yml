@@ -75,33 +75,41 @@ services:
       - "10443:8080"
       - "5005:5005" # This is the JDWP debug port. See command below.
     environment:
-      - SSL_ENABLED=<<PROXY_SSL_ENABLED>>
-      - TSD_SECURE=<<PROXY_TSD_SECURE>>
-      - DB_PORT=<<PROXY_DB_PORT>>
-      - ROOT_CERT_PASSWORD=<<PROXY_ROOT_CERT_PASSWORD>>
-      - TSD_ROOT_CERT_PASSWORD=<<PROXY_TSD_ROOT_CERT_PASSWORD>>
-      - SERVER_CERT_PASSWORD=<<PROXY_SERVER_CERT_PASSWORD>>
-      - CLIENT_ID=<<PROXY_CLIENT_ID>>
-      - CLIENT_SECRET=<<PROXY_CLIENT_SECRET>>
-      - CEGA_AUTH_URL=<<PROXY_CEGAAUTH_URL>>
-      - CEGA_USERNAME=<<PROXY_CEGAAUTH_USERNAME>>
-      - CEGA_PASSWORD=<<PROXY_CEGAAUTH_PASSWORD>>
-      - TSD_HOST=<<PROXY_TSD_HOST>>
-      - TSD_ACCESS_KEY=<<PROXY_TSD_ACCESS_KEY>>
-      - POSTGRES_PASSWORD=<<PROXY_POSTGRES_PASSWORD>>
-      - ADMIN_USER=<<PROXY_ADMIN_USER>>
-      - ADMIN_PASSWORD=<<PROXY_ADMIN_PASSWORD>>
-      - TSD_MQ_HOST=<<PROXY_TSD_MQ_HOST>>
-      - TSD_MQ_PORT=<<PROXY_TSD_MQ_PORT>>
-      - TSD_MQ_VHOST=<<PROXY_TSD_MQ_VHOST>>
-      - TSD_MQ_USERNAME=<<PROXY_TSD_MQ_USERNAME>>
-      - TSD_MQ_PASSWORD=<<PROXY_TSD_MQ_PASSWORD>>
-      - TSD_MQ_EXCHANGE=<<PROXY_TSD_MQ_EXCHANGE>>
-      - TSD_MQ_EXPORT_REQUEST_ROUTING_KEY=<<PROXY_TSD_MQ_EXPORT_REQUEST_ROUTING_KEY>>
-      - TSD_MQ_INBOX_ROUTING_KEY=<<PROXY_TSD_MQ_INBOX_ROUTING_KEY>>
-      - TSD_MQ_ENABLE_TLS=<<PROXY_TSD_MQ_ENABLE_TLS>>
-      - TRUSTSTORE=<<PROXY_TRUSTSTORE>>
-      - TRUSTSTORE_PASSWORD=<<PROXY_TRUSTSTORE_PASSWORD>>
+      - SSL_ENABLED=true
+      - TSD_SECURE=false
+      - DB_PORT=5432
+      - ROOT_CERT_PASSWORD=r00t_cert_passw0rd
+      - TSD_ROOT_CERT_PASSWORD=r00t_cert_passw0rd
+      - SERVER_CERT_PASSWORD=server_cert_passw0rd
+      - CLIENT_ID=test
+      - CLIENT_SECRET=test
+      - BROKER_HOST=cegamq
+      - BROKER_PORT=5673
+      - BROKER_USERNAME=test
+      - BROKER_PASSWORD=test
+      - BROKER_VHOST=lega
+      - BROKER_VALIDATE=
+      - BROKER_SSL_ENABLED=
+      - EXCHANGE=localega
+      - CEGA_AUTH_URL=http://cegaauth:8443/username/
+      - CEGA_USERNAME=dummy
+      - CEGA_PASSWORD=dummy
+      - TSD_HOST=tsd:8080
+      - TSD_ACCESS_KEY=s0me_key
+      - POSTGRES_PASSWORD=p0stgres_passw0rd
+      - ADMIN_USER=admin
+      - ADMIN_PASSWORD=aDm!n_01x.
+      - TSD_MQ_HOST=mq
+      - TSD_MQ_PORT=5671
+      - TSD_MQ_VHOST=test
+      - TSD_MQ_USERNAME=admin
+      - TSD_MQ_PASSWORD=guest
+      - TSD_MQ_EXCHANGE=sda
+      - TSD_MQ_EXPORT_REQUEST_ROUTING_KEY=exportRequests
+      - TSD_MQ_INBOX_ROUTING_KEY=inbox
+      - TSD_MQ_ENABLE_TLS=true
+      - TRUSTSTORE=/etc/ega/store/truststore.p12
+      - TRUSTSTORE_PASSWORD=trustst0re_passw0rd
     volumes:
       - proxy-certs:/etc/ega/
       #- custom_path:/app/static/ # Serves from a directory
@@ -133,15 +141,15 @@ services:
       postgres:
         condition: service_started
     environment:
-      - POSTGRES_CONNECTION=<<INTERCEPTOR_POSTGRES_CONNECTION>>
-      - CEGA_MQ_CONNECTION=<<INTERCEPTOR_CEGA_MQ_CONNECTION>>
-      - CEGA_MQ_EXCHANGE=<<INTERCEPTOR_CEGA_MQ_EXCHANGE>>
-      - CEGA_MQ_QUEUE=<<INTERCEPTOR_CEGA_MQ_QUEUE>>
-      - LEGA_MQ_CONNECTION=<<INTERCEPTOR_MQ_CONNECTION>>
-      - LEGA_MQ_EXCHANGE=<<INTERCEPTOR_LEGA_MQ_EXCHANGE>>
-      - LEGA_MQ_QUEUE=<<INTERCEPTOR_LEGA_MQ_QUEUE>>
-      - ENABLE_TLS=<<INTERCEPTOR_ENABLE_TLS>>
-      - CA_CERT_PATH=<<INTERCEPTOR_CA_CERT_PATH>>
+      - POSTGRES_CONNECTION=postgres://postgres:p0stgres_passw0rd@postgres:5432/postgres?sslmode=disable
+      - CEGA_MQ_CONNECTION=amqps://test:test@cegamq:5673/lega
+      - CEGA_MQ_EXCHANGE=localega
+      - CEGA_MQ_QUEUE=v1.files
+      - LEGA_MQ_CONNECTION=amqps://admin:guest@mq:5671/test
+      - LEGA_MQ_EXCHANGE=sda
+      - LEGA_MQ_QUEUE=files
+      - ENABLE_TLS=true
+      - CA_CERT_PATH=/certs/CA.cert
     volumes:
       - interceptor-certs:/certs
 
@@ -153,9 +161,7 @@ services:
       file-orchestrator:
         condition: service_healthy
     environment:
-      - POSTGRES_USER=<<POSTGRES_POSTGRES_USER>>
-      - POSTGRES_PASSWORD=<<POSTGRES_POSTGRES_PASSWORD>>
-      - POSTGRES_DB=<<POSTGRES_POSTGRES_DB>>
+      - POSTGRES_PASSWORD=p0stgres_passw0rd
     volumes:
       - postgres-data:/var/lib/postgresql/data/
       - postgres-confs:/docker-entrypoint-initdb.d/
@@ -169,14 +175,14 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=<<DB_POSTGRES_DB>>
-      - PGDATA=<<DB_PGDATA>>
-      - POSTGRES_USER=<<DB_POSTGRES_USER>>
-      - POSTGRES_PASSWORD=<<DB_POSTGRES_PASSWORD>>
-      - POSTGRES_SERVER_CERT=<<DB_POSTGRES_SERVER_CERT>>
-      - POSTGRES_SERVER_KEY=<<DB_POSTGRES_SERVER_KEY>>
-      - POSTGRES_SERVER_CACERT=<<DB_POSTGRES_SERVER_CACERT>>
-      - POSTGRES_VERIFY_PEER=<<DB_POSTGRES_VERIFY_PEER>>
+      - POSTGRES_DB=sda
+      - PGDATA=/var/lib/postgresql/data
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=ro0tpasswd
+      - POSTGRES_SERVER_CERT=/etc/ega/pg.pem
+      - POSTGRES_SERVER_KEY=/etc/ega/pg-server.pem
+      - POSTGRES_SERVER_CACERT=/etc/ega/CA.pem
+      - POSTGRES_VERIFY_PEER=verify-ca
     volumes:
       - db-data:/var/lib/postgresql/data
       - db-certs:/etc/ega/
@@ -204,35 +210,35 @@ services:
       - mq
       - db
     environment:
-      - ARCHIVE_TYPE=<<SDA_ARCHIVE_TYPE>>
-      - ARCHIVE_LOCATION=<<SDA_ARCHIVE_LOCATION>>
-      - BROKER_HOST=<<SDA_BROKER_HOST>>
-      - BROKER_PORT=<<SDA_BROKER_PORT>>
-      - BROKER_USER=<<SDA_BROKER_USER>>
-      - BROKER_PASSWORD=<<SDA_BROKER_PASSWORD>>
-      - BROKER_VHOST=<<SDA_BROKER_VHOST>>
-      - BROKER_QUEUE=<<SDA_BROKER_QUEUE_INGEST>>
-      - BROKER_EXCHANGE=<<SDA_BROKER_EXCHANGE>>
-      - BROKER_ROUTINGKEY=<<SDA_BROKER_ROUTINGKEY_INGEST>>
-      - BROKER_ROUTINGERROR=<<SDA_BROKER_ROUTINGERROR>>
-      - BROKER_SSL=<<SDA_BROKER_SSL>>
-      - BROKER_VERIFYPEER=<<SDA_BROKER_VERIFYPEER>>
-      - BROKER_CACERT=<<SDA_BROKER_CACERT>>
-      - BROKER_CLIENTCERT=<<SDA_BROKER_CLIENTCERT>>
-      - BROKER_CLIENTKEY=<<SDA_BROKER_CLIENTKEY>>
-      - C4GH_PASSPHRASE=<<SDA_C4GH_PASSPHRASE>>
-      - C4GH_FILEPATH=<<SDA_C4GH_FILEPATH>>
-      - DB_HOST=<<SDA_DB_HOST>>
-      - DB_PORT=<<SDA_DB_PORT>>
-      - DB_USER=<<SDA_DB_USER>>
-      - DB_PASSWORD=<<SDA_DB_PASSWORD>>
-      - DB_DATABASE=<<SDA_DB_DATABASE>>
-      - DB_SSLMODE=<<SDA_DB_SSLMODE>>
-      - DB_CLIENTCERT=<<SDA_DB_CLIENTCERT>>
-      - DB_CLIENTKEY=<<SDA_DB_CLIENTKEY>>
-      - INBOX_TYPE=<<SDA_INBOX_TYPE>>
-      - INBOX_LOCATION=<<SDA_INBOX_LOCATION>>
-      - LOG_LEVEL=<<SDA_LOG_LEVEL>>
+      - ARCHIVE_TYPE=posix
+      - ARCHIVE_LOCATION=/ega/archive
+      - BROKER_HOST=mq
+      - BROKER_PORT=5671
+      - BROKER_USER=admin
+      - BROKER_PASSWORD=guest
+      - BROKER_VHOST=test
+      - BROKER_QUEUE=ingest
+      - BROKER_EXCHANGE=sda
+      - BROKER_ROUTINGKEY=archived
+      - BROKER_ROUTINGERROR=error
+      - BROKER_SSL=true
+      - BROKER_VERIFYPEER=true
+      - BROKER_CACERT=/etc/ega/CA.cert
+      - BROKER_CLIENTCERT=/etc/ega/client.cert
+      - BROKER_CLIENTKEY=/etc/ega/client-key.cert
+      - C4GH_PASSPHRASE=key_passw0rd
+      - C4GH_FILEPATH=/etc/ega/ega.sec
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=ro0tpasswd
+      - DB_DATABASE=sda
+      - DB_SSLMODE=require
+      - DB_CLIENTCERT=/db-client-certs/client.cert
+      - DB_CLIENTKEY=/db-client-certs/client-key.cert
+      - INBOX_TYPE=posix
+      - INBOX_LOCATION=/ega/inbox
+      - LOG_LEVEL=debug
     volumes:
       - tsd-inbox:/ega/inbox/
       - tsd-vault:/ega/archive/
@@ -255,34 +261,34 @@ services:
       - mq
       - db
     environment:
-      - ARCHIVE_TYPE=<<SDA_ARCHIVE_TYPE>>
-      - ARCHIVE_LOCATION=<<SDA_ARCHIVE_LOCATION>>
-      - BROKER_HOST=<<SDA_BROKER_HOST>>
-      - BROKER_PORT=<<SDA_BROKER_PORT>>
-      - BROKER_USER=<<SDA_BROKER_USER>>
-      - BROKER_PASSWORD=<<SDA_BROKER_PASSWORD>>
-      - BROKER_VHOST=<<SDA_BROKER_VHOST>>
-      - BROKER_QUEUE=<<SDA_BROKER_QUEUE_VERIFY>>
-      - BROKER_EXCHANGE=<<SDA_BROKER_EXCHANGE>>
-      - BROKER_ROUTINGKEY=<<SDA_BROKER_ROUTINGKEY_VERIFY>>
-      - BROKER_ROUTINGERROR=<<SDA_BROKER_ROUTINGERROR>>
-      - BROKER_SSL=<<SDA_BROKER_SSL>>
-      - BROKER_VERIFYPEER=<<SDA_BROKER_VERIFYPEER>>
-      - BROKER_CACERT=<<SDA_BROKER_CACERT>>
-      - BROKER_CLIENTCERT=<<SDA_BROKER_CLIENTCERT>>
-      - BROKER_CLIENTKEY=<<SDA_BROKER_CLIENTKEY>>
-      - C4GH_PASSPHRASE=<<SDA_C4GH_PASSPHRASE>>
-      - C4GH_FILEPATH=<<SDA_C4GH_FILEPATH>>
-      - DB_HOST=<<SDA_DB_HOST>>
-      - DB_PORT=<<SDA_DB_PORT>>
-      - DB_USER=<<SDA_DB_USER>>
-      - DB_PASSWORD=<<SDA_DB_PASSWORD>>
-      - DB_DATABASE=<<SDA_DB_DATABASE>>
-      - DB_SSLMODE=<<SDA_DB_SSLMODE>>
-      - DB_CLIENTCERT=<<SDA_DB_CLIENTCERT>>
-      - DB_CLIENTKEY=<<SDA_DB_CLIENTKEY>>
-      - INBOX_LOCATION=<<SDA_INBOX_LOCATION>>
-      - LOG_LEVEL=<<SDA_LOG_LEVEL>>
+      - ARCHIVE_TYPE=posix
+      - ARCHIVE_LOCATION=/ega/archive
+      - BROKER_HOST=mq
+      - BROKER_PORT=5671
+      - BROKER_USER=admin
+      - BROKER_PASSWORD=guest
+      - BROKER_VHOST=test
+      - BROKER_QUEUE=archived
+      - BROKER_EXCHANGE=sda
+      - BROKER_ROUTINGKEY=verified
+      - BROKER_ROUTINGERROR=error
+      - BROKER_SSL=true
+      - BROKER_VERIFYPEER=true
+      - BROKER_CACERT=/etc/ega/CA.cert
+      - BROKER_CLIENTCERT=/etc/ega/client.cert
+      - BROKER_CLIENTKEY=/etc/ega/client-key.cert
+      - C4GH_PASSPHRASE=key_passw0rd
+      - C4GH_FILEPATH=/etc/ega/ega.sec
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=ro0tpasswd
+      - DB_DATABASE=sda
+      - DB_SSLMODE=require
+      - DB_CLIENTCERT=/db-client-certs/client.cert
+      - DB_CLIENTKEY=/db-client-certs/client-key.cert
+      - INBOX_LOCATION=/ega/inbox
+      - LOG_LEVEL=debug
     volumes:
       - tsd-inbox:/ega/inbox/
       - tsd-vault:/ega/archive/
@@ -305,29 +311,29 @@ services:
       - mq
       - db
     environment:
-      - BROKER_HOST=<<SDA_BROKER_HOST>>
-      - BROKER_PORT=<<SDA_BROKER_PORT>>
-      - BROKER_USER=<<SDA_BROKER_USER>>
-      - BROKER_PASSWORD=<<SDA_BROKER_PASSWORD>>
-      - BROKER_VHOST=<<SDA_BROKER_VHOST>>
-      - BROKER_QUEUE=<<SDA_BROKER_QUEUE_FINALIZE>>
-      - BROKER_EXCHANGE=<<SDA_BROKER_EXCHANGE>>
-      - BROKER_ROUTINGKEY=<<SDA_BROKER_ROUTINGKEY_FINALIZE>>
-      - BROKER_ROUTINGERROR=<<SDA_BROKER_ROUTINGERROR>>
-      - BROKER_SSL=<<SDA_BROKER_SSL>>
-      - BROKER_VERIFYPEER=<<SDA_BROKER_VERIFYPEER>>
-      - BROKER_CACERT=<<SDA_BROKER_CACERT>>
-      - BROKER_CLIENTCERT=<<SDA_BROKER_CLIENTCERT>>
-      - BROKER_CLIENTKEY=<<SDA_BROKER_CLIENTKEY>>
-      - DB_HOST=<<SDA_DB_HOST>>
-      - DB_PORT=<<SDA_DB_PORT>>
-      - DB_USER=<<SDA_DB_USER>>
-      - DB_PASSWORD=<<SDA_DB_PASSWORD>>
-      - DB_DATABASE=<<SDA_DB_DATABASE>>
-      - DB_SSLMODE=<<SDA_DB_SSLMODE>>
-      - DB_CLIENTCERT=<<SDA_DB_CLIENTCERT>>
-      - DB_CLIENTKEY=<<SDA_DB_CLIENTKEY>>
-      - LOG_LEVEL=<<SDA_LOG_LEVEL>>
+      - BROKER_HOST=mq
+      - BROKER_PORT=5671
+      - BROKER_USER=admin
+      - BROKER_PASSWORD=guest
+      - BROKER_VHOST=test
+      - BROKER_QUEUE=accessionIDs
+      - BROKER_EXCHANGE=sda
+      - BROKER_ROUTINGKEY=completed
+      - BROKER_ROUTINGERROR=error
+      - BROKER_SSL=true
+      - BROKER_VERIFYPEER=true
+      - BROKER_CACERT=/etc/ega/CA.cert
+      - BROKER_CLIENTCERT=/etc/ega/client.cert
+      - BROKER_CLIENTKEY=/etc/ega/client-key.cert
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=ro0tpasswd
+      - DB_DATABASE=sda
+      - DB_SSLMODE=require
+      - DB_CLIENTCERT=/db-client-certs/client.cert
+      - DB_CLIENTKEY=/db-client-certs/client-key.cert
+      - LOG_LEVEL=debug
     command: "sda-finalize"
     volumes:
       - sda-certs:/etc/ega/
@@ -348,29 +354,29 @@ services:
       - mq
       - db
     environment:
-      - BROKER_HOST=<<SDA_BROKER_HOST>>
-      - BROKER_PORT=<<SDA_BROKER_PORT>>
-      - BROKER_USER=<<SDA_BROKER_USER>>
-      - BROKER_PASSWORD=<<SDA_BROKER_PASSWORD>>
-      - BROKER_VHOST=<<SDA_BROKER_VHOST>>
-      - BROKER_QUEUE=<<SDA_BROKER_QUEUE_MAPPER>>
-      - BROKER_EXCHANGE=<<SDA_BROKER_EXCHANGE>>
-      - BROKER_ROUTINGERROR=<<SDA_BROKER_ROUTINGERROR>>
-      - BROKER_SSL=<<SDA_BROKER_SSL>>
-      - BROKER_VERIFYPEER=<<SDA_BROKER_VERIFYPEER>>
-      - BROKER_CACERT=<<SDA_BROKER_CACERT>>
-      - BROKER_CLIENTCERT=<<SDA_BROKER_CLIENTCERT>>
-      - BROKER_CLIENTKEY=<<SDA_BROKER_CLIENTKEY>>
-      - DB_HOST=<<SDA_DB_HOST>>
-      - DB_PORT=<<SDA_DB_PORT>>
-      - DB_USER=<<SDA_DB_USER>>
-      - DB_PASSWORD=<<SDA_DB_PASSWORD>>
-      - DB_DATABASE=<<SDA_DB_DATABASE>>
-      - DB_SSLMODE=<<SDA_DB_SSLMODE>>
-      - DB_CLIENTCERT=<<SDA_DB_CLIENTCERT>>
-      - DB_CLIENTKEY=<<SDA_DB_CLIENTKEY>>
-      - LOG_LEVEL=<<SDA_LOG_LEVEL>>
-      - INBOX_LOCATION=<<SDA_INBOX_LOCATION>>
+      - BROKER_HOST=mq
+      - BROKER_PORT=5671
+      - BROKER_USER=admin
+      - BROKER_PASSWORD=guest
+      - BROKER_VHOST=test
+      - BROKER_QUEUE=mappings
+      - BROKER_EXCHANGE=sda
+      - BROKER_ROUTINGERROR=error
+      - BROKER_SSL=true
+      - BROKER_VERIFYPEER=true
+      - BROKER_CACERT=/etc/ega/CA.cert
+      - BROKER_CLIENTCERT=/etc/ega/client.cert
+      - BROKER_CLIENTKEY=/etc/ega/client-key.cert
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=ro0tpasswd
+      - DB_DATABASE=sda
+      - DB_SSLMODE=require
+      - DB_CLIENTCERT=/db-client-certs/client.cert
+      - DB_CLIENTKEY=/db-client-certs/client-key.cert
+      - LOG_LEVEL=debug
+      - INBOX_LOCATION=/ega/inbox
     volumes:
       - tsd-inbox:/ega/inbox
       - sda-certs:/etc/ega/
@@ -389,28 +395,28 @@ services:
       mq:
         condition: service_healthy
     environment:
-      - BROKER_HOST=<<SDA_BROKER_HOST>>
-      - BROKER_PORT=<<SDA_BROKER_PORT>>
-      - BROKER_USER=<<SDA_BROKER_USER>>
-      - BROKER_PASSWORD=<<SDA_BROKER_PASSWORD>>
-      - BROKER_QUEUE=<<SDA_BROKER_QUEUE_INTERCEPT>>
-      - BROKER_VHOST=<<SDA_BROKER_VHOST>>
-      - BROKER_EXCHANGE=<<SDA_BROKER_EXCHANGE>>
-      - BROKER_ROUTINGERROR=<<SDA_BROKER_ROUTINGERROR>>
-      - BROKER_SSL=<<SDA_BROKER_SSL>>
-      - BROKER_VERIFYPEER=<<SDA_BROKER_VERIFYPEER>>
-      - BROKER_CACERT=<<SDA_BROKER_CACERT>>
-      - BROKER_CLIENTCERT=<<SDA_BROKER_CLIENTCERT>>
-      - BROKER_CLIENTKEY=<<SDA_BROKER_CLIENTKEY>>
-      - DB_HOST=<<SDA_DB_HOST>>
-      - DB_PORT=<<SDA_DB_PORT>>
-      - DB_USER=<<SDA_DB_USER>>
-      - DB_PASSWORD=<<SDA_DB_PASSWORD>>
-      - DB_DATABASE=<<SDA_DB_DATABASE>>
-      - DB_SSLMODE=<<SDA_DB_SSLMODE>>
-      - DB_CLIENTCERT=<<SDA_DB_CLIENTCERT>>
-      - DB_CLIENTKEY=<<SDA_DB_CLIENTKEY>>
-      - LOG_LEVEL=<<SDA_LOG_LEVEL>>
+      - BROKER_HOST=mq
+      - BROKER_PORT=5671
+      - BROKER_USER=admin
+      - BROKER_PASSWORD=guest
+      - BROKER_QUEUE=files
+      - BROKER_VHOST=test
+      - BROKER_EXCHANGE=sda
+      - BROKER_ROUTINGERROR=error
+      - BROKER_SSL=true
+      - BROKER_VERIFYPEER=true
+      - BROKER_CACERT=/etc/ega/CA.cert
+      - BROKER_CLIENTCERT=/etc/ega/client.cert
+      - BROKER_CLIENTKEY=/etc/ega/client-key.cert
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=ro0tpasswd
+      - DB_DATABASE=sda
+      - DB_SSLMODE=require
+      - DB_CLIENTCERT=/db-client-certs/client.cert
+      - DB_CLIENTKEY=/db-client-certs/client-key.cert
+      - LOG_LEVEL=debug
     links:
       - mq
       - db
@@ -429,7 +435,7 @@ services:
   doa:
     container_name: doa
     hostname: doa
-    image: ghcr.io/neicnordic/sda-doa:v1.6.186
+    image: ghcr.io/neicnordic/sda-doa:v1.6.175
     depends_on:
       file-orchestrator:
         condition: service_healthy
@@ -444,16 +450,16 @@ services:
       - "80:8080"
       - "8088:8088"
     environment:
-      - SSL_MODE=<<DOA_SSL_MODE>>
-      - SSL_ENABLED=<<DOA_SSL_ENABLED>>
-      - ARCHIVE_PATH=<<DOA_ARCHIVE_PATH>>
-      - DB_INSTANCE=<<DOA_DB_INSTANCE>>
-      - POSTGRES_USER=<<DOA_POSTGRES_USER>>
-      - POSTGRES_DB=<<DOA_POSTGRES_DB>>
-      - POSTGRES_PASSWORD=<<DOA_POSTGRES_PASSWORD>>
-      - OUTBOX_ENABLED=<<DOA_OUTBOX_ENABLED>>
-      - KEYSTORE_PATH=<<DOA_KEYSTORE_PATH>>
-      - KEYSTORE_PASSWORD=<<DOA_KEYSTORE_PASSWORD>>
+      - SSL_MODE=require # PG SSL MODE
+      - SSL_ENABLED=true
+      - ARCHIVE_PATH=/ega/archive/
+      - DB_INSTANCE=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=sda
+      - POSTGRES_PASSWORD=ro0tpasswd
+      - OUTBOX_ENABLED=false
+      - KEYSTORE_PATH=/etc/ega/ssl/server.p12
+      - KEYSTORE_PASSWORD=server_cert_passw0rd
     volumes:
       - tsd-vault:/ega/archive/
       - doa-certs:/etc/ega/
@@ -476,9 +482,9 @@ services:
     hostname: cegamq
     image: rabbitmq:3.12.13-management-alpine
     environment:
-      - RABBITMQ_CONFIG_FILE=<<CEGAMQ_CONFIG_FILE>>
-      - RABBITMQ_ENABLED_PLUGINS_FILE=<<CEGAMQ_ENABLED_PLUGINS_FILE>>
-      - RABBITMQ_NODE_PORT=<<CEGAMQ_NODE_PORT>>
+      - RABBITMQ_CONFIG_FILE=/etc/rabbitmq/conf/cega
+      - RABBITMQ_ENABLED_PLUGINS_FILE=/etc/rabbitmq/conf/cega.plugins
+      - RABBITMQ_NODE_PORT=5673
     depends_on:
       file-orchestrator:
         condition: service_healthy
@@ -514,8 +520,8 @@ services:
         "8443"
       ]
     environment:
-      - CEGA_USERS_PASSWORD=<<CEGAAUTH_CEGA_USERS_PASSWORD>>
-      - CEGA_USERS_USER=<<CEGAAUTH_CEGA_USERS_USER>>
+      - CEGA_USERS_PASSWORD=dummy
+      - CEGA_USERS_USER=dummy
     ports:
       - "8443:8443"
 
@@ -527,20 +533,20 @@ services:
     hostname: heartbeat-pub
     image: ghcr.io/elixir-no/pipeline-heartbeat:latest
     environment:
-      - HEARTBEAT_MODE=<<HEARTBEAT_MODE_PUB>>
-      - RABBITMQ_HOST=<<HEARTBEAT_RABBITMQ_HOST>>
-      - RABBITMQ_PORT=<<HEARTBEAT_RABBITMQ_PORT>>
-      - RABBITMQ_USER=<<HEARTBEAT_RABBITMQ_USER>>
-      - RABBITMQ_PASS=<<HEARTBEAT_RABBITMQ_PASS>>
-      - RABBITMQ_VHOST=<<HEARTBEAT_RABBITMQ_VHOST>>
-      - RABBITMQ_EXCHANGE=<<HEARTBEAT_RABBITMQ_EXCHANGE>>
-      - RABBITMQ_QUEUE=<<HEARTBEAT_RABBITMQ_QUEUE>>
-      - RABBITMQ_ROUTING_KEY=<<HEARTBEAT_RABBITMQ_ROUTING_KEY>>
-      - RABBITMQ_TLS=<<HEARTBEAT_RABBITMQ_TLS>>
-      - RABBITMQ_CA_CERT_PATH=<<HEARTBEAT_RABBITMQ_CA_CERT_PATH>>
-      - PUBLISH_INTERVAL=<<HEARTBEAT_PUBLISH_INTERVAL>>
-      - RABBITMQ_MANAGEMENT_PORT=<<HEARTBEAT_RABBITMQ_MANAGEMENT_PORT>>
-      - PUBLISHER_CONFIG_PATH=<<HEARTBEAT_PUBLISHER_CONFIG_PATH>>
+      - HEARTBEAT_MODE=publisher
+      - RABBITMQ_HOST=mq
+      - RABBITMQ_PORT=5671
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASS=guest
+      - RABBITMQ_VHOST=test
+      - RABBITMQ_EXCHANGE=sda
+      - RABBITMQ_QUEUE=heartbeat
+      - RABBITMQ_ROUTING_KEY=sda_heartbeat
+      - RABBITMQ_TLS=true
+      - RABBITMQ_CA_CERT_PATH=/app/certs/rootCA.pem
+      - PUBLISH_INTERVAL=60
+      - RABBITMQ_MANAGEMENT_PORT=15671
+      - PUBLISHER_CONFIG_PATH=/app/publisher_config.json
     volumes:
       - heartbeat-confs:/app/
     depends_on:
@@ -556,20 +562,20 @@ services:
     hostname: heartbeat-sub
     image: ghcr.io/elixir-no/pipeline-heartbeat:latest
     environment:
-      - HEARTBEAT_MODE=<<HEARTBEAT_MODE_SUB>>
-      - RABBITMQ_HOST=<<HEARTBEAT_RABBITMQ_HOST>>
-      - RABBITMQ_PORT=<<HEARTBEAT_RABBITMQ_PORT>>
-      - RABBITMQ_USER=<<HEARTBEAT_RABBITMQ_USER>>
-      - RABBITMQ_PASS=<<HEARTBEAT_RABBITMQ_PASS>>
-      - RABBITMQ_VHOST=<<HEARTBEAT_RABBITMQ_VHOST>>
-      - RABBITMQ_EXCHANGE=<<HEARTBEAT_RABBITMQ_EXCHANGE>>
-      - RABBITMQ_QUEUE=<<HEARTBEAT_RABBITMQ_QUEUE>>
-      - RABBITMQ_ROUTING_KEY=<<HEARTBEAT_RABBITMQ_ROUTING_KEY>>
-      - RABBITMQ_TLS=<<HEARTBEAT_RABBITMQ_TLS>>
-      - RABBITMQ_CA_CERT_PATH=<<HEARTBEAT_RABBITMQ_CA_CERT_PATH>>
-      - REDIS_HOST=<<HEARTBEAT_REDIS_HOST>>
-      - REDIS_PORT=<<HEARTBEAT_REDIS_PORT>>
-      - REDIS_DB=<<HEARTBEAT_REDIS_DB>>
+      - HEARTBEAT_MODE=subscriber
+      - RABBITMQ_HOST=mq
+      - RABBITMQ_PORT=5671
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASS=guest
+      - RABBITMQ_VHOST=test
+      - RABBITMQ_EXCHANGE=sda
+      - RABBITMQ_QUEUE=heartbeat
+      - RABBITMQ_ROUTING_KEY=sda_heartbeat
+      - RABBITMQ_TLS=true
+      - RABBITMQ_CA_CERT_PATH=/app/certs/rootCA.pem
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
     depends_on:
       file-orchestrator:
         condition: service_healthy

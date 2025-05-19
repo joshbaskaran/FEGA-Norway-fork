@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source .env
+source env.sh
 
 # Note: To run the script you must first source
 # the .env config or load the expected env vars
@@ -24,12 +24,12 @@ openssl pkcs12 -export \
   -out localhost+7.p12 \
   -in localhost+7.pem \
   -inkey localhost+7-key.pem \
-  -passout pass:"${SERVER_CERT_PASSWORD}"
+  -passout pass:"${OPENSSL_SERVER_CERT_PASSWORD}"
 openssl pkcs12 -export \
   -out localhost+7-client.p12 \
   -in localhost+7-client.pem \
   -inkey localhost+7-client-key.pem \
-  -passout pass:"${CLIENT_CERT_PASSWORD}"
+  -passout pass:"${OPENSSL_CLIENT_CERT_PASSWORD}"
 
 # Convert client key to DER format
 openssl pkcs8 -topk8 \
@@ -49,8 +49,8 @@ openssl rsa -pubout \
 
 # key, JWT public key, and other secrets
 openssl rsa -pubout -in jwt.priv.pem -out jwt.pub.pem
-printf "%s" "${KEY_PASSWORD}" >ega.sec.pass
-crypt4gh generate -n ega -p ${KEY_PASSWORD}
+printf "%s" "${CRYPT4GH_KEY_PASSWORD}" >ega.sec.pass
+crypt4gh generate -n ega -p ${CRYPT4GH_KEY_PASSWORD}
 
 # Copy root CA certificate and its private key
 cp "$(mkcert -CAROOT)/rootCA.pem" rootCA.pem
@@ -62,7 +62,7 @@ openssl pkcs12 -export \
   -out rootCA.p12 \
   -in rootCA.pem \
   -inkey rootCA-key.pem \
-  -passout pass:${ROOT_CERT_PASSWORD}
+  -passout pass:${OPENSSL_ROOT_CERT_PASSWORD}
 
 # Step 11: Rename server and client certificates
 cp localhost+7.pem server.pem
@@ -78,7 +78,7 @@ keytool -importcert -trustcacerts -noprompt \
   -file rootCA.pem \
   -keystore truststore.p12 \
   -storetype PKCS12 \
-  -storepass "${TRUSTSTORE_PASSWORD}"
+  -storepass "${KEYTOOL_TRUSTSTORE_PASSWORD}"
 
 cd .. # Go back to the working directory.
 
