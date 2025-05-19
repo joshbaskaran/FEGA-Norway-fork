@@ -56,9 +56,7 @@ public class SecurityConfig {
    * simplicity in contexts where it is unnecessary. HTTP Basic Authentication is enabled to allow
    * clients to authenticate using the Authorization header with a base64-encoded username and
    * password.
-   *
    */
-
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
