@@ -198,11 +198,25 @@ export HEARTBEAT_REDIS_DB=0
 # If set to "local", you can run the test using: `./gradlew :e2eTests:test`.
 # Mainly used to switch the host/ports and file systems to fetch the certificates.
 export E2E_RUNTIME=container
-export E2E_PROXY_HOST=$([ "$E2E_RUNTIME" = "container" ] && echo "proxy" || echo "localhost")
-export E2E_PROXY_PORT=$([ "$E2E_RUNTIME" = "container" ] && echo "8080" || echo "10443")
-export E2E_SDA_DOA_HOST=$([ "$E2E_RUNTIME" = "container" ] && echo "doa" || echo "localhost")
-export E2E_SDA_DOA_PORT=$([ "$E2E_RUNTIME" = "container" ] && echo "8080" || echo "80")
-export E2E_CEGAMQ_HOST=$([ "$E2E_RUNTIME" = "container" ] && echo "$CEGAMQ_HOST" || echo "localhost")
+
+# Helper function to choose value based on runtime
+function _runtime_() {
+  local container_value=$1
+  local local_value=$2
+
+  if [ "$E2E_RUNTIME" = "container" ]; then
+    echo "$container_value"
+  else
+    echo "$local_value"
+  fi
+}
+
+# Use the function for environment variable assignments
+export E2E_PROXY_HOST=$(_runtime_ "proxy" "localhost")
+export E2E_PROXY_PORT=$(_runtime_ "8080" "10443")
+export E2E_SDA_DOA_HOST=$(_runtime_ "doa" "localhost")
+export E2E_SDA_DOA_PORT=$(_runtime_ "8080" "80")
+export E2E_CEGAMQ_HOST=$(_runtime_ "$CEGAMQ_HOST" "localhost")
 export E2E_CEGAMQ_PORT=$CEGAMQ_PORT
 export E2E_CEGAMQ_USERNAME=$CEGAMQ_USERNAME
 export E2E_CEGAMQ_PASSWORD=$CEGAMQ_PASSWORD
@@ -210,7 +224,7 @@ export E2E_CEGAMQ_VHOST=$CEGAMQ_VHOST
 export E2E_CEGAMQ_CONN_STR=$CEGAMQ_CONN_STR
 export E2E_CEGAAUTH_USERNAME=$CEGAAUTH_CEGA_USERS_USER
 export E2E_CEGAAUTH_PASSWORD=$CEGAAUTH_CEGA_USERS_PASSWORD
-export E2E_SDA_DB_HOST=$([ "$E2E_RUNTIME" = "container" ] && echo "$DB_HOST" || echo "localhost")
+export E2E_SDA_DB_HOST=$(_runtime_ "$DB_HOST" "localhost")
 export E2E_SDA_DB_PORT=$DB_PORT
 export E2E_SDA_DB_USERNAME=$DB_POSTGRES_USER
 export E2E_SDA_DB_PASSWORD=$DB_POSTGRES_PASSWORD

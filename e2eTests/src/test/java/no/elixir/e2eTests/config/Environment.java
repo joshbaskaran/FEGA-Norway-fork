@@ -1,10 +1,16 @@
 package no.elixir.e2eTests.config;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 public class Environment {
+
+  private final Map<String, String> env;
 
   private final String cegaAuthUsername;
   private final String cegaAuthPassword;
@@ -21,29 +27,58 @@ public class Environment {
   private final String truststorePassword;
   private final String runtime;
 
-  // Static Dotenv instance for accessing environment variables
-  private static final Dotenv dotenv = Dotenv.load();
-
-  // Constructor
   public Environment() {
-    this.runtime = dotenv.get("E2E_RUNTIME");
-    this.cegaAuthUsername = dotenv.get("E2E_CEGAAUTH_USERNAME");
-    this.cegaAuthPassword = dotenv.get("E2E_CEGAAUTH_PASSWORD");
-    this.cegaConnString = dotenv.get("E2E_CEGAMQ_CONN_STR");
-    this.proxyHost = dotenv.get("E2E_PROXY_HOST");
-    this.proxyPort = dotenv.get("E2E_PROXY_PORT");
-    this.sdaDbHost = dotenv.get("E2E_SDA_DB_HOST");
-    this.sdaDbPort = dotenv.get("E2E_SDA_DB_PORT");
-    this.sdaDbUsername = dotenv.get("E2E_SDA_DB_USERNAME");
-    this.sdaDbPassword = dotenv.get("E2E_SDA_DB_PASSWORD");
-    this.sdaDbDatabaseName = dotenv.get("E2E_SDA_DB_DATABASE_NAME");
-    this.sdaDoaHost = dotenv.get("E2E_SDA_DOA_HOST");
-    this.sdaDoaPort = dotenv.get("E2E_SDA_DOA_PORT");
-    this.truststorePassword = dotenv.get("E2E_TRUSTSTORE_PASSWORD");
+    this.env = loadEnvFromShellScript();
+    this.runtime = env.get("E2E_RUNTIME");
+    this.cegaAuthUsername = env.get("E2E_CEGAAUTH_USERNAME");
+    this.cegaAuthPassword = env.get("E2E_CEGAAUTH_PASSWORD");
+    this.cegaConnString = env.get("E2E_CEGAMQ_CONN_STR");
+    this.proxyHost = env.get("E2E_PROXY_HOST");
+    this.proxyPort = env.get("E2E_PROXY_PORT");
+    this.sdaDbHost = env.get("E2E_SDA_DB_HOST");
+    this.sdaDbPort = env.get("E2E_SDA_DB_PORT");
+    this.sdaDbUsername = env.get("E2E_SDA_DB_USERNAME");
+    this.sdaDbPassword = env.get("E2E_SDA_DB_PASSWORD");
+    this.sdaDbDatabaseName = env.get("E2E_SDA_DB_DATABASE_NAME");
+    this.sdaDoaHost = env.get("E2E_SDA_DOA_HOST");
+    this.sdaDoaPort = env.get("E2E_SDA_DOA_PORT");
+    this.truststorePassword = env.get("E2E_TRUSTSTORE_PASSWORD");
   }
 
-  // Method to construct and return the broker connection string
+  private Map<String, String> loadEnvFromShellScript() {
+    Map<String, String> envMap = new HashMap<>();
+    try {
+      String[] cmd = {"/bin/bash", "-c", "source " + "env.sh" + " && env"};
+      Process process = new ProcessBuilder(cmd).start();
+
+      BufferedReader reader = new BufferedReader(
+              new InputStreamReader(process.getInputStream())
+      );
+
+      String line;
+      while ((line = reader.readLine()) != null) {
+        int idx = line.indexOf('=');
+        if (idx != -1) {
+          String key = line.substring(0, idx);
+          String value = line.substring(idx + 1);
+          envMap.put(key, value);
+        }
+      }
+
+      int exitCode = process.waitFor();
+      if (exitCode != 0) {
+        throw new RuntimeException("Failed to source environment: exit code " + exitCode);
+      }
+
+    } catch (Exception e) {
+      throw new RuntimeException("Error loading env from shell script", e);
+    }
+
+    return envMap;
+  }
+
   public String getBrokerConnectionString() {
     return cegaConnString;
   }
+
 }
