@@ -44,7 +44,7 @@ public enum Clearinghouse {
   private static final String KID = "kid";
   private final OkHttpClient client = new OkHttpClient();
 
-  private final Gson gson = new Gson();
+      private final Gson gson = new Gson();
 
   /**
    * Validates access JWT token and returns a list of Visas obtained from "/userinfo" endpoint.
@@ -55,8 +55,7 @@ public enum Clearinghouse {
    * @param openIDConfigurationURL ".well-known/openid-configuration" full URL.
    * @return List of GA4GH Visas.
    */
-  public Collection<Visa> getVisas(String accessToken, String openIDConfigurationURL) {
-    return getVisaTokens(accessToken, openIDConfigurationURL).stream()
+  public Collection<Visa> getVisas(String accessToken, String openIDConfigurationURL) {return getVisaTokens(accessToken, openIDConfigurationURL).stream()
         .map(this::getVisa)
         .filter(Optional::isPresent)
         .map(Optional::get)
