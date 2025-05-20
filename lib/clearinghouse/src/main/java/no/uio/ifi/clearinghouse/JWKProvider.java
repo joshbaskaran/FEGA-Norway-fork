@@ -19,7 +19,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 /** Singleton class to be used for retrieving keys from JKU entry of JWT header. */
-public enum JWKProvider {INSTANCE;
+public enum JWKProvider {
+  INSTANCE;
 
   private final OkHttpClient client = new OkHttpClient();
 
@@ -38,8 +39,7 @@ public enum JWKProvider {INSTANCE;
    * @param keyId Key ID.
    * @return <code>Jwk</code> instance.
    */
-  public synchronized Jwk
-  get(String url, String keyId) {
+  public synchronized Jwk get(String url, String keyId) {
     return cache.get(new ImmutablePair<>(url, keyId));
   }
 
