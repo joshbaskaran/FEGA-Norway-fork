@@ -5,7 +5,8 @@ import java.io.Console;
 /** Console utility class, not a public API. */
 class ConsoleUtils {
 
-  private static ConsoleUtils ourInstance = new ConsoleUtils();
+  private static ConsoleUtils ourInstance =
+          new ConsoleUtils();
 
   /**
    * Returns a singleton instance of this class.
@@ -26,8 +27,7 @@ class ConsoleUtils {
    * @return {@code true} if the user entered a response starting with 'y'; {@code false} if the
    *     response started with 'n' (case-insensitive)
    */
-  boolean promptForConfirmation(String prompt) {
-    Console console = System.console();
+  boolean promptForConfirmation(String prompt) {Console console = System.console();
     Boolean confirm = null;
     while (confirm == null) {
       String response = console.readLine(prompt + " (y/n) ");
