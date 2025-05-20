@@ -1,11 +1,10 @@
 package no.elixir.e2eTests.config;
 
-import lombok.Getter;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
 
 @Getter
 public class Environment {
@@ -51,9 +50,7 @@ public class Environment {
       String[] cmd = {"/bin/bash", "-c", "source " + "env.sh" + " && env"};
       Process process = new ProcessBuilder(cmd).start();
 
-      BufferedReader reader = new BufferedReader(
-              new InputStreamReader(process.getInputStream())
-      );
+      BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
       String line;
       while ((line = reader.readLine()) != null) {
@@ -80,5 +77,4 @@ public class Environment {
   public String getBrokerConnectionString() {
     return cegaConnString;
   }
-
 }
