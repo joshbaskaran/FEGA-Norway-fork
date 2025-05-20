@@ -44,7 +44,8 @@ public enum Clearinghouse {
   private static final String KID = "kid";
   private final OkHttpClient client = new OkHttpClient();
 
-  private final Gson gson = new Gson();
+  private final Gson gson
+          = new Gson();
 
   /**
    * Validates access JWT token and returns a list of Visas obtained from "/userinfo" endpoint.
@@ -72,7 +73,8 @@ public enum Clearinghouse {
    * @param pemPublicKey PEM RSA public key.
    * @return List of GA4GH Visas.
    */
-  public Collection<Visa> getVisasWithPEMPublicKey(String accessToken, String pemPublicKey) {
+  public Collection<Visa>
+  getVisasWithPEMPublicKey(String accessToken, String pemPublicKey) {
     return getVisaTokensWithPEMPublicKey(accessToken, pemPublicKey).stream()
         .map(this::getVisa)
         .filter(Optional::isPresent)
