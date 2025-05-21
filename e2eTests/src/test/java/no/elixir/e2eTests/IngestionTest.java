@@ -402,7 +402,10 @@ public class IngestionTest {
     RSAPrivateKey privateKey = getPrivateKey();
     byte[] visaHeader = Base64.getUrlEncoder().encode(Strings.VISA_HEADER.getBytes());
     byte[] visaPayload =
-        Base64.getUrlEncoder().encode(String.format(Strings.VISA_PAYLOAD, env.getProxy_token_audience(), resource).getBytes());
+        Base64.getUrlEncoder()
+            .encode(
+                String.format(Strings.VISA_PAYLOAD, env.getProxy_token_audience(), resource)
+                    .getBytes());
     byte[] visaSignature = Algorithm.RSA256(publicKey, privateKey).sign(visaHeader, visaPayload);
     return "%s.%s.%s"
         .formatted(
