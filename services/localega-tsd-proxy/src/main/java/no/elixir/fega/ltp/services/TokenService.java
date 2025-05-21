@@ -1,6 +1,7 @@
 package no.elixir.fega.ltp.services;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.jsonwebtoken.Claims;
 import java.io.IOException;
@@ -98,6 +99,21 @@ public class TokenService {
   public String getSubject(String jwtToken) throws IllegalArgumentException {
     JsonObject claims = extractFragmentFromJWT(jwtToken, TokenService.TokenFragment.BODY);
     return claims.get(Claims.SUBJECT).getAsString();
+  }
+
+  /**
+   * Extracts the audience (aud) claim from the provided JWT token.
+   *
+   * <p>This method decodes the body fragment of the JWT token to retrieve the audience claim, which
+   * identifies the recipient for which the token is intended.
+   *
+   * @param jwtToken the JWT token from which to extract the audience.
+   * @return the audience claim (aud) as a {@link String} or null if the audience claim is missing.
+   */
+  public String getAudience(String jwtToken) throws IllegalArgumentException {
+    JsonObject claims = extractFragmentFromJWT(jwtToken, TokenService.TokenFragment.BODY);
+    JsonElement audience = claims.get(Claims.AUDIENCE);
+    return (audience != null) ? audience.getAsString() : null;
   }
 
   /**
