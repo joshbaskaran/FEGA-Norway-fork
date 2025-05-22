@@ -47,7 +47,7 @@ public class Environment {
   private Map<String, String> loadEnvFromShellScript() {
     Map<String, String> envMap = new HashMap<>();
     try {
-      String[] cmd = {"/bin/bash", "-c", "source " + "env.sh" + " && env"};
+      String[] cmd = {"/bin/sh", "-c", "source " + "env.sh" + " && env"};
       Process process = new ProcessBuilder(cmd).start();
 
       BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));

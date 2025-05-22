@@ -6,7 +6,7 @@ WORKDIR /fega-norway
 
 # Copy the compiled binaries and dependencies from your local machine into the container
 COPY /build/libs/e2eTests.jar /fega-norway/e2eTests.jar
-COPY .env /fega-norway/.env
+COPY "env.sh" "/fega-norway/env.sh"
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh

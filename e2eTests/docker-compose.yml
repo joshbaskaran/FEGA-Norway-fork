@@ -83,18 +83,10 @@ services:
       - SERVER_CERT_PASSWORD=server_cert_passw0rd
       - CLIENT_ID=test
       - CLIENT_SECRET=test
-      - BROKER_HOST=cegamq
-      - BROKER_PORT=5673
-      - BROKER_USERNAME=test
-      - BROKER_PASSWORD=test
-      - BROKER_VHOST=lega
-      - BROKER_VALIDATE=
-      - BROKER_SSL_ENABLED=
-      - EXCHANGE=localega
       - CEGA_AUTH_URL=http://cegaauth:8443/username/
       - CEGA_USERNAME=dummy
       - CEGA_PASSWORD=dummy
-      - TSD_HOST=tsd:8080
+      - TSD_HOST=tsd
       - TSD_ACCESS_KEY=s0me_key
       - POSTGRES_PASSWORD=p0stgres_passw0rd
       - ADMIN_USER=admin
@@ -161,7 +153,9 @@ services:
       file-orchestrator:
         condition: service_healthy
     environment:
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=p0stgres_passw0rd
+      - POSTGRES_DB=postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data/
       - postgres-confs:/docker-entrypoint-initdb.d/
@@ -435,7 +429,7 @@ services:
   doa:
     container_name: doa
     hostname: doa
-    image: ghcr.io/neicnordic/sda-doa:v1.6.175
+    image: ghcr.io/neicnordic/sda-doa:v1.6.186
     depends_on:
       file-orchestrator:
         condition: service_healthy
@@ -450,7 +444,7 @@ services:
       - "80:8080"
       - "8088:8088"
     environment:
-      - SSL_MODE=require # PG SSL MODE
+      - SSL_MODE=require
       - SSL_ENABLED=true
       - ARCHIVE_PATH=/ega/archive/
       - DB_INSTANCE=db
