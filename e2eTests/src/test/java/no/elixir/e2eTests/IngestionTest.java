@@ -402,7 +402,7 @@ public class IngestionTest {
     byte[] visaPayload =
         Base64.getUrlEncoder()
             .encode(
-                String.format(Strings.VISA_PAYLOAD, env.getProxy_token_audience(), resource)
+                String.format(Strings.VISA_PAYLOAD, env.getProxyTokenAudience(), resource)
                     .getBytes());
     byte[] visaSignature = Algorithm.RSA256(publicKey, privateKey).sign(visaHeader, visaPayload);
     return "%s.%s.%s"

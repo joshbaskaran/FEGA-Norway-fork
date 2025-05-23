@@ -25,6 +25,7 @@ public class Environment {
   private final String sdaDbDatabaseName;
   private final String truststorePassword;
   private final String runtime;
+  private final String proxyTokenAudience;
 
   public Environment() {
     this.env = loadEnvFromShellScript();
@@ -42,6 +43,7 @@ public class Environment {
     this.sdaDoaHost = env.get("E2E_SDA_DOA_HOST");
     this.sdaDoaPort = env.get("E2E_SDA_DOA_PORT");
     this.truststorePassword = env.get("E2E_TRUSTSTORE_PASSWORD");
+    this.proxyTokenAudience = env.get("E2E_PROXY_TOKEN_AUDIENCE");
   }
 
   private Map<String, String> loadEnvFromShellScript() {
