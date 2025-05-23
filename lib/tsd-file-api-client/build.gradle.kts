@@ -4,7 +4,11 @@ plugins {
     id("formatting-conventions")
     id("maven-publish")
 }
-
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
 group = "elixir.no"
 
 repositories {

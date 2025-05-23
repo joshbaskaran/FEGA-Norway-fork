@@ -70,7 +70,7 @@ tasks.register<Exec>("apply-configs") {
 
 tasks.register<Exec>("start-docker-containers") {
     dependsOn("apply-configs")
-    commandLine("docker", "compose", "up", "--pull", "always", "--build", "-d")
+    commandLine("docker", "compose", "up", "--no-build", "-d")
 }
 
 tasks.register<Exec>("stop-docker-containers") {
