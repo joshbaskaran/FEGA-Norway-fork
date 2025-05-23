@@ -21,6 +21,7 @@ public class Environment {
   // PROXY
   private final String proxy_host;
   private final String proxy_port;
+  private final String proxy_token_audience;
 
   // SDA DB
   private final String sda_db_username;
@@ -55,11 +56,13 @@ public class Environment {
       this.sda_doa_host = "localhost";
       this.proxy_host = "localhost";
       this.proxy_port = dotenv.get("PROXY_PORT");
+      this.proxy_token_audience = dotenv.get("PROXY_TOKEN_AUDIENCE");
       this.sda_doa_port = dotenv.get("SDA_DOA_PORT");
     } else if ("container".equalsIgnoreCase(this.runtime)) {
       this.broker_host = dotenv.get("BROKER_HOST");
       this.sda_db_host = dotenv.get("SDA_DB_HOST");
       this.sda_doa_host = dotenv.get("SDA_DOA_HOST");
+      this.proxy_token_audience = dotenv.get("PROXY_TOKEN_AUDIENCE");
       this.proxy_host = dotenv.get("PROXY_HOST");
       this.proxy_port = "8080";
       this.sda_doa_port = "8080";
