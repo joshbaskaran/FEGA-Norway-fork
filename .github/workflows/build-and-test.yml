@@ -48,7 +48,7 @@ jobs:
 
       - name: build images
         run: |
-          docker buildx bake
+          docker buildx bake --load
           docker image ls
 
 
