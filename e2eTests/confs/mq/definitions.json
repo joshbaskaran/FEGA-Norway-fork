@@ -1,21 +1,21 @@
 {
   "users": [
     {
-      "name": "<<USER_NAME>>",
-      "password_hash": "<<PASSWORD_HASH>>",
+      "name": "<<MQ_USER>>",
+      "password_hash": "<<MQ_PASSWORD_HASH>>",
       "hashing_algorithm": "rabbit_password_hashing_sha256",
       "tags": "administrator"
     }
   ],
   "vhosts": [
     {
-      "name": "<<VIRTUAL_HOST>>"
+      "name": "<<MQ_VHOST>>"
     }
   ],
   "permissions": [
     {
-      "user": "<<USER_NAME>>",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "user": "<<MQ_USER>>",
+      "vhost": "<<MQ_VHOST>>",
       "configure": ".*",
       "write": ".*",
       "read": ".*"
@@ -28,7 +28,7 @@
   "queues": [
     {
       "name": "inbox",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -36,7 +36,7 @@
     },
     {
       "name": "ingest",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -44,7 +44,7 @@
     },
     {
       "name": "archived",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -52,7 +52,7 @@
     },
     {
       "name": "verified",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -60,7 +60,7 @@
     },
     {
       "name": "completed",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -68,7 +68,7 @@
     },
     {
       "name": "accessionIDs",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -76,7 +76,7 @@
     },
     {
       "name": "mappings",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -84,7 +84,7 @@
     },
     {
       "name": "error",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -92,7 +92,7 @@
     },
     {
       "name": "files",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -100,7 +100,7 @@
     },
     {
       "name": "exportRequests",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -110,7 +110,7 @@
   "exchanges": [
     {
       "name": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "type": "topic",
       "durable": true,
       "auto_delete": false,
@@ -122,7 +122,7 @@
   "bindings": [
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "ingest",
       "destination_type": "queue",
       "routing_key": "ingest",
@@ -131,7 +131,7 @@
     },
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "inbox",
       "destination_type": "queue",
       "routing_key": "inbox",
@@ -140,7 +140,7 @@
     },
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "archived",
       "destination_type": "queue",
       "routing_key": "archived",
@@ -149,7 +149,7 @@
     },
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "verified",
       "destination_type": "queue",
       "routing_key": "verified",
@@ -158,7 +158,7 @@
     },
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "completed",
       "destination_type": "queue",
       "routing_key": "completed",
@@ -167,7 +167,7 @@
     },
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "accessionIDs",
       "destination_type": "queue",
       "routing_key": "accession",
@@ -176,7 +176,7 @@
     },
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "accessionIDs",
       "destination_type": "queue",
       "routing_key": "accessionIDs",
@@ -185,7 +185,7 @@
     },
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "mappings",
       "destination_type": "queue",
       "routing_key": "mapping",
@@ -194,7 +194,7 @@
     },
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "mappings",
       "destination_type": "queue",
       "routing_key": "mappings",
@@ -203,7 +203,7 @@
     },
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "error",
       "destination_type": "queue",
       "routing_key": "error",
@@ -212,7 +212,7 @@
     },
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "files",
       "destination_type": "queue",
       "routing_key": "files",
@@ -221,7 +221,7 @@
     },
     {
       "source": "sda",
-      "vhost": "<<VIRTUAL_HOST>>",
+      "vhost": "<<MQ_VHOST>>",
       "destination": "exportRequests",
       "destination_type": "queue",
       "routing_key": "exportRequests",

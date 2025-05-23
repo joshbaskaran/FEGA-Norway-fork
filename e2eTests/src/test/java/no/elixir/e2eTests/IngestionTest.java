@@ -137,15 +137,15 @@ public class IngestionTest {
     log.info("Visa JWT token when uploading: {}", token);
     String md5Hex = DigestUtils.md5Hex(Files.newInputStream(encFile.toPath()));
     log.info("Encrypted MD5 checksum: {}", md5Hex);
-    log.info("EGA_BOX_USERNAME: {}", env.getEga_box_username());
+    log.info("Cega Auth Username: {}", env.getCegaAuthUsername());
     String uploadURL =
         String.format(
             "https://%s:%s/stream/%s?md5=%s",
-            env.getProxy_host(), env.getProxy_port(), encFile.getName(), md5Hex);
+            env.getProxyHost(), env.getProxyPort(), encFile.getName(), md5Hex);
     JsonNode jsonResponse =
         Unirest.patch(uploadURL)
             .socketTimeout(1000000000)
-            .basicAuth(env.getEga_box_username(), env.getEga_box_password())
+            .basicAuth(env.getCegaAuthUsername(), env.getCegaAuthPassword())
             .header("Proxy-Authorization", "Bearer " + token)
             .body(FileUtils.readFileToByteArray(encFile))
             .asJson()
@@ -155,8 +155,8 @@ public class IngestionTest {
     String finalizeURL =
         String.format(
             "https://%s:%s/stream/%s?uploadId=%s&chunk=end&sha256=%s&fileSize=%s",
-            env.getProxy_host(),
-            env.getProxy_port(),
+            env.getProxyHost(),
+            env.getProxyPort(),
             encFile.getName(),
             uploadId,
             encSHA256Checksum,
@@ -164,7 +164,7 @@ public class IngestionTest {
     HttpResponse<JsonNode> res =
         Unirest.patch(finalizeURL)
             .socketTimeout(1000000)
-            .basicAuth(env.getEga_box_username(), env.getEga_box_password())
+            .basicAuth(env.getCegaAuthUsername(), env.getCegaAuthPassword())
             .header("Proxy-Authorization", "Bearer " + token)
             .asJson();
     jsonResponse = res.getBody();
@@ -194,7 +194,7 @@ public class IngestionTest {
             .correlationId(correlationId)
             .build();
 
-    String message = Strings.INGEST_MESSAGE.formatted(env.getEga_box_username(), encFile.getName());
+    String message = Strings.INGEST_MESSAGE.formatted(env.getCegaAuthUsername(), encFile.getName());
     log.info(message);
     channel.basicPublish("localega", "files", properties, message.getBytes());
 
@@ -221,7 +221,7 @@ public class IngestionTest {
     String message =
         String.format(
             Strings.ACCESSION_MESSAGE,
-            env.getEga_box_username(),
+            env.getCegaAuthUsername(),
             encFile.getName(),
             randomFileAccessionID,
             rawSHA256Checksum,
@@ -241,10 +241,10 @@ public class IngestionTest {
     String url =
         String.format(
             "jdbc:postgresql://%s:%s/%s",
-            env.getSda_db_host(), env.getSda_db_port(), env.getSda_db_database_name());
+            env.getSdaDbHost(), env.getSdaDbPort(), env.getSdaDbDatabaseName());
     Properties props = new Properties();
-    props.setProperty("user", env.getSda_db_username());
-    props.setProperty("password", env.getSda_db_password());
+    props.setProperty("user", env.getSdaDbUsername());
+    props.setProperty("password", env.getSdaDbPassword());
     props.setProperty("application_name", "LocalEGA");
     props.setProperty("sslmode", "verify-full");
     props.setProperty("sslcert", client.getAbsolutePath());
@@ -323,8 +323,7 @@ public class IngestionTest {
     String datasets =
         Unirest.get(
                 String.format(
-                    "https://%s:%s/metadata/datasets",
-                    env.getSda_doa_host(), env.getSda_doa_port()))
+                    "https://%s:%s/metadata/datasets", env.getSdaDoaHost(), env.getSdaDoaPort()))
             .header("Authorization", "Bearer " + token)
             .asString()
             .getBody();
@@ -345,7 +344,7 @@ public class IngestionTest {
             Unirest.get(
                     String.format(
                         "https://%s:%s/metadata/datasets/%s/files",
-                        env.getSda_doa_host(), env.getSda_doa_port(), datasetId))
+                        env.getSdaDoaHost(), env.getSdaDoaPort(), datasetId))
                 .header("Authorization", "Bearer " + token)
                 .asString()
                 .getBody()
@@ -357,8 +356,7 @@ public class IngestionTest {
     HttpResponse<byte[]> response =
         Unirest.get(
                 String.format(
-                    "https://%s:%s/files/%s",
-                    env.getSda_doa_host(), env.getSda_doa_port(), stableId))
+                    "https://%s:%s/files/%s", env.getSdaDoaHost(), env.getSdaDoaPort(), stableId))
             .header("Authorization", "Bearer " + token)
             .asBytes();
     if (response.getStatus() == 200) { // Check if the response is OK
@@ -377,7 +375,7 @@ public class IngestionTest {
         Unirest.get(
                 String.format(
                     "https://%s:%s/files/%s?destinationFormat=CRYPT4GH",
-                    env.getSda_doa_host(), env.getSda_doa_port(), stableId))
+                    env.getSdaDoaHost(), env.getSdaDoaPort(), stableId))
             .header("Authorization", "Bearer " + token)
             .header("Public-Key", key)
             .asBytes();
@@ -404,7 +402,7 @@ public class IngestionTest {
     byte[] visaPayload =
         Base64.getUrlEncoder()
             .encode(
-                String.format(Strings.VISA_PAYLOAD, env.getProxy_token_audience(), resource)
+                String.format(Strings.VISA_PAYLOAD, env.getProxyTokenAudience(), resource)
                     .getBytes());
     byte[] visaSignature = Algorithm.RSA256(publicKey, privateKey).sign(visaHeader, visaPayload);
     return "%s.%s.%s"
@@ -482,7 +480,7 @@ public class IngestionTest {
     // Load the PKCS12 trust store
     File rootCA = getCertificateFile("truststore.p12");
     KeyStore trustStore = KeyStore.getInstance("PKCS12");
-    trustStore.load(new FileInputStream(rootCA), env.getTruststore_password().toCharArray());
+    trustStore.load(new FileInputStream(rootCA), env.getTruststorePassword().toCharArray());
     // Create trust manager
     TrustManagerFactory trustManagerFactory =
         TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
