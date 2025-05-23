@@ -47,7 +47,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: build images
-        run: docker buildx bake
+        run: |
+          docker buildx bake
+          docker image ls
+
 
       - name: Run e2e tests
         run: |
