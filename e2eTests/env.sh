@@ -30,8 +30,7 @@ export CEGAAUTH_CEGA_USERS_PASSWORD=dummy
 
 # TSD
 # ---------------------------------------------------------------------------
-export TSD_HOST=tsd
-export TSD_PORT=8080
+export TSD_HOST=tsd:8080
 export TSD_ACCESS_KEY=s0me_key
 
 # Postgres
@@ -216,12 +215,7 @@ export E2E_PROXY_HOST=$(_runtime_ "proxy" "localhost")
 export E2E_PROXY_PORT=$(_runtime_ "8080" "10443")
 export E2E_SDA_DOA_HOST=$(_runtime_ "doa" "localhost")
 export E2E_SDA_DOA_PORT=$(_runtime_ "8080" "80")
-export E2E_CEGAMQ_HOST=$(_runtime_ "$CEGAMQ_HOST" "localhost")
-export E2E_CEGAMQ_PORT=$CEGAMQ_PORT
-export E2E_CEGAMQ_USERNAME=$CEGAMQ_USERNAME
-export E2E_CEGAMQ_PASSWORD=$CEGAMQ_PASSWORD
-export E2E_CEGAMQ_VHOST=$CEGAMQ_VHOST
-export E2E_CEGAMQ_CONN_STR=$CEGAMQ_CONN_STR
+export E2E_CEGAMQ_CONN_STR="amqps://$CEGAMQ_USERNAME:$CEGAMQ_PASSWORD@$(_runtime_ $CEGAMQ_HOST "localhost"):$CEGAMQ_PORT/$CEGAMQ_VHOST"
 export E2E_CEGAAUTH_USERNAME=$CEGAAUTH_CEGA_USERS_USER
 export E2E_CEGAAUTH_PASSWORD=$CEGAAUTH_CEGA_USERS_PASSWORD
 export E2E_SDA_DB_HOST=$(_runtime_ "$DB_HOST" "localhost")

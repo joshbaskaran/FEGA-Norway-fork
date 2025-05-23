@@ -137,7 +137,7 @@ public class IngestionTest {
     log.info("Visa JWT token when uploading: {}", token);
     String md5Hex = DigestUtils.md5Hex(Files.newInputStream(encFile.toPath()));
     log.info("Encrypted MD5 checksum: {}", md5Hex);
-    log.info("EGA_BOX_USERNAME: {}", env.getCegaAuthUsername());
+    log.info("Cega Auth Username: {}", env.getCegaAuthUsername());
     String uploadURL =
         String.format(
             "https://%s:%s/stream/%s?md5=%s",
