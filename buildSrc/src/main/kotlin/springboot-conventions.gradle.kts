@@ -25,6 +25,7 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("jakarta.persistence:jakarta.persistence-api:3.2.0")
 }
 
 tasks.withType<Test> { useJUnitPlatform() }
