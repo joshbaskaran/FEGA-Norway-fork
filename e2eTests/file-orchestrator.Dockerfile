@@ -26,7 +26,7 @@ RUN mkdir -p "certs"
 COPY confs confs
 COPY scripts/* .
 
-COPY .env .env
+COPY "env.sh" "env.sh"
 
 RUN chmod +x *.sh
 

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source .env
-
 cd confs || exit 1
 
 # proxy

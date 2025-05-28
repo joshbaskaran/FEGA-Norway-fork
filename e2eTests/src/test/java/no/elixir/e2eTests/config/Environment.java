@@ -1,92 +1,82 @@
 package no.elixir.e2eTests.config;
 
-import io.github.cdimascio.dotenv.Dotenv;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 
 @Getter
 public class Environment {
 
-  // CEGAAUTH
-  private final String ega_box_username;
-  private final String ega_box_password;
+  private final Map<String, String> env;
 
-  // CEGAMQ
-  private final String broker_host;
-  private final String broker_port;
-  private final String broker_username;
-  private final String broker_password;
-  private final String broker_vhost;
-  private final String broker_ssl_enabled;
-
-  // PROXY
-  private final String proxy_host;
-  private final String proxy_port;
-
-  // SDA DB
-  private final String sda_db_username;
-  private final String sda_db_password;
-  private final String sda_db_host;
-  private final String sda_db_port;
-  private final String sda_doa_host;
-  private final String sda_doa_port;
-  private final String sda_db_database_name;
-
-  // COMMON
-  private final String truststore_password;
+  private final String cegaAuthUsername;
+  private final String cegaAuthPassword;
+  private final String cegaConnString;
+  private final String proxyHost;
+  private final String proxyPort;
+  private final String sdaDbUsername;
+  private final String sdaDbPassword;
+  private final String sdaDbHost;
+  private final String sdaDbPort;
+  private final String sdaDoaHost;
+  private final String sdaDoaPort;
+  private final String sdaDbDatabaseName;
+  private final String truststorePassword;
   private final String runtime;
+  private final String proxyTokenAudience;
 
-  // Static Dotenv instance for accessing environment variables
-  private static final Dotenv dotenv = Dotenv.load();
-
-  // Constructor
   public Environment() {
-
-    this.runtime = dotenv.get("RUNTIME");
-
-    // Set variables based on RUNTIME
-    //
-    // When the runtime is set to local, the test setup assumes that the containers
-    // or services are mapped to the host machine's network. In this configuration,
-    // the application resolves services using localhost, allowing it to communicate
-    // with the locally exposed ports of the containers or services.
-    if ("local".equalsIgnoreCase(this.runtime)) {
-      this.broker_host = "localhost";
-      this.sda_db_host = "localhost";
-      this.sda_doa_host = "localhost";
-      this.proxy_host = "localhost";
-      this.proxy_port = dotenv.get("PROXY_PORT");
-      this.sda_doa_port = dotenv.get("SDA_DOA_PORT");
-    } else if ("container".equalsIgnoreCase(this.runtime)) {
-      this.broker_host = dotenv.get("BROKER_HOST");
-      this.sda_db_host = dotenv.get("SDA_DB_HOST");
-      this.sda_doa_host = dotenv.get("SDA_DOA_HOST");
-      this.proxy_host = dotenv.get("PROXY_HOST");
-      this.proxy_port = "8080";
-      this.sda_doa_port = "8080";
-    } else {
-      throw new IllegalArgumentException("Invalid RUNTIME value: " + this.runtime);
-    }
-
-    // Common variable initialization
-    this.broker_port = dotenv.get("BROKER_PORT");
-    this.broker_username = dotenv.get("BROKER_USERNAME");
-    this.broker_password = dotenv.get("BROKER_PASSWORD");
-    this.broker_vhost = dotenv.get("BROKER_VHOST");
-    this.broker_ssl_enabled = dotenv.get("BROKER_SSL_ENABLED");
-    this.sda_db_username = dotenv.get("SDA_DB_USERNAME");
-    this.sda_db_password = dotenv.get("SDA_DB_PASSWORD");
-    this.sda_db_database_name = dotenv.get("SDA_DB_DATABASE_NAME");
-    this.ega_box_username = dotenv.get("EGA_BOX_USERNAME");
-    this.ega_box_password = dotenv.get("EGA_BOX_PASSWORD");
-    this.sda_db_port = dotenv.get("SDA_DB_PORT");
-    this.truststore_password = dotenv.get("TRUSTSTORE_PASSWORD");
+    this.env = loadEnvFromShellScript();
+    this.runtime = env.get("E2E_RUNTIME");
+    this.cegaAuthUsername = env.get("E2E_CEGAAUTH_USERNAME");
+    this.cegaAuthPassword = env.get("E2E_CEGAAUTH_PASSWORD");
+    this.cegaConnString = env.get("E2E_CEGAMQ_CONN_STR");
+    this.proxyHost = env.get("E2E_PROXY_HOST");
+    this.proxyPort = env.get("E2E_PROXY_PORT");
+    this.sdaDbHost = env.get("E2E_SDA_DB_HOST");
+    this.sdaDbPort = env.get("E2E_SDA_DB_PORT");
+    this.sdaDbUsername = env.get("E2E_SDA_DB_USERNAME");
+    this.sdaDbPassword = env.get("E2E_SDA_DB_PASSWORD");
+    this.sdaDbDatabaseName = env.get("E2E_SDA_DB_DATABASE_NAME");
+    this.sdaDoaHost = env.get("E2E_SDA_DOA_HOST");
+    this.sdaDoaPort = env.get("E2E_SDA_DOA_PORT");
+    this.truststorePassword = env.get("E2E_TRUSTSTORE_PASSWORD");
+    this.proxyTokenAudience = env.get("E2E_PROXY_TOKEN_AUDIENCE");
   }
 
-  // Method to construct and return the broker connection string
+  private Map<String, String> loadEnvFromShellScript() {
+    Map<String, String> envMap = new HashMap<>();
+    try {
+      String[] cmd = {"/bin/bash", "-c", "source " + "env.sh" + " && env"};
+      Process process = new ProcessBuilder(cmd).start();
+
+      BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+      String line;
+      while ((line = reader.readLine()) != null) {
+        int idx = line.indexOf('=');
+        if (idx != -1) {
+          String key = line.substring(0, idx);
+          String value = line.substring(idx + 1);
+          envMap.put(key, value);
+        }
+      }
+
+      int exitCode = process.waitFor();
+      if (exitCode != 0) {
+        throw new RuntimeException("Failed to source environment: exit code " + exitCode);
+      }
+
+    } catch (Exception e) {
+      throw new RuntimeException("Error loading env from shell script", e);
+    }
+
+    return envMap;
+  }
+
   public String getBrokerConnectionString() {
-    String protocol = "true".equalsIgnoreCase(broker_ssl_enabled) ? "amqps" : "amqp";
-    return String.format(
-        "%s://%s:%s@%s:%s/%s",
-        protocol, broker_username, broker_password, broker_host, broker_port, broker_vhost);
+    return cegaConnString;
   }
 }
