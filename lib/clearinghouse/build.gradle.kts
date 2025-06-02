@@ -3,7 +3,6 @@ plugins {
     id("maven-publish")
     id("io.freefair.lombok") version "8.13.1"
     id("formatting-conventions")
-    id("okhttp")
 }
 
 group = "no.elixir"
@@ -31,6 +30,8 @@ dependencies {
     implementation(libs.jjwt.api)
     runtimeOnly(libs.jjwt.impl)
     runtimeOnly(libs.jjwt.jackson)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
 
 publishing {
