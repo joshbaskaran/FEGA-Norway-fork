@@ -1,7 +1,6 @@
 plugins {
     id("java")
     id("springboot-conventions")
-    id("jsonwebtoken")
 }
 
 group = "no.elixir.fega"
@@ -22,6 +21,9 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.amqp:spring-rabbit-test")
     runtimeOnly("org.postgresql:postgresql")
+    implementation(libs.jjwt.api)
+    runtimeOnly(libs.jjwt.impl)
+    runtimeOnly(libs.jjwt.jackson)
 }
 
 configurations {

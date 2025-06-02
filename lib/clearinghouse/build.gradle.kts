@@ -3,7 +3,6 @@ plugins {
     id("maven-publish")
     id("io.freefair.lombok") version "8.13.1"
     id("formatting-conventions")
-    id("jsonwebtoken")
     id("okhttp")
 }
 
@@ -29,6 +28,9 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.bouncycastle:bcprov-jdk15to18:1.80")
     testImplementation("org.bouncycastle:bcpkix-jdk15to18:1.80")
+    implementation(libs.jjwt.api)
+    runtimeOnly(libs.jjwt.impl)
+    runtimeOnly(libs.jjwt.jackson)
 }
 
 publishing {
