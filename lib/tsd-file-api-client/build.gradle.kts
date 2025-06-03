@@ -17,7 +17,7 @@ dependencies {
     annotationProcessor(libs.lombok)
 
     implementation(libs.commons.lang3)
-    implementation("commons-io:commons-io:2.19.0")
+    implementation(libs.commons.io)
     implementation(libs.gson)
 
     implementation(libs.jjwt.api)

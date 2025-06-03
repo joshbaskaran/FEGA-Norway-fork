@@ -20,7 +20,7 @@ dependencies {
     testImplementation("com.konghq:unirest-java:3.14.5")
     testImplementation("org.postgresql:postgresql:42.7.6")
     testImplementation("com.auth0:java-jwt:4.5.0") // FIXME: io.jsonwebtoken
-    testImplementation("commons-io:commons-io:2.19.0")
+    testImplementation(libs.commons.io)
     testImplementation(project(":lib:crypt4gh"))
     testImplementation(libs.slf4j.api)
     testImplementation("org.skyscreamer:jsonassert:1.5.3")
