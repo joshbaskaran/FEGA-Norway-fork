@@ -31,8 +31,8 @@ dependencies {
     implementation(libs.jjwt.api)
     runtimeOnly(libs.jjwt.impl)
     runtimeOnly(libs.jjwt.jackson)
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    implementation(libs.okhttp)
+    testImplementation(libs.mockwebserver)
 }
 
 publishing {

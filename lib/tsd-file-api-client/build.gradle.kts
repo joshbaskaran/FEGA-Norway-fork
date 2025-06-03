@@ -24,7 +24,7 @@ dependencies {
     implementation(libs.jjwt.impl)
     implementation(libs.jjwt.jackson)
 
-    api("com.squareup.okhttp3:okhttp:4.12.0")
+    api(libs.okhttp)
     implementation(libs.slf4j.jdk14)
 
     testImplementation(platform(libs.junit.bom))

@@ -16,7 +16,7 @@ dependencies {
     implementation(project(":lib:clearinghouse"))
     implementation(project(":lib:tsd-file-api-client"))
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation(libs.okhttp)
     implementation(libs.commons.collections4)
     implementation(libs.commons.lang3)
     implementation(libs.gson)
