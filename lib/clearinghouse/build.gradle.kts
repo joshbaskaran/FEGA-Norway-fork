@@ -17,8 +17,8 @@ java {
 }
 
 dependencies {
-    implementation("org.apache.commons:commons-collections4:4.5.0")
-    implementation("org.apache.commons:commons-lang3:3.17.0")
+    implementation(libs.commons.collections4)
+    implementation(libs.commons.lang3)
     implementation("com.google.code.gson:gson:2.13.1")
     implementation("com.auth0:jwks-rsa:0.22.1")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")

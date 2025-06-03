@@ -14,7 +14,7 @@ repositories {
 dependencies {
     implementation(platform(libs.spring.boot.dependencies))
     runtimeOnly("com.h2database:h2")
-    implementation("org.apache.commons:commons-lang3:3.17.0")
+    implementation(libs.commons.lang3)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation(libs.jjwt.api)
     runtimeOnly(libs.jjwt.impl)

@@ -5,6 +5,8 @@ hibernate = "7.0.0.Final"
 lombok = "1.18.26"
 spotless = "7.0.4"
 lombok-plugin ="8.13.1"
+commons-collections4 = "4.5.0"
+commons-lang3 = "3.17.0"
 
 [libraries]
 jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
@@ -25,6 +27,8 @@ spring-boot-starter-amqp = { group = "org.springframework.boot", name = "spring-
 spring-boot-starter-data-redis = { group = "org.springframework.boot", name = "spring-boot-starter-data-redis", version.ref = "spring-boot" }
 spring-boot-starter-aop = { group = "org.springframework.boot", name = "spring-boot-starter-aop", version.ref = "spring-boot" }
 postgresql = { group = "org.postgresql", name = "postgresql" }
+commons-collections4 = { group = "org.apache.commons", name = "commons-collections4", version.ref = "commons-collections4" }
+commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang3" }
 
 
 

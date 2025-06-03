@@ -16,7 +16,7 @@ dependencies {
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
 
-    implementation("org.apache.commons:commons-lang3:3.17.0")
+    implementation(libs.commons.lang3)
     implementation("commons-io:commons-io:2.19.0")
     implementation("com.google.code.gson:gson:2.13.1")
 
