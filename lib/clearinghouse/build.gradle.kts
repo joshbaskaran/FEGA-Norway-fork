@@ -22,7 +22,7 @@ dependencies {
     implementation(libs.gson)
     implementation("com.auth0:jwks-rsa:0.22.1")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
-    implementation("org.slf4j:slf4j-jdk14:2.0.17")
+    implementation(libs.slf4j.jdk14)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.platform.launcher)

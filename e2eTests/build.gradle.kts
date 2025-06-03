@@ -22,7 +22,7 @@ dependencies {
     testImplementation("com.auth0:java-jwt:4.5.0") // FIXME: io.jsonwebtoken
     testImplementation("commons-io:commons-io:2.19.0")
     testImplementation(project(":lib:crypt4gh"))
-    testImplementation("org.slf4j:slf4j-api:2.0.17")
+    testImplementation(libs.slf4j.api)
     testImplementation("org.skyscreamer:jsonassert:1.5.3")
     testCompileOnly("org.projectlombok:lombok:1.18.38")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
