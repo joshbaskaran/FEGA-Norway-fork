@@ -11,8 +11,9 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.13.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.13.0")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.13.0")
     testRuntimeOnly("org.junit.platform:junit-platform-console-standalone:1.13.0")
     testImplementation("com.rabbitmq:amqp-client:5.25.0")
