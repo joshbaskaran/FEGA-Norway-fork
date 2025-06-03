@@ -19,7 +19,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation(libs.commons.collections4)
     implementation(libs.commons.lang3)
-    implementation("com.google.code.gson:gson:2.13.1")
+    implementation(libs.gson)
     implementation(libs.spring.boot.starter.security)
     implementation(libs.spring.boot.starter.oauth2.client)
     implementation(libs.spring.boot.starter.cache)

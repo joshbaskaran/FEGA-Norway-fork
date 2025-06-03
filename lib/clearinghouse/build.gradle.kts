@@ -19,7 +19,7 @@ java {
 dependencies {
     implementation(libs.commons.collections4)
     implementation(libs.commons.lang3)
-    implementation("com.google.code.gson:gson:2.13.1")
+    implementation(libs.gson)
     implementation("com.auth0:jwks-rsa:0.22.1")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
     implementation("org.slf4j:slf4j-jdk14:2.0.17")
