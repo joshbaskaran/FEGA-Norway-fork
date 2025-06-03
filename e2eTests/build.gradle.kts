@@ -18,7 +18,8 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-console-standalone:1.13.0")
     testImplementation("com.rabbitmq:amqp-client:5.25.0")
     testImplementation("com.konghq:unirest-java:3.14.5")
-    testImplementation("org.postgresql:postgresql:42.7.6")
+    implementation(platform(libs.spring.boot.dependencies))
+    runtimeOnly(libs.postgresql)
     testImplementation("com.auth0:java-jwt:4.5.0") // FIXME: io.jsonwebtoken
     testImplementation(libs.commons.io)
     testImplementation(project(":lib:crypt4gh"))

@@ -1,9 +1,7 @@
 [versions]
 jjwt = "0.12.3"
 spring-boot = "3.5.0"
-hibernate = "7.0.0.Final"
 lombok = "1.18.26"
-spotless = "7.0.4"
 lombok-plugin ="8.13.1"
 commons-collections4 = "4.5.0"
 commons-lang3 = "3.17.0"
@@ -20,9 +18,7 @@ jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
 spring-boot-starter-web = { group = "org.springframework.boot", name = "spring-boot-starter-web" , version.ref = "spring-boot"}
 spring-boot-starter-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa" , version.ref = "spring-boot"}
 spring-boot-starter-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation" , version.ref = "spring-boot"}
-spring-boot-devtools = { group = "org.springframework.boot", name = "spring-boot-devtools" }
 spring-boot-starter-test = { group = "org.springframework.boot", name = "spring-boot-starter-test", version.ref = "spring-boot"}
-jakarta-persistence-api = { group = "jakarta.persistence", name = "jakarta.persistence-api", version = "3.2.0" }
 lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
 spring-boot-starter-security = { group = "org.springframework.boot", name = "spring-boot-starter-security", version.ref = "spring-boot" }
@@ -41,13 +37,9 @@ junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform
 junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api" }
 slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 slf4j-jdk14 = { group = "org.slf4j", name = "slf4j-jdk14", version.ref = "slf4j" }
-slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
 commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
-hibernate = { id = "org.hibernate.orm", version.ref = "hibernate" }
 lombok = { id = "io.freefair.lombok", version.ref = "lombok-plugin" }
-spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
