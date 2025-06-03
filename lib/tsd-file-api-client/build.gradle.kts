@@ -12,17 +12,17 @@ repositories {
 }
 
 dependencies {
-    implementation("org.projectlombok:lombok:1.18.38")
-    compileOnly("org.projectlombok:lombok:1.18.38")
-    annotationProcessor("org.projectlombok:lombok:1.18.38")
+    implementation(libs.lombok)
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
 
     implementation("org.apache.commons:commons-lang3:3.17.0")
     implementation("commons-io:commons-io:2.19.0")
     implementation("com.google.code.gson:gson:2.13.1")
 
-    implementation("io.jsonwebtoken:jjwt-api:0.12.6")
-    implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
-    implementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
+    implementation(libs.jjwt.api)
+    implementation(libs.jjwt.impl)
+    implementation(libs.jjwt.jackson)
 
     api("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.slf4j:slf4j-jdk14:2.0.17")
