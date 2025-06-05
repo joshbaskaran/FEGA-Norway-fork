@@ -38,7 +38,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
-        run: ./gradlew assemble
+        run: ./gradlew assemble --build-cache  --parallel --no-daemon --configure-on-demand
 
       - name: Run tests
         run: ./gradlew :lib:crypt4gh:test :lib:clearinghouse:test :lib:tsd-file-api-client:test :services:tsd-api-mock:test :services:mq-interceptor:test :services:localega-tsd-proxy:test :services:cega-mock:test :cli:lega-commander:test
@@ -46,7 +46,6 @@ jobs:
 
       - name: Run e2e tests
         run: |
-          ./gradlew clean
           ./gradlew start-docker-containers
 
           # Wait for the e2e-tests container to complete
