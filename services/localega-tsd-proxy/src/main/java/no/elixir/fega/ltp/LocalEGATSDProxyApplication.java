@@ -59,12 +59,9 @@ public class LocalEGATSDProxyApplication {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     PortMapperImpl portMapper = new PortMapperImpl();
     portMapper.setPortMappings(Collections.singletonMap("8080", "8080"));
-    PortResolverImpl portResolver = new PortResolverImpl();
-    portResolver.setPortMapper(portMapper);
     LoginUrlAuthenticationEntryPoint entryPoint =
         new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/elixir-aai");
     entryPoint.setPortMapper(portMapper);
-    entryPoint.setPortResolver(portResolver);
     http.requiresChannel(channel -> channel.anyRequest().requiresSecure())
         .exceptionHandling(exception -> exception.authenticationEntryPoint(entryPoint))
         .csrf(AbstractHttpConfigurer::disable)
