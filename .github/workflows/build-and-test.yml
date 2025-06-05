@@ -38,10 +38,10 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
-        run: ./gradlew assemble --build-cache  --parallel --no-daemon --configure-on-demand
+        run: ./gradlew :lib:crypt4gh:assemble :lib:clearinghouse:assemble :lib:tsd-file-api-client:assemble :services:tsd-api-mock:assemble :services:mq-interceptor:assemble :services:localega-tsd-proxy:assemble :services:cega-mock:assemble :cli:lega-commander:assemble --build-cache  --parallel --no-daemon --configure-on-demand
 
       - name: Run tests
-        run: ./gradlew :lib:crypt4gh:test :lib:clearinghouse:test :lib:tsd-file-api-client:test :services:tsd-api-mock:test :services:mq-interceptor:test :services:localega-tsd-proxy:test :services:cega-mock:test :cli:lega-commander:test
+        run: ./gradlew :lib:crypt4gh:test :lib:clearinghouse:test :lib:tsd-file-api-client:test :services:tsd-api-mock:test :services:mq-interceptor:test :services:localega-tsd-proxy:test :services:cega-mock:test :cli:lega-commander:test --build-cache  --parallel --no-daemon --configure-on-demand
 
 
       - name: Run e2e tests
