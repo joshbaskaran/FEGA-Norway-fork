@@ -24,6 +24,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -57,7 +58,7 @@ public class LocalEGATSDProxyApplication {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     LoginUrlAuthenticationEntryPoint entryPoint =
         new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/elixir-aai");
-    http.requiresChannel(channel -> channel.anyRequest().requiresSecure())
+    http.redirectToHttps(Customizer.withDefaults())
         .exceptionHandling(exception -> exception.authenticationEntryPoint(entryPoint))
         .csrf(AbstractHttpConfigurer::disable)
         .securityMatcher(
