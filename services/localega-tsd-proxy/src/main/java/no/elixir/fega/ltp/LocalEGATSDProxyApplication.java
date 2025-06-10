@@ -24,6 +24,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -33,8 +34,6 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.web.PortMapperImpl;
-import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.util.StringUtils;
@@ -57,15 +56,10 @@ public class LocalEGATSDProxyApplication {
   @Bean
   @Order(2)
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    PortMapperImpl portMapper = new PortMapperImpl();
-    portMapper.setPortMappings(Collections.singletonMap("8080", "8080"));
-    PortResolverImpl portResolver = new PortResolverImpl();
-    portResolver.setPortMapper(portMapper);
     LoginUrlAuthenticationEntryPoint entryPoint =
         new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/elixir-aai");
-    entryPoint.setPortMapper(portMapper);
-    entryPoint.setPortResolver(portResolver);
-    http.requiresChannel(channel -> channel.anyRequest().requiresSecure())
+    http.portMapper(ports -> ports.http(8080).mapsTo(8080))
+        .redirectToHttps(Customizer.withDefaults())
         .exceptionHandling(exception -> exception.authenticationEntryPoint(entryPoint))
         .csrf(AbstractHttpConfigurer::disable)
         .securityMatcher(
