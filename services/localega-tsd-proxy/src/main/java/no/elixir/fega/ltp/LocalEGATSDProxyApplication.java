@@ -59,7 +59,7 @@ public class LocalEGATSDProxyApplication {
     LoginUrlAuthenticationEntryPoint entryPoint =
         new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/elixir-aai");
     http.portMapper(ports -> ports.http(8080).mapsTo(8080))
-            .redirectToHttps(Customizer.withDefaults())
+        .redirectToHttps(Customizer.withDefaults())
         .exceptionHandling(exception -> exception.authenticationEntryPoint(entryPoint))
         .csrf(AbstractHttpConfigurer::disable)
         .securityMatcher(
