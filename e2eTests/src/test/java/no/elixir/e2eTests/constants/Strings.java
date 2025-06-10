@@ -20,6 +20,7 @@ public class Strings {
       """
             {
               "sub": "dummy@elixir-europe.org",
+	      "aud": "%s",
               "ga4gh_visa_v1": {
                 "asserted": 1583757401,
                 "by": "dac",

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./e2eTests/.env
+source ./e2eTests/env.sh
 
 function start() {
   ./gradlew clean &&

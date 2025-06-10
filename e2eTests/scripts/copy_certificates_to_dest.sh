@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source .env
-
 cd certs || exit 1
 
 # tsd
