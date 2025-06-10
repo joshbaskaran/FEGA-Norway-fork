@@ -58,7 +58,8 @@ public class LocalEGATSDProxyApplication {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     LoginUrlAuthenticationEntryPoint entryPoint =
         new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/elixir-aai");
-    http.redirectToHttps(Customizer.withDefaults())
+    http.portMapper(ports -> ports.http(8080).mapsTo(8080))
+            .redirectToHttps(Customizer.withDefaults())
         .exceptionHandling(exception -> exception.authenticationEntryPoint(entryPoint))
         .csrf(AbstractHttpConfigurer::disable)
         .securityMatcher(
