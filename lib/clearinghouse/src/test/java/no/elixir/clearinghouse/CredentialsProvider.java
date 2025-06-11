@@ -9,7 +9,6 @@ import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
-
 import lombok.Getter;
 import no.elixir.clearinghouse.model.Visa;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
