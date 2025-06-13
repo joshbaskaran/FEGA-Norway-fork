@@ -27,29 +27,29 @@ jobs:
       - name: Find commit messages with bumps
         id: check-commit-messages
         run: |
-          read -a bumps <<< "$BUMPS"
+          read -r -a bumps <<< "$BUMPS"
           bumps_pattern=$(IFS='|'; echo "${bumps[*]}")
           all_matches=$(git log origin/"$BASE_REF"..origin/"$HEAD_REF" --pretty=format:"%s" | grep -E "#(${bumps_pattern})_" || true)
           {
-          echo "all_matches<<EOF"
-          echo "$all_matches"
-          echo "EOF"
+            echo "all_matches<<EOF"
+            echo "$all_matches"
+            echo "EOF"
           } >> $GITHUB_OUTPUT
 
       - name: Check typo in component names
         id: check-typos
         if: steps.check-commit-messages.outputs.all_matches != ''
         run: |
-          read -a components <<< "$COMPONENTS"
-          read -a bumps <<< "$BUMPS"
+          read -r -a components <<< "$COMPONENTS"
+          read -r -a bumps <<< "$BUMPS"
           bumps_pattern=$(IFS='|'; echo "${bumps[*]}")
           components_pattern=$(IFS='|'; echo "${components[*]}")
           pattern="#(${bumps_pattern})_(${components_pattern})([^a-zA-Z0-9_]|$)"
           wrong_matches=$(echo "${{ steps.check-commit-messages.outputs.all_matches }}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -Ev "$pattern" || true)
           {
-          echo "wrong_matches<<EOF"
-          echo "$wrong_matches"
-          echo "EOF"
+            echo "wrong_matches<<EOF"
+            echo "$wrong_matches"
+            echo "EOF"
           } >> $GITHUB_OUTPUT
 
       - name: Fail if typos found
