@@ -15,6 +15,9 @@ env:
 jobs:
   check-commit-message:
     runs-on: ubuntu-latest
+    env:
+      BASE_REF: ${{ github.event.pull_request.base.ref }}
+      HEAD_REF: ${{ github.head_ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,9 +27,9 @@ jobs:
       - name: Find commit messages with bumps
         id: check-commit-messages
         run: |
-          bumps=($BUMPS)
+          read -a bumps <<< "$BUMPS"
           bumps_pattern=$(IFS='|'; echo "${bumps[*]}")
-          all_matches=$(git log origin/"${{ github.event.pull_request.base.ref }}"..origin/"${{ github.head_ref }}" --pretty=format:"%s" | grep -E "#(${bumps_pattern})_" || true)
+          all_matches=$(git log origin/"$BASE_REF"..origin/"$HEAD_REF" --pretty=format:"%s" | grep -E "#(${bumps_pattern})_" || true)
           {
           echo "all_matches<<EOF"
           echo "$all_matches"
@@ -37,8 +40,8 @@ jobs:
         id: check-typos
         if: steps.check-commit-messages.outputs.all_matches != ''
         run: |
-          components=($COMPONENTS)
-          bumps=($BUMPS)
+          read -a components <<< "$COMPONENTS"
+          read -a bumps <<< "$BUMPS"
           bumps_pattern=$(IFS='|'; echo "${bumps[*]}")
           components_pattern=$(IFS='|'; echo "${components[*]}")
           pattern="#(${bumps_pattern})_(${components_pattern})([^a-zA-Z0-9_]|$)"
