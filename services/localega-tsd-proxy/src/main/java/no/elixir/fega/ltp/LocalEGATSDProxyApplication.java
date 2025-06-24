@@ -49,10 +49,10 @@ import org.springframework.web.client.RestTemplate;
 @EnableWebSecurity
 public class LocalEGATSDProxyApplication {
 
-  @Value("${token.redirect-uri:{baseUrl}/oidc-protected}")
+  @Value("${token.redirect-uri}")
   private String redirectUri;
 
-  @Value("${aai.service-base-url:https://login.elixir-czech.org}")
+  @Value("${aai.service-base-url}")
   private String aaiBase;
 
   public static void main(String[] args) {
