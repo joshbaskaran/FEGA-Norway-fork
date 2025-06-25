@@ -24,8 +24,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
 
+// Fake comment to test changelog generation in PR merges
+
 /**
- * Singleton class to be used for getting visa JWT tokens provided access JWT token and for
+ * Singleton class to be used for getting visa JWT tokens provided access JWT
+ * token and for
  * converting visa JWT tokens to <code>Visa</code> POJOs.
  */
 @Slf4j
@@ -47,11 +50,13 @@ public enum Clearinghouse {
   private final Gson gson = new Gson();
 
   /**
-   * Validates access JWT token and returns a list of Visas obtained from "/userinfo" endpoint.
-   * Access token is validated based on JWKs URL of the OpenID configuration. Visa tokens are
+   * Validates access JWT token and returns a list of Visas obtained from
+   * "/userinfo" endpoint.
+   * Access token is validated based on JWKs URL of the OpenID configuration. Visa
+   * tokens are
    * validated based on JKUs.
    *
-   * @param accessToken Access JWT token.
+   * @param accessToken            Access JWT token.
    * @param openIDConfigurationURL ".well-known/openid-configuration" full URL.
    * @return List of GA4GH Visas.
    */
@@ -64,11 +69,13 @@ public enum Clearinghouse {
   }
 
   /**
-   * Validates access JWT token and returns a list of Visas obtained from "/userinfo" endpoint.
-   * Access token is validated based on PEM RSA public key provided. Visa tokens are validated based
+   * Validates access JWT token and returns a list of Visas obtained from
+   * "/userinfo" endpoint.
+   * Access token is validated based on PEM RSA public key provided. Visa tokens
+   * are validated based
    * on JKUs.
    *
-   * @param accessToken Access JWT token.
+   * @param accessToken  Access JWT token.
    * @param pemPublicKey PEM RSA public key.
    * @return List of GA4GH Visas.
    */
@@ -81,12 +88,14 @@ public enum Clearinghouse {
   }
 
   /**
-   * Validates access JWT token and returns a list of Visas obtained from "/userinfo" endpoint.
-   * Access token is validated based on RSA public key provided. Visa tokens are validated based on
+   * Validates access JWT token and returns a list of Visas obtained from
+   * "/userinfo" endpoint.
+   * Access token is validated based on RSA public key provided. Visa tokens are
+   * validated based on
    * JKUs.
    *
    * @param accessToken Access JWT token.
-   * @param publicKey RSA public key.
+   * @param publicKey   RSA public key.
    * @return List of GA4GH Visas.
    */
   public Collection<Visa> getVisasWithPublicKey(String accessToken, RSAPublicKey publicKey) {
@@ -98,11 +107,13 @@ public enum Clearinghouse {
   }
 
   /**
-   * Validates visa JWT token and converts it to <code>Visa</code> POJO. Token is validated based on
+   * Validates visa JWT token and converts it to <code>Visa</code> POJO. Token is
+   * validated based on
    * JKU.
    *
    * @param visaToken Visa JWT token.
-   * @return Optional <code>Visa</code> POJO: present if token validated successfully.
+   * @return Optional <code>Visa</code> POJO: present if token validated
+   *         successfully.
    */
   public Optional<Visa> getVisa(String visaToken) {
     var jku = getHeaderItemValue(visaToken, JKU);
@@ -117,12 +128,14 @@ public enum Clearinghouse {
   }
 
   /**
-   * Validates visa JWT token and converts it to <code>Visa</code> POJO. Token is validated based on
+   * Validates visa JWT token and converts it to <code>Visa</code> POJO. Token is
+   * validated based on
    * PEM RSA public key provided.
    *
-   * @param visaToken Visa JWT token.
+   * @param visaToken    Visa JWT token.
    * @param pemPublicKey PEM RSA public key.
-   * @return Optional <code>Visa</code> POJO: present if token validated successfully.
+   * @return Optional <code>Visa</code> POJO: present if token validated
+   *         successfully.
    */
   public Optional<Visa> getVisaWithPEMPublicKey(String visaToken, String pemPublicKey) {
     try {
@@ -134,12 +147,14 @@ public enum Clearinghouse {
   }
 
   /**
-   * Validates visa JWT token and converts it to <code>Visa</code> POJO. Token is validated based on
+   * Validates visa JWT token and converts it to <code>Visa</code> POJO. Token is
+   * validated based on
    * RSA public key provided.
    *
    * @param visaToken Visa JWT token.
    * @param publicKey RSA public key.
-   * @return Optional <code>Visa</code> POJO: present if token validated successfully.
+   * @return Optional <code>Visa</code> POJO: present if token validated
+   *         successfully.
    */
   public Optional<Visa> getVisaWithPublicKey(String visaToken, RSAPublicKey publicKey) {
     try {
@@ -168,10 +183,11 @@ public enum Clearinghouse {
   }
 
   /**
-   * Validates access JWT token and returns a list of visa JWT tokens from "/userinfo" endpoint.
+   * Validates access JWT token and returns a list of visa JWT tokens from
+   * "/userinfo" endpoint.
    * Access token is validated based on JWKs URL of the OpenID configuration.
    *
-   * @param accessToken Access JWT token.
+   * @param accessToken            Access JWT token.
    * @param openIDConfigurationURL ".well-known/openid-configuration" full URL.
    * @return List of visa JWT tokens.
    */
@@ -197,10 +213,11 @@ public enum Clearinghouse {
   }
 
   /**
-   * Validates access JWT token and returns a list of visa JWT tokens from "/userinfo" endpoint.
+   * Validates access JWT token and returns a list of visa JWT tokens from
+   * "/userinfo" endpoint.
    * Access token is validated based on PEM RSA public key provided.
    *
-   * @param accessToken Access JWT token.
+   * @param accessToken  Access JWT token.
    * @param pemPublicKey PEM RSA public key.
    * @return List of visa JWT tokens.
    */
@@ -214,11 +231,12 @@ public enum Clearinghouse {
   }
 
   /**
-   * Validates access JWT token and returns a list of visa JWT tokens from "/userinfo" endpoint.
+   * Validates access JWT token and returns a list of visa JWT tokens from
+   * "/userinfo" endpoint.
    * Access token is validated based on RSA public key provided.
    *
    * @param accessToken Access JWT token.
-   * @param publicKey RSA public key.
+   * @param publicKey   RSA public key.
    * @return List of visa JWT tokens.
    */
   public Collection<String> getVisaTokensWithPublicKey(String accessToken, RSAPublicKey publicKey) {
@@ -230,18 +248,16 @@ public enum Clearinghouse {
 
       Jws<Claims> jws = Jwts.parser().verifyWith(pubKey).build().parseSignedClaims(accessToken);
       String userInfoEndpoint = jws.getPayload().getIssuer() + USERINFO;
-      Request request =
-          new Request.Builder()
-              .header(AUTHORIZATION, BEARER + accessToken)
-              .url(userInfoEndpoint)
-              .get()
-              .build();
+      Request request = new Request.Builder()
+          .header(AUTHORIZATION, BEARER + accessToken)
+          .url(userInfoEndpoint)
+          .get()
+          .build();
 
       ResponseBody body = client.newCall(request).execute().body();
       assert body != null;
       String bodyString = body.string();
-      var passport =
-          gson.fromJson(bodyString, JsonObject.class).getAsJsonArray(GA_4_GH_PASSPORT_V_1);
+      var passport = gson.fromJson(bodyString, JsonObject.class).getAsJsonArray(GA_4_GH_PASSPORT_V_1);
 
       return passport.asList().stream().map(x -> x.toString().replaceAll("\"", "")).toList();
 
@@ -259,27 +275,26 @@ public enum Clearinghouse {
   }
 
   /**
-   * Returns a list of visa JWT tokens from "/userinfo" endpoint provided the opaque access token.
+   * Returns a list of visa JWT tokens from "/userinfo" endpoint provided the
+   * opaque access token.
    *
-   * @param accessToken Opaque access token.
+   * @param accessToken      Opaque access token.
    * @param userInfoEndpoint "/userinfo" endpoint URL.
    * @return List of visa JWT tokens.
    */
   public Collection<String> getVisaTokensFromOpaqueToken(
       String accessToken, String userInfoEndpoint) {
-    Request request =
-        new Request.Builder()
-            .header(AUTHORIZATION, BEARER + accessToken)
-            .url(userInfoEndpoint)
-            .get()
-            .build();
+    Request request = new Request.Builder()
+        .header(AUTHORIZATION, BEARER + accessToken)
+        .url(userInfoEndpoint)
+        .get()
+        .build();
 
     try {
       ResponseBody body = client.newCall(request).execute().body();
       assert body != null;
       String bodyString = body.string();
-      var passport =
-          gson.fromJson(bodyString, JsonObject.class).getAsJsonArray(GA_4_GH_PASSPORT_V_1);
+      var passport = gson.fromJson(bodyString, JsonObject.class).getAsJsonArray(GA_4_GH_PASSPORT_V_1);
       return passport.asList().stream().map(x -> x.toString().replaceAll("\"", "")).toList();
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -288,12 +303,11 @@ public enum Clearinghouse {
 
   private RSAPublicKey readPEMKey(String publicKey) throws GeneralSecurityException {
     KeyFactory keyFactory = KeyFactory.getInstance(RSA);
-    publicKey =
-        publicKey
-            .replaceAll(KEY_WRAPPING, "")
-            .replace(System.lineSeparator(), "")
-            .replace(" ", "")
-            .trim();
+    publicKey = publicKey
+        .replaceAll(KEY_WRAPPING, "")
+        .replace(System.lineSeparator(), "")
+        .replace(" ", "")
+        .trim();
     var decodedKey = Base64.getDecoder().decode(publicKey);
     return (RSAPublicKey) keyFactory.generatePublic(new X509EncodedKeySpec(decodedKey));
   }
