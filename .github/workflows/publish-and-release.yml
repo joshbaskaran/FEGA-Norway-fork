@@ -102,4 +102,4 @@ jobs:
           token: "${{ secrets.GITHUB_TOKEN }}"
           tag_name: "${{matrix.component}}-${{ steps.new-tag.outputs.version }}"
           prerelease: false
-          body_path: ${{ env.component_path }}/CHANGELOG.md
+          body_path: ${{ env.changelog_path}}/CHANGELOG.md
