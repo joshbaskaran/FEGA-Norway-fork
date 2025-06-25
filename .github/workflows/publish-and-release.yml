@@ -31,9 +31,9 @@ jobs:
           TAG_PREFIX: ${{matrix.component}}-
           DRY_RUN: true
           DEFAULT_BUMP: patch
-          MAJOR_STRING_TOKEN: '#major_${{ matrix.component }}'
-          MINOR_STRING_TOKEN: '#minor_${{ matrix.component }}'
-          PATCH_STRING_TOKEN: '#patch_${{ matrix.component }}'
+          MAJOR_STRING_TOKEN: "#major_${{ matrix.component }}"
+          MINOR_STRING_TOKEN: "#minor_${{ matrix.component }}"
+          PATCH_STRING_TOKEN: "#patch_${{ matrix.component }}"
       - name: Extract New Version
         id: new-tag
         run: |
@@ -46,8 +46,8 @@ jobs:
         if: ${{ matrix.component == 'clearinghouse' || matrix.component == 'crypt4gh' || matrix.component == 'tsd-file-api-client' }}
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          java-version: "21"
+          distribution: "temurin"
 
       - name: Publish Jar Files
         if: ${{ matrix.component == 'clearinghouse' || matrix.component == 'crypt4gh' || matrix.component == 'tsd-file-api-client' }}
@@ -87,10 +87,9 @@ jobs:
           CLEAN_TITLE="${TITLE//[\"\'\`]/ }"
           echo "pr_title=$CLEAN_TITLE" >> $GITHUB_ENV
 
-
       - name: Generate Fancy Changelog
         run: |
-          ./gradlew :${{ env.component_path }}:generateChangelog \
+          ./gradlew ${{ env.component_path }}:generateChangelog \
             -Pversion=${{ steps.new-tag.outputs.version }} \
             -PprTitle="${{ env.pr_title }}"
 
@@ -118,7 +117,7 @@ jobs:
         if: ${{matrix.component == 'lega-commander'}}
         uses: goreleaser/goreleaser-action@v6
         with:
-          version: '~> v2'
+          version: "~> v2"
           args: release --clean
           workdir: cli/lega-commander
         env:
