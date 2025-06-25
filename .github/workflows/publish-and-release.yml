@@ -78,7 +78,7 @@ jobs:
             [tsd-api-mock]="services/tsd-api-mock"
           )
           path="${component_paths[${{ matrix.component }}]:-.}"
-          echo "component_path=${component_paths[${{ matrix.component }}]}" >> $GITHUB_ENV
+          echo "component_path=$path" >> $GITHUB_ENV
 
       - name: Set PR title
         id: set_pr_title
